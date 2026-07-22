@@ -1,0 +1,422 @@
+'use client'
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
+
+interface Carnet {
+  id: string
+  nom: string
+  adresse: string
+  annee: string
+  surface: string
+  type: string
+  etages: string
+  score: number
+  createdAt: string
+  diagnostics: any[]
+  travaux: any[]
+  documents: any[]
+  artisans: any[]
+  waitlistEmail?: string
+}
+
+interface User {
+  prenom: string
+  nom: string
+  email: string
+}
+
+export default function DashboardPage() {
+  const [carnet, setCarnet] = useState<Carnet | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [activeTab, setActiveTab] = useState('overview')
+  const [waitlistEmail, setWaitlistEmail] = useState('')
+  const [waitlistDone, setWaitlistDone] = useState(false)
+
+  useEffect(() => {
+    const savedCarnet = localStorage.getItem('thermos_carnet')
+    const savedUser = localStorage.getItem('thermos_user')
+    if (savedCarnet) setCarnet(JSON.parse(savedCarnet))
+    if (savedUser) setUser(JSON.parse(savedUser))
+  }, [])
+
+  // Calcul du pourcentage de complétion
+  const getCompletion = () => {
+    if (!carnet) return 0
+    let score = 0
+    if (carnet.nom) score += 15
+    if (carnet.adresse) score += 15
+    if (carnet.annee) score += 10
+    if (carnet.surface) score += 10
+    if (carnet.type) score += 10
+    if (carnet.diagnostics?.length > 0) score += 20
+    if (carnet.travaux?.length > 0) score += 10
+    if (carnet.documents?.length > 0) score += 10
+    return score
+  }
+
+  const handleWaitlist = () => {
+    if (waitlistEmail) {
+      setWaitlistDone(true)
+      const updated = { ...carnet, waitlistEmail }
+      localStorage.setItem('thermos_carnet', JSON.stringify(updated))
+    }
+  }
+
+  if (!carnet) return (
+    <main style={{ backgroundColor: '#0D1117', color: 'white', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '20px' }}>📋</div>
+        <h2 style={{ marginBottom: '16px' }}>Aucun carnet trouvé</h2>
+        <Link href="/diagnostic" style={{ background: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
+          Démarrer un diagnostic
+        </Link>
+      </div>
+    </main>
+  )
+
+  const scoreColor = carnet.score <= 30 ? '#00D4AA' : carnet.score <= 60 ? '#FFA500' : carnet.score <= 80 ? '#FF4444' : '#8B0000'
+  const scoreLabel = carnet.score <= 30 ? 'Excellent' : carnet.score <= 60 ? 'Modéré' : carnet.score <= 80 ? 'Élevé' : 'Critique'
+  const completion = getCompletion()
+
+  const tabs = [
+    { id: 'overview', label: '🏠 Mon logement' },
+    { id: 'score', label: '📊 Score' },
+    { id: 'historique', label: '📅 Historique' },
+    { id: 'travaux', label: '🔧 Travaux' },
+    { id: 'documents', label: '📄 Documents' },
+    { id: 'artisans', label: '👷 Artisans' },
+    { id: 'evolution', label: '📈 Évolution' },
+    { id: 'recommandations', label: '💡 Recommandations' },
+  ]
+
+  return (
+    <main style={{ backgroundColor: '#0D1117', color: 'white', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
+
+      {/* NAV */}
+      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 40px', borderBottom: '1px solid #21262D', background: '#0D1117', position: 'sticky', top: 0, zIndex: 100, flexWrap: 'wrap', gap: '12px' }}>
+        <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '900', color: '#FF6B35', textDecoration: 'none' }}>🌡️ THERMOS</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {user && (
+            <span style={{ color: '#8B949E', fontSize: '0.9rem' }}>
+              Bonjour, <strong style={{ color: 'white' }}>{user.prenom}</strong> 👋
+            </span>
+          )}
+          <Link href="/diagnostic" style={{ background: '#FF6B35', color: 'white', padding: '8px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+            + Nouveau diagnostic
+          </Link>
+        </div>
+      </nav>
+
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px' }}>
+
+        {/* INDICATEUR DE COMPLÉTION */}
+        <div style={{ background: '#161B22', borderRadius: '12px', padding: '20px 24px', marginBottom: '24px', border: '1px solid #21262D', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ fontWeight: '700' }}>📋 Carnet Thermique — Complété à {completion}%</span>
+              <span style={{ color: completion >= 80 ? '#00D4AA' : '#FFA500', fontWeight: '700' }}>{completion}%</span>
+            </div>
+            <div style={{ background: '#21262D', borderRadius: '10px', height: '8px' }}>
+              <div style={{ width: `${completion}%`, background: completion >= 80 ? '#00D4AA' : '#FF6B35', height: '100%', borderRadius: '10px', transition: 'width 0.5s' }}></div>
+            </div>
+            <p style={{ color: '#484F58', fontSize: '0.8rem', marginTop: '6px' }}>
+              {completion < 50 ? 'Ajoutez vos informations pour enrichir votre carnet' : completion < 80 ? 'Bon début ! Continuez à enrichir votre historique' : 'Excellent ! Votre carnet est bien renseigné'}
+            </p>
+          </div>
+        </div>
+
+        {/* HEADER BÂTIMENT */}
+        <div style={{ background: 'linear-gradient(135deg, #161B22, #1A2A4A)', borderRadius: '16px', padding: '32px', marginBottom: '32px', border: '1px solid #21262D', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <div style={{ color: '#484F58', fontSize: '0.85rem', marginBottom: '4px' }}>CARNET DE SANTÉ THERMIQUE</div>
+            <h1 style={{ fontSize: '2rem', fontWeight: '900', margin: '0 0 8px' }}>{carnet.nom || 'Mon logement'}</h1>
+            <div style={{ color: '#8B949E', fontSize: '0.95rem', marginBottom: '12px' }}>📍 {carnet.adresse || 'Adresse non renseignée'}</div>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {carnet.annee && <span style={{ background: '#21262D', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem' }}>📅 {carnet.annee}</span>}
+              {carnet.surface && <span style={{ background: '#21262D', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem' }}>📐 {carnet.surface} m²</span>}
+              {carnet.type && <span style={{ background: '#21262D', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem' }}>🏠 {carnet.type}</span>}
+              {carnet.etages && <span style={{ background: '#21262D', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem' }}>🏗️ {carnet.etages} étage(s)</span>}
+            </div>
+          </div>
+          <div style={{ textAlign: 'center', background: '#0D1117', padding: '24px 32px', borderRadius: '12px', border: `2px solid ${scoreColor}` }}>
+            <div style={{ fontSize: '0.8rem', color: '#484F58', marginBottom: '4px' }}>SANTÉ THERMIQUE</div>
+            <div style={{ fontSize: '3.5rem', fontWeight: '900', color: scoreColor, lineHeight: 1 }}>{carnet.score}</div>
+            <div style={{ fontSize: '0.8rem', color: scoreColor, marginTop: '4px' }}>/100 · {scoreLabel}</div>
+          </div>
+        </div>
+
+        {/* TABS */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
+          {tabs.map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '0.9rem', fontWeight: activeTab === tab.id ? '700' : '400', background: activeTab === tab.id ? '#FF6B35' : '#161B22', color: activeTab === tab.id ? 'white' : '#8B949E' }}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* OVERVIEW */}
+        {activeTab === 'overview' && (
+          <div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+              {[
+                { e: '📊', t: 'Score thermique', v: `${carnet.score}/100 — ${scoreLabel}`, c: scoreColor },
+                { e: '📅', t: 'Carnet créé le', v: new Date(carnet.createdAt).toLocaleDateString('fr-FR'), c: '#8B949E' },
+                { e: '🔧', t: 'Travaux enregistrés', v: `${carnet.travaux?.length || 0} travaux`, c: '#8B949E' },
+                { e: '📄', t: 'Documents', v: `${carnet.documents?.length || 0} document(s)`, c: '#8B949E' },
+              ].map((item, i) => (
+                <div key={i} style={{ background: '#161B22', borderRadius: '12px', padding: '24px', border: '1px solid #21262D' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '12px' }}>{item.e}</div>
+                  <div style={{ color: '#484F58', fontSize: '0.85rem', marginBottom: '4px' }}>{item.t}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '700', color: item.c }}>{item.v}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 4 CARTES */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+              {[
+                { e: '📄', t: 'Documents', d: 'Factures, DPE, garanties, photos, devis', action: () => setActiveTab('documents') },
+                { e: '🔧', t: 'Travaux', d: 'Historique de tous vos chantiers', action: () => setActiveTab('travaux') },
+                { e: '🌡️', t: 'Diagnostics', d: 'Tous vos diagnostics thermiques', action: () => setActiveTab('historique') },
+                { e: '📈', t: 'Évolution', d: 'Suivi de votre score dans le temps', action: () => setActiveTab('evolution') },
+              ].map((card, i) => (
+                <div key={i} onClick={card.action}
+                  style={{ background: '#161B22', borderRadius: '12px', padding: '24px', border: '2px dashed #30363D', cursor: 'pointer', transition: 'border-color 0.2s', textAlign: 'center' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = '#FF6B35')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = '#30363D')}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>{card.e}</div>
+                  <div style={{ fontWeight: '700', marginBottom: '8px' }}>{card.t}</div>
+                  <div style={{ color: '#484F58', fontSize: '0.85rem' }}>{card.d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* SCORE */}
+        {activeTab === 'score' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D', textAlign: 'center' }}>
+              <h3 style={{ marginBottom: '24px', color: '#ccc' }}>Score actuel</h3>
+              <div style={{ fontSize: '5rem', fontWeight: '900', color: scoreColor }}>{carnet.score}</div>
+              <div style={{ color: scoreColor, fontSize: '1.2rem', margin: '8px 0' }}>{scoreLabel}</div>
+              <div style={{ background: '#21262D', borderRadius: '10px', height: '16px', margin: '20px 0' }}>
+                <div style={{ width: `${carnet.score}%`, background: scoreColor, height: '100%', borderRadius: '10px' }}></div>
+              </div>
+              <p style={{ color: '#484F58', fontSize: '0.85rem' }}>0 = optimal · 100 = critique</p>
+            </div>
+            <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D' }}>
+              <h3 style={{ marginBottom: '20px', color: '#ccc' }}>Projections</h3>
+              {[
+                { label: 'Sans travaux (2027)', score: Math.min(100, carnet.score + 5), note: 'Dégradation naturelle' },
+                { label: 'Avec isolation (2027)', score: Math.max(0, carnet.score - 15), note: 'Isolation des combles' },
+                { label: 'Rénovation complète', score: Math.max(0, carnet.score - 30), note: 'Tous travaux réalisés' },
+              ].map((item, i) => (
+                <div key={i} style={{ marginBottom: '16px', padding: '12px', background: '#21262D', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '0.9rem' }}>{item.label}</span>
+                    <span style={{ fontWeight: '700', color: item.score < carnet.score ? '#00D4AA' : '#FF4444' }}>{item.score}/100</span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#484F58' }}>{item.note}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* HISTORIQUE */}
+        {activeTab === 'historique' && (
+          <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D' }}>
+            <h3 style={{ marginBottom: '24px' }}>Historique des diagnostics</h3>
+            <div style={{ borderLeft: '2px solid #21262D', paddingLeft: '24px' }}>
+              <div style={{ position: 'relative', marginBottom: '24px' }}>
+                <div style={{ position: 'absolute', left: '-32px', top: '4px', width: '12px', height: '12px', background: '#FF6B35', borderRadius: '50%' }}></div>
+                <div style={{ color: '#484F58', fontSize: '0.85rem' }}>{new Date(carnet.createdAt).toLocaleDateString('fr-FR')}</div>
+                <div style={{ fontWeight: '700', margin: '4px 0' }}>Premier diagnostic THERMOS</div>
+                <div style={{ color: '#8B949E', fontSize: '0.9rem' }}>Score initial : <span style={{ color: scoreColor, fontWeight: '700' }}>{carnet.score}/100</span></div>
+              </div>
+              <div style={{ color: '#484F58', fontSize: '0.9rem', fontStyle: 'italic' }}>Les prochains diagnostics apparaîtront ici.</div>
+            </div>
+            <Link href="/diagnostic" style={{ display: 'inline-block', marginTop: '24px', background: '#FF6B35', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 'bold' }}>
+              + Nouveau diagnostic
+            </Link>
+          </div>
+        )}
+
+        {/* TRAVAUX */}
+        {activeTab === 'travaux' && (
+          <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D' }}>
+            <h3 style={{ marginBottom: '24px' }}>Travaux réalisés</h3>
+
+            {/* TIMELINE */}
+            <div style={{ marginBottom: '32px' }}>
+              <h4 style={{ color: '#8B949E', marginBottom: '16px', fontSize: '0.9rem' }}>TIMELINE</h4>
+              <div style={{ borderLeft: '2px solid #21262D', paddingLeft: '24px' }}>
+                {[
+                  { label: 'Travaux d\'isolation', date: 'À planifier', done: false },
+                  { label: 'Remplacement des fenêtres', date: 'À planifier', done: false },
+                  { label: 'Nouvelle toiture', date: 'À planifier', done: false },
+                ].map((item, i) => (
+                  <div key={i} style={{ position: 'relative', marginBottom: '20px', opacity: 0.5 }}>
+                    <div style={{ position: 'absolute', left: '-32px', top: '4px', width: '12px', height: '12px', background: '#21262D', borderRadius: '50%', border: '2px solid #30363D' }}></div>
+                    <div style={{ color: '#484F58', fontSize: '0.8rem' }}>📅 {item.date}</div>
+                    <div style={{ fontWeight: '600', margin: '2px 0', color: '#8B949E' }}>{item.label}</div>
+                  </div>
+                ))}
+                <div style={{ color: '#484F58', fontSize: '0.85rem', fontStyle: 'italic' }}>Ajoutez vos travaux pour les voir apparaître ici.</div>
+              </div>
+            </div>
+
+            <button style={{ background: '#FF6B35', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+              + Ajouter des travaux
+            </button>
+          </div>
+        )}
+
+        {/* DOCUMENTS */}
+        {activeTab === 'documents' && (
+          <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D' }}>
+            <h3 style={{ marginBottom: '24px' }}>Documents</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              {[
+                { e: '🧾', t: 'Facture', n: 0 },
+                { e: '📋', t: 'DPE', n: 0 },
+                { e: '🛡️', t: 'Garantie', n: 0 },
+                { e: '📸', t: 'Photos', n: 0 },
+                { e: '📝', t: 'Devis', n: 0 },
+              ].map((doc, i) => (
+                <div key={i} style={{ background: '#21262D', borderRadius: '10px', padding: '20px', textAlign: 'center', border: '2px dashed #30363D', cursor: 'pointer' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = '#FF6B35')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = '#30363D')}>
+                  <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{doc.e}</div>
+                  <div style={{ fontWeight: '700', fontSize: '0.9rem', marginBottom: '4px' }}>{doc.t}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#484F58' }}>{doc.n} fichier</div>
+                  <div style={{ fontSize: '0.75rem', color: '#FF6B35', marginTop: '8px' }}>+ Ajouter</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ARTISANS */}
+        {activeTab === 'artisans' && (
+          <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D' }}>
+            <h3 style={{ marginBottom: '24px' }}>Artisans intervenus</h3>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#484F58' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '16px' }}>👷</div>
+              <p>Aucun artisan enregistré pour le moment.</p>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button style={{ background: '#FF6B35', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                + Ajouter un artisan
+              </button>
+              <a href="mailto:krikordecor@gmail.com?subject=Mise en relation artisan THERMOS"
+                style={{ background: '#21262D', color: 'white', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'none', display: 'inline-block' }}>
+                🤝 Trouver un artisan THERMOS
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* ÉVOLUTION */}
+        {activeTab === 'evolution' && (
+          <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D' }}>
+            <h3 style={{ marginBottom: '8px' }}>📈 Évolution thermique</h3>
+            <p style={{ color: '#8B949E', marginBottom: '32px', fontSize: '0.9rem' }}>Suivez l'évolution du score thermique de votre logement année après année.</p>
+
+            {/* GRAPHIQUE FICTIF */}
+            <div style={{ background: '#0D1117', borderRadius: '12px', padding: '24px', marginBottom: '24px', position: 'relative', height: '200px', display: 'flex', alignItems: 'flex-end', gap: '20px', justifyContent: 'center' }}>
+              {[
+                { year: '2026', score: carnet.score, current: true },
+                { year: '2027', score: Math.max(0, carnet.score - 5), current: false },
+                { year: '2028', score: Math.max(0, carnet.score - 12), current: false },
+                { year: '2029', score: Math.max(0, carnet.score - 20), current: false },
+                { year: '2030', score: Math.max(0, carnet.score - 30), current: false },
+              ].map((item, i) => (
+                <div key={i} style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ fontSize: '0.75rem', color: item.current ? '#FF6B35' : '#484F58', marginBottom: '4px', fontWeight: item.current ? '700' : '400' }}>{item.score}</div>
+                  <div style={{ background: item.current ? scoreColor : '#21262D', height: `${(item.score / 100) * 120}px`, borderRadius: '6px 6px 0 0', opacity: item.current ? 1 : 0.4, transition: 'height 0.5s' }}></div>
+                  <div style={{ fontSize: '0.75rem', color: item.current ? '#FF6B35' : '#484F58', marginTop: '6px', fontWeight: item.current ? '700' : '400' }}>{item.year}</div>
+                </div>
+              ))}
+              <div style={{ position: 'absolute', top: '10px', right: '10px', fontSize: '0.75rem', color: '#484F58', fontStyle: 'italic' }}>Projections indicatives</div>
+            </div>
+
+            <p style={{ color: '#484F58', fontSize: '0.85rem' }}>
+              * Les projections sont calculées sur la base de votre diagnostic actuel. Réalisez des travaux pour améliorer votre score.
+            </p>
+          </div>
+        )}
+
+        {/* RECOMMANDATIONS */}
+        {activeTab === 'recommandations' && (
+          <div style={{ display: 'grid', gap: '16px' }}>
+            <div style={{ background: '#161B22', borderRadius: '16px', padding: '32px', border: '1px solid #21262D' }}>
+              <h3 style={{ marginBottom: '24px', color: '#FF6B35' }}>💡 Prochaines recommandations</h3>
+              {[
+                { priority: 'URGENT', color: '#FF4444', action: 'Réaliser un audit thermique complet', impact: 'Score estimé après : -15 points', icon: '🔥' },
+                { priority: '2 ANS', color: '#FFA500', action: 'Améliorer l\'isolation des combles', impact: 'Score estimé après : -10 points', icon: '🏠' },
+                { priority: '5 ANS', color: '#00D4AA', action: 'Installer des protections solaires', impact: 'Score estimé après : -5 points', icon: '☀️' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', gap: '16px', padding: '16px', background: '#21262D', borderRadius: '10px', marginBottom: '12px', borderLeft: `4px solid ${item.color}` }}>
+                  <div style={{ fontSize: '1.5rem' }}>{item.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ background: item.color, color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '700' }}>{item.priority}</span>
+                    </div>
+                    <div style={{ fontWeight: '700', marginBottom: '4px' }}>{item.action}</div>
+                    <div style={{ color: '#00D4AA', fontSize: '0.85rem' }}>{item.impact}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* MISE EN RELATION */}
+            <div style={{ background: 'linear-gradient(135deg, #1A1A2E, #16213E)', borderRadius: '16px', padding: '32px', border: '1px solid #21262D', textAlign: 'center' }}>
+              <h3 style={{ marginBottom: '16px' }}>Besoin d'un artisan qualifié ?</h3>
+              <p style={{ color: '#8B949E', marginBottom: '24px' }}>Notre réseau d'artisans certifiés THERMOS peut vous accompagner.</p>
+              <a href="mailto:krikordecor@gmail.com?subject=Mise en relation artisan THERMOS Dashboard"
+                style={{ display: 'inline-block', background: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>
+                🤝 Être mis en relation
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* LISTE D'ATTENTE */}
+        <div style={{ background: 'linear-gradient(135deg, #1A1A2E, #16213E)', borderRadius: '16px', padding: '40px', border: '1px solid #21262D', textAlign: 'center', marginTop: '40px' }}>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '12px' }}>
+            🚀 Les prochaines fonctionnalités arrivent
+          </h3>
+          <p style={{ color: '#8B949E', marginBottom: '8px' }}>
+            IA de recommandations · Notifications intelligentes · Comparaison avant/après · Passeport thermique
+          </p>
+          <p style={{ color: '#00D4AA', fontWeight: '600', marginBottom: '24px' }}>
+            Rejoignez les premiers propriétaires qui construisent la mémoire thermique de leur logement.
+          </p>
+          {waitlistDone ? (
+            <div style={{ background: '#00D4AA20', border: '1px solid #00D4AA', borderRadius: '10px', padding: '16px', color: '#00D4AA', fontWeight: '700' }}>
+              ✅ Vous êtes sur la liste ! Nous vous contacterons en priorité.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <input
+                type="email"
+                placeholder="Votre email"
+                value={waitlistEmail}
+                onChange={e => setWaitlistEmail(e.target.value)}
+                style={{ padding: '14px 20px', borderRadius: '8px', border: '1px solid #30363D', background: '#21262D', color: 'white', fontSize: '1rem', minWidth: '280px' }}
+              />
+              <button onClick={handleWaitlist}
+                style={{ background: '#FF6B35', color: 'white', border: 'none', padding: '14px 28px', borderRadius: '8px', fontSize: '1rem', fontWeight: '900', cursor: 'pointer' }}>
+                Je rejoins THERMOS →
+              </button>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </main>
+  )
+}
