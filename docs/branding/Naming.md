@@ -1,6 +1,6 @@
 # Naming
 
-Le nom actuel est THERMOS.
+Le nom actuel est HERIT_TEST.
 
 Il a permis de lancer le projet.
 

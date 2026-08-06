@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
       {/* NAV */}
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 40px', borderBottom: '1px solid #21262D', background: '#0D1117', position: 'sticky', top: 0, zIndex: 100, flexWrap: 'wrap', gap: '12px' }}>
-        <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '900', color: '#FF6B35', textDecoration: 'none' }}>🌡️ THERMOS</Link>
+        <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '900', color: '#FF6B35', textDecoration: 'none' }}>🌡️ HERIT_TEST</Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {user && (
             <span style={{ color: '#8B949E', fontSize: '0.9rem' }}>
@@ -233,7 +233,7 @@ export default function DashboardPage() {
               <div style={{ position: 'relative', marginBottom: '24px' }}>
                 <div style={{ position: 'absolute', left: '-32px', top: '4px', width: '12px', height: '12px', background: '#FF6B35', borderRadius: '50%' }}></div>
                 <div style={{ color: '#484F58', fontSize: '0.85rem' }}>{new Date(carnet.createdAt).toLocaleDateString('fr-FR')}</div>
-                <div style={{ fontWeight: '700', margin: '4px 0' }}>Premier diagnostic THERMOS</div>
+                <div style={{ fontWeight: '700', margin: '4px 0' }}>Premier diagnostic HERIT_TEST</div>
                 <div style={{ color: '#8B949E', fontSize: '0.9rem' }}>Score initial : <span style={{ color: scoreColor, fontWeight: '700' }}>{carnet.score}/100</span></div>
               </div>
               <div style={{ color: '#484F58', fontSize: '0.9rem', fontStyle: 'italic' }}>Les prochains diagnostics apparaîtront ici.</div>
@@ -311,9 +311,9 @@ export default function DashboardPage() {
               <button style={{ background: '#FF6B35', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
                 + Ajouter un artisan
               </button>
-              <a href="mailto:krikordecor@gmail.com?subject=Mise en relation artisan THERMOS"
+              <a href="mailto:krikordecor@gmail.com?subject=Mise en relation artisan HERIT_TEST"
                 style={{ background: '#21262D', color: 'white', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'none', display: 'inline-block' }}>
-                🤝 Trouver un artisan THERMOS
+                🤝 Trouver un artisan HERIT_TEST
               </a>
             </div>
           </div>
@@ -375,8 +375,8 @@ export default function DashboardPage() {
             {/* MISE EN RELATION */}
             <div style={{ background: 'linear-gradient(135deg, #1A1A2E, #16213E)', borderRadius: '16px', padding: '32px', border: '1px solid #21262D', textAlign: 'center' }}>
               <h3 style={{ marginBottom: '16px' }}>Besoin d'un artisan qualifié ?</h3>
-              <p style={{ color: '#8B949E', marginBottom: '24px' }}>Notre réseau d'artisans certifiés THERMOS peut vous accompagner.</p>
-              <a href="mailto:krikordecor@gmail.com?subject=Mise en relation artisan THERMOS Dashboard"
+              <p style={{ color: '#8B949E', marginBottom: '24px' }}>Notre réseau d'artisans certifiés HERIT_TEST peut vous accompagner.</p>
+              <a href="mailto:krikordecor@gmail.com?subject=Mise en relation artisan HERIT_TEST Dashboard"
                 style={{ display: 'inline-block', background: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>
                 🤝 Être mis en relation
               </a>
@@ -410,7 +410,7 @@ export default function DashboardPage() {
               />
               <button onClick={handleWaitlist}
                 style={{ background: '#FF6B35', color: 'white', border: 'none', padding: '14px 28px', borderRadius: '8px', fontSize: '1rem', fontWeight: '900', cursor: 'pointer' }}>
-                Je rejoins THERMOS →
+                Je rejoins HERIT_TEST →
               </button>
             </div>
           )}

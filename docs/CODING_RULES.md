@@ -1,4 +1,4 @@
-# THERMOS Coding Rules
+# HERIT_TEST Coding Rules
 
 ## Architecture
 

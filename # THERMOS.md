@@ -1,4 +1,4 @@
-# THERMOS
+# HERIT_TEST
 
 > Donner à chaque bâtiment une mémoire thermique pour aider chaque génération à le transmettre dans un meilleur état.
 
@@ -8,7 +8,7 @@
 
 **Version :** 0.1
 
-**Nom du projet :** THERMOS
+**Nom du projet :** HERIT_TEST
 
 **Date de lancement de la vision :** 4 juillet 2026
 
