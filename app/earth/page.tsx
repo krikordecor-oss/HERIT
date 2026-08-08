@@ -1,47 +1,90 @@
+﻿'use client'
+
+import dynamic from 'next/dynamic'
+
+const EarthGlobe = dynamic(
+  () => import('../components/EarthGlobe'),
+  { ssr: false }
+)
+
 export default function Earth() {
   return (
     <main
       style={{
-        width: "100vw",
-        height: "100vh",
-        background: "#050816",
-        color: "white",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: "Arial"
+        position: 'fixed',
+        inset: 0,
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        background: '#000',
       }}
     >
-      <h1
-        style={{
-          fontSize: "4rem",
-          marginBottom: "20px"
-        }}
-      >
-        🌍 HERIT EARTH
-      </h1>
+      <style jsx global>{`
+        html,
+        body {
+          margin: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
 
-      <p
-        style={{
-          fontSize: "1.5rem",
-          opacity: 0.8
-        }}
-      >
-        Understanding the Physical World
-      </p>
+        .cesium-viewer,
+        .cesium-viewer-cesiumWidgetContainer,
+        .cesium-widget,
+        .cesium-widget canvas {
+          width: 100% !important;
+          height: 100% !important;
+        }
+
+        .cesium-widget canvas {
+          display: block;
+        }
+      `}</style>
 
       <div
         style={{
-          width: 700,
-          height: 700,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle at 30% 30%, #4FC3F7, #0D47A1, #001220)",
-          marginTop: 50,
-          boxShadow: "0 0 80px #2196f3"
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
         }}
-      />
+      >
+        <EarthGlobe />
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          top: 24,
+          left: 32,
+          zIndex: 10,
+          color: 'white',
+          fontFamily: 'Arial, sans-serif',
+          pointerEvents: 'none',
+          textShadow: '0 2px 10px rgba(0,0,0,.8)',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 22,
+            fontWeight: 600,
+            letterSpacing: 2,
+          }}
+        >
+          HERIT EARTH
+        </div>
+
+        <div
+          style={{
+            marginTop: 5,
+            fontSize: 11,
+            opacity: 0.7,
+            letterSpacing: 1,
+          }}
+        >
+          UNDERSTANDING THE PHYSICAL WORLD
+        </div>
+      </div>
     </main>
-  );
+  )
 }
