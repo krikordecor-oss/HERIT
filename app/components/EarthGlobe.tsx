@@ -33,21 +33,19 @@ export default function EarthGlobe() {
   }, [])
 
   return (
-    <div className="absolute inset-0">
-      <Viewer
-        full
-        baseLayer={baseLayer}
-        animation={false}
-        timeline={false}
-        baseLayerPicker={false}
-        geocoder={false}
-        homeButton={false}
-        sceneModePicker={false}
-        navigationHelpButton={false}
-        fullscreenButton={false}
-        infoBox={false}
-        selectionIndicator={false}
-      />
-    </div>
+    <Viewer
+      full
+      baseLayer={baseLayer}
+      animation={false}
+      timeline={false}
+      geocoder={false}
+      homeButton={false}
+      sceneModePicker={false}
+      navigationHelpButton={false}
+      fullscreenButton={false}
+      baseLayerPicker={false}
+      infoBox={false}
+      selectionIndicator={false}
+    />
   )
 }
