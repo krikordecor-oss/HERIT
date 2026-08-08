@@ -1,51 +1,32 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
 import { Viewer } from 'resium'
 import {
-  ImageryLayer,
+  Ion,
+  createWorldTerrainAsync,
   OpenStreetMapImageryProvider,
 } from 'cesium'
 
-;(window as any).CESIUM_BASE_URL = '/cesium/'
+import 'cesium/Build/Cesium/Widgets/widgets.css'
+
+Ion.defaultAccessToken = ''
 
 export default function EarthGlobe() {
-  const baseLayer = useMemo(
-    () =>
-      new ImageryLayer(
-        new OpenStreetMapImageryProvider({
-          url: 'https://tile.openstreetmap.org/',
-        })
-      ),
-    []
-  )
-
-  useEffect(() => {
-    const cssId = 'cesium-widgets-css'
-
-    if (!document.getElementById(cssId)) {
-      const link = document.createElement('link')
-      link.id = cssId
-      link.rel = 'stylesheet'
-      link.href = '/cesium/Widgets/widgets.css'
-      document.head.appendChild(link)
-    }
-  }, [])
-
   return (
     <Viewer
       full
-      baseLayer={baseLayer}
+      baseLayer={new OpenStreetMapImageryProvider({
+        url: 'https://tile.openstreetmap.org/',
+      })}
+      terrain={createWorldTerrainAsync()}
       animation={false}
       timeline={false}
       geocoder={false}
-      homeButton={false}
+      homeButton={true}
       sceneModePicker={false}
       navigationHelpButton={false}
-      fullscreenButton={false}
       baseLayerPicker={false}
-      infoBox={false}
-      selectionIndicator={false}
+      fullscreenButton={false}
     />
   )
 }
