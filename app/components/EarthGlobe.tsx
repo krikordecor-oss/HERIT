@@ -3,13 +3,11 @@
 import { useEffect, useMemo } from 'react'
 import { Viewer } from 'resium'
 import {
-  buildModuleUrl,
   ImageryLayer,
   OpenStreetMapImageryProvider,
 } from 'cesium'
 
-// Important : défini avant la création du Viewer.
-buildModuleUrl.setBaseUrl('/cesium/')
+;(window as any).CESIUM_BASE_URL = '/cesium/'
 
 export default function EarthGlobe() {
   const baseLayer = useMemo(
