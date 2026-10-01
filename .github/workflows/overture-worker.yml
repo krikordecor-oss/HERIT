@@ -2,6 +2,11 @@ name: HERIT Overture zone worker
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/overture_worker.py'
+      - '.github/workflows/overture-worker.yml'
   schedule:
     - cron: "*/15 * * * *"
 
