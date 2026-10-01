@@ -206,6 +206,10 @@ function paintConfidence(score){
   b.textContent=`${score}%`;
   b.className='confidence '+(score>=82?'good':score>=65?'medium':'low');
 }
+function setDetectedCardState(active){
+  const card=document.querySelector('.targetCard');
+  if(card)card.classList.toggle('detectedCompact',!!active);
+}
 function updateTarget(){
   if(!state.position||state.heading==null)return;
   const hit=selectTarget({origin:state.position,heading:state.heading,features:state.features,maxDistance:180,fallbackConeDeg:9,pointConeDeg:7});
@@ -227,12 +231,15 @@ function updateTarget(){
   }
 
   if(!hit){
+    setDetectedCardState(false);
     $('targetName').textContent='Aucun bâtiment';
     { const s=sourceFactEl(); if(s)s.textContent='—'; }
     $('targetMeta').textContent=state.features.length?'Vise une façade au centre de l’écran.':'Chargement des bâtiments autour de toi…';
     $('distanceFact').textContent='—';
     $('openBuildingBtn').classList.add('hidden');
   }else{
+    setDetectedCardState(true);
+    $('scannerHint')?.classList.add('hidden');
     const p=hit.feature.properties||{};
     $('targetName').textContent=labelFor(hit.feature);
     { const s=sourceFactEl(); if(s)s.textContent=p.rnb_id?'RNB':(p.source||'GLOBAL'); }
