@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=0.8" />
+  <link rel="stylesheet" href="styles.css?v=0.9" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -149,7 +149,11 @@
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
         </div>
         <div id="modeModules" class="modeModules"></div>
-        <div class="sheetActions"><button id="saveBuildingBtn" class="sheetPrimary">Enregistrer ce bâtiment</button><a href="pricing.html" class="sheetPro">Passer à HERIT Pro</a></div>
+        <div class="sheetActions">
+          <button id="saveBuildingBtn" class="sheetPrimary">Enregistrer ce bâtiment</button>
+          <button id="addObservationBtn" class="sheetObserve">Ajouter une observation</button>
+          <a href="pricing.html" class="sheetPro">Passer à HERIT Pro</a>
+        </div>
         <div class="sheetSource">
           <span>Source actuelle</span>
           <strong>Référentiel National des Bâtiments</strong>
@@ -174,6 +178,31 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=0.8"></script>
+  <section id="observationSheet" class="modeSheet hidden" aria-hidden="true">
+    <button class="sheetBackdrop" id="observationBackdrop" aria-label="Fermer"></button>
+    <div class="modePanel">
+      <div class="sheetHandle"></div>
+      <div class="sheetHead">
+        <div><div class="eyebrow">OBSERVATION TERRAIN</div><h2>Ajouter une information</h2></div>
+        <button id="closeObservation" class="sheetClose" aria-label="Fermer">×</button>
+      </div>
+      <p class="modeIntro">HERIT conserve la provenance. Une observation utilisateur n’est jamais affichée comme une donnée officielle sans vérification.</p>
+      <div class="observationTarget"><small>BÂTIMENT</small><strong id="observationBuilding">—</strong></div>
+      <label class="fieldLabel" for="observationText">Observation</label>
+      <textarea id="observationText" class="observationText" rows="6" placeholder="Ex. : toiture refaite récemment, fenêtres double vitrage, fissure visible sur la façade…"></textarea>
+      <div class="observationButtons">
+        <button id="voiceObservationBtn" class="voiceButton">🎙️ Dicter</button>
+        <button id="saveObservationBtn" class="saveObservation">Enregistrer l’observation</button>
+      </div>
+      <div id="voiceStatus" class="voiceStatus">La dictée vocale utilise les capacités disponibles sur l’appareil. Si elle n’est pas prise en charge, saisissez le texte.</div>
+      <div class="provenanceBox">
+        <div><span>Statut initial</span><strong>Déclarée</strong></div>
+        <div><span>Confiance</span><strong>À vérifier</strong></div>
+        <div><span>Preuve</span><strong>Aucune</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="app.js?v=0.9"></script>
 </body>
 </html>
