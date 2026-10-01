@@ -12,7 +12,7 @@ async function load(){
   const r=await cloudCoverageMatrix();
   const a=r.adapters||[];
   document.getElementById('status').innerHTML='<strong>'+a.length+' adaptateur(s)</strong> configuré(s). Les statuts reflètent la couverture technique actuelle, pas une promesse marketing.';
-  document.getElementById('coverage').innerHTML=a.map(x=>'<article class="activityCard"><div><strong>'+esc(x.display_name)+'</strong><span>'+esc(x.status)+' · '+x.sources_active+'/'+x.sources_total+' source(s) actives</span><span>Identité '+pct(x.coverage_identity)+' · Transactions '+pct(x.coverage_transactions)+' · Énergie '+pct(x.coverage_energy)+' · Urbanisme '+pct(x.coverage_planning)+' · Risques '+pct(x.coverage_risk)+'</span></div><div class="activityMeta">'+esc(x.country_code)+'</div></article>').join('');
+  document.getElementById('coverage').innerHTML=a.map(x=>'<article class="activityCard"><div><strong>'+esc(x.display_name)+'</strong><span>'+esc(x.status)+' · conformité '+esc(x.compliance_status||'—')+' · '+x.sources_active+'/'+x.sources_total+' source(s) actives</span><span>Identité '+pct(x.coverage_identity)+' · Transactions '+pct(x.coverage_transactions)+' · Énergie '+pct(x.coverage_energy)+' · Urbanisme '+pct(x.coverage_planning)+' · Risques '+pct(x.coverage_risk)+'</span>'+(x.public_status_message?'<span>'+esc(x.public_status_message)+'</span>':'')+'</div><div class="activityMeta">'+esc(x.country_code)+'</div></article>').join('');
  }catch(e){document.getElementById('status').textContent='Matrice temporairement indisponible.';}
 }
 load();
