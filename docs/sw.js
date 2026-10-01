@@ -1,5 +1,5 @@
-const CACHE='herit-lens-shell-v08';
-const ASSETS=['./','./index.html','./styles.css?v=0.8','./app.js?v=0.8','./targeting.js','./buildings.js','./manifest.webmanifest','./icon.svg','./about.html','./sources.html','./privacy.html','./legal.html','./terms.html','./pricing.html','./dashboard.html','./info.css?v=0.8'];
+const CACHE='herit-lens-shell-v09';
+const ASSETS=['./','./index.html','./styles.css?v=0.9','./app.js?v=0.9','./targeting.js','./buildings.js','./manifest.webmanifest','./icon.svg','./about.html','./sources.html','./privacy.html','./legal.html','./terms.html','./pricing.html','./dashboard.html','./info.css?v=0.9'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
