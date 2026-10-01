@@ -604,6 +604,15 @@ async function initCloudAuth(){
 $('accountBtn')?.addEventListener('click',openAuthSheet);
 $('closeAuth')?.addEventListener('click',closeAuthSheet);
 $('authBackdrop')?.addEventListener('click',closeAuthSheet);
+$('togglePasswordBtn')?.addEventListener('click',()=>{
+  const input=$('authPassword'),btn=$('togglePasswordBtn');
+  if(!input||!btn)return;
+  const show=input.type==='password';
+  input.type=show?'text':'password';
+  btn.setAttribute('aria-pressed',show?'true':'false');
+  btn.setAttribute('aria-label',show?'Masquer le mot de passe':'Afficher le mot de passe');
+  btn.textContent=show?'🙈':'👁';
+});
 $('signInBtn')?.addEventListener('click',async()=>{
   const email=$('authEmail').value.trim(),password=$('authPassword').value;
   $('authStatus').textContent='Connexion…';
