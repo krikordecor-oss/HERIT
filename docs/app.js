@@ -206,9 +206,18 @@ function paintConfidence(score){
   b.textContent=`${score}%`;
   b.className='confidence '+(score>=82?'good':score>=65?'medium':'low');
 }
+let scannerCardExpanded=false;
 function setDetectedCardState(active){
   const card=document.querySelector('.targetCard');
-  if(card)card.classList.toggle('detectedCompact',!!active);
+  if(!card)return;
+  card.classList.toggle('detectedCompact',!!active);
+  card.classList.toggle('detectedExpanded',!!active&&scannerCardExpanded);
+  const toggle=$('compactToggleBtn');
+  if(toggle){
+    toggle.classList.toggle('hidden',!active);
+    toggle.textContent=scannerCardExpanded?'⌄':'⌃';
+    toggle.setAttribute('aria-expanded',scannerCardExpanded?'true':'false');
+  }
 }
 function updateTarget(){
   if(!state.position||state.heading==null)return;
@@ -246,7 +255,7 @@ function updateTarget(){
     const sm=stabilizationMetrics(hit);
     const acc=Number(state.position?.accuracy||99);
     let statusLabel='Cible probable';
-    if(sm.stable && state.currentConfidence>=82 && acc<=10)statusLabel='Bâtiment identifié';
+    if(sm.stable && state.currentConfidence>=90 && acc<=5)statusLabel='Bâtiment identifié';
     else if(state.currentConfidence>=68)statusLabel='Bâtiment probable';
     $('targetMeta').textContent=statusLabel+' · '+(p.rnb_id?`RNB ${p.rnb_id}`:(p.gers_id||'source globale'));
     $('distanceFact').textContent=`${Math.round(hit.distance)} m`;
@@ -1046,4 +1055,9 @@ $('onboardingContinue')?.addEventListener('click',()=>{
 $('onboardingSkip')?.addEventListener('click',()=>{
   setMode('Immobilier');
   closeWelcomeOnboarding();
+});
+
+$('compactToggleBtn')?.addEventListener('click',()=>{
+  scannerCardExpanded=!scannerCardExpanded;
+  setDetectedCardState(!!state.currentHit);
 });
