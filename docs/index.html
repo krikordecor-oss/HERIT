@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=1.4" />
+  <link rel="stylesheet" href="styles.css?v=1.5" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -154,7 +154,14 @@
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
           <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
         </div>
-        <div id="opportunityCard" class="moduleCard">
+        <div id="buildingFactsCard" class="moduleCard">
+  <div>
+    <strong>Données bâtiment</strong>
+    <span id="buildingFactsText">Connectez-vous pour enrichir ce bâtiment.</span>
+  </div>
+  <span id="buildingFactsBadge" class="moduleTag pro">DATA</span>
+</div>
+<div id="opportunityCard" class="moduleCard">
   <div><strong>Opportunity Score</strong><span id="opportunityText">Connectez-vous pour calculer le potentiel de ce bâtiment.</span></div>
   <span id="opportunityScore" class="moduleTag pro">—</span>
 </div>
@@ -167,8 +174,8 @@
         </div>
         <div class="sheetSource">
           <span>Source actuelle</span>
-          <strong>Référentiel National des Bâtiments</strong>
-          <p>Les données DPE, DVF, fibre, cadastre et risques seront ajoutées uniquement après validation du ciblage terrain.</p>
+          <strong>RNB · BAN · BDNB · SITADEL</strong>
+          <p>HERIT conserve la provenance de chaque donnée. Les données absentes ou insuffisantes ne sont pas inventées.</p>
         </div>
       </div>
     </section>
@@ -267,6 +274,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=1.4"></script>
+  <script type="module" src="app.js?v=1.5"></script>
 </body>
 </html>
