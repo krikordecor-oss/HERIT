@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudBuildingContext, cloudConstructionHistory } from './cloud.js?v=1.7';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory } from './cloud.js?v=1.8';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -724,11 +724,14 @@ async function refreshBuildingFacts(){
   if(!state.currentCloudBuildingId){textEl.textContent='Synchronisation du bâtiment…';badge.textContent='…';return;}
   textEl.textContent='Interrogation des sources bâtimentaires…';badge.textContent='…';
   try{
-    const r=await cloudEnrichBuilding(state.currentCloudBuildingId);
+    const country=String(state.geoContext?.country_code||'').toUpperCase();
+    const r=country==='FR'
+      ? await cloudEnrichBuilding(state.currentCloudBuildingId)
+      : await cloudGlobalEnrich(state.currentCloudBuildingId);
     if(r.state!=='enriched'){
       badge.textContent='—';
-      textEl.textContent=r.state==='unsupported_country'
-        ? 'Enrichissement France disponible ; sources internationales à venir.'
+      textEl.textContent=r.state==='adapter_not_active'
+        ? 'Connecteur pays en préparation.'
         : 'Aucune donnée complémentaire fiable trouvée pour ce bâtiment.';
       return;
     }
@@ -737,8 +740,10 @@ async function refreshBuildingFacts(){
     if(f.construction_year)parts.push('Constr. '+f.construction_year);
     if(f.dwelling_count!=null)parts.push(f.dwelling_count+' log.');
     if(f.footprint_surface_m2!=null)parts.push(Math.round(Number(f.footprint_surface_m2))+' m² emprise');
-    badge.textContent='BDNB';
-    textEl.textContent=(parts.length?parts.join(' · '):'Données BDNB trouvées')+' · source CSTB';
+    if(r.country==='GB')parts.push((r.planning_entities||0)+' contrainte(s) urbanisme');
+    if(r.country==='NL'&&Array.isArray(r.facts))parts.push('BAG enrichi');
+    badge.textContent=r.source==='nl-bag'?'BAG':r.source==='gb-planning'?'UK':'BDNB';
+    textEl.textContent=(parts.length?parts.join(' · '):'Données officielles trouvées')+' · '+(r.source||r.source_name||'HERIT');
   }catch(e){
     badge.textContent='—';textEl.textContent='Enrichissement temporairement indisponible.';
     console.warn('HERIT enrichment',e);
