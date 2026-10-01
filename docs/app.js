@@ -380,19 +380,11 @@ function finishFirstRun(){
 }
 function maybeFirstRun(){
   if(localStorage.getItem(FIRST_RUN))return;
-  openModeSheet();
-  $('modeSheet')?.classList.add('firstRunActive');
-  $('modeOnboardingActions')?.classList.remove('hidden');
-  if($('modeEyebrow'))$('modeEyebrow').textContent='BIENVENUE DANS HERIT';
-  if($('modeTitle'))$('modeTitle').textContent='Adaptons HERIT à votre activité.';
-  const btn=$('confirmModeBtn');
-  if(btn)btn.textContent='Continuer avec '+getMode();
+  const sheet=$('welcomeOnboarding');
+  if(!sheet)return;
+  sheet.classList.remove('hidden');
+  sheet.setAttribute('aria-hidden','false');
 }
-$('confirmModeBtn')?.addEventListener('click',finishFirstRun);
-$('skipModeBtn')?.addEventListener('click',()=>{
-  setMode('Immobilier');
-  finishFirstRun();
-});
 setTimeout(maybeFirstRun,300);
 
 
@@ -935,3 +927,26 @@ async function refreshBuildingBrief(){
     console.warn('HERIT building brief',e);
   }
 }
+
+let pendingOnboardingMode='Immobilier';
+document.querySelectorAll('[data-onboard-mode]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    pendingOnboardingMode=btn.dataset.onboardMode||'Immobilier';
+    document.querySelectorAll('[data-onboard-mode]').forEach(x=>x.classList.toggle('active',x===btn));
+    const c=$('onboardingContinue');
+    if(c)c.textContent='Continuer avec '+pendingOnboardingMode;
+  });
+});
+function closeWelcomeOnboarding(){
+  const sheet=$('welcomeOnboarding');
+  if(sheet){sheet.classList.add('hidden');sheet.setAttribute('aria-hidden','true');}
+  localStorage.setItem(FIRST_RUN,'1');
+}
+$('onboardingContinue')?.addEventListener('click',()=>{
+  setMode(pendingOnboardingMode);
+  closeWelcomeOnboarding();
+});
+$('onboardingSkip')?.addEventListener('click',()=>{
+  setMode('Immobilier');
+  closeWelcomeOnboarding();
+});
