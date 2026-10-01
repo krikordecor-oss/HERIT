@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange } from './cloud.js?v=1.2';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary } from './cloud.js?v=1.2';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -536,6 +536,7 @@ setSpeechLocale(currentSpeechLocale());
 let cloudSession=null;
 let lastCloudScanKey=null;
 state.currentCloudScanId=null;
+state.currentCloudBuildingId=null;
 
 function openAuthSheet(){
   closeMenu();
@@ -615,6 +616,7 @@ async function syncCurrentScan(){
   try{
     const result=await cloudIngestScan(payload);
     state.currentCloudScanId=result.scan_id||null;
+    state.currentCloudBuildingId=result.building_id||null;
     lastCloudScanKey=key;
   }catch(e){console.warn('HERIT cloud scan sync',e);}
 }
@@ -643,3 +645,20 @@ $('saveObservationBtn')?.addEventListener('click',()=>{
   },0);
 });
 initCloudAuth();
+
+
+async function syncCloudSavedState(saved){
+  if(!cloudSession?.user||!state.currentCloudBuildingId)return;
+  try{await cloudLibrary(saved?'save':'unsave',{building_id:state.currentCloudBuildingId});}
+  catch(e){console.warn('HERIT cloud library sync',e);}
+}
+const saveBtnCloud=$('saveBuildingBtn');
+if(saveBtnCloud){
+  saveBtnCloud.addEventListener('click',()=>{
+    setTimeout(async()=>{
+      const item=buildingSnapshot(); if(!item)return;
+      await syncCurrentScan();
+      await syncCloudSavedState(isSaved(item.id));
+    },0);
+  });
+}
