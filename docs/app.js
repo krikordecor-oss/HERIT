@@ -152,12 +152,14 @@ function updateTarget(){
 
   if(!hit){
     $('targetName').textContent='Aucun bâtiment';
+    $('sourceFact').textContent='—';
     $('targetMeta').textContent=state.features.length?'Vise une façade au centre de l’écran.':'Chargement des bâtiments autour de toi…';
     $('distanceFact').textContent='—';
     $('openBuildingBtn').classList.add('hidden');
   }else{
     const p=hit.feature.properties||{};
     $('targetName').textContent=labelFor(hit.feature);
+    $('sourceFact').textContent=p.rnb_id?'RNB':(p.source||'GLOBAL');
     $('targetMeta').textContent=p.rnb_id?`RNB ${p.rnb_id}`:'Bâtiment identifié par le RNB';
     $('distanceFact').textContent=`${Math.round(hit.distance)} m`;
     $('openBuildingBtn').classList.remove('hidden');
@@ -168,11 +170,15 @@ $('enterBtn').addEventListener('click',()=>{$('welcome').classList.add('hidden')
 $('startBtn').addEventListener('click',async()=>{
   try{
     $('startBtn').disabled=true;$('startBtn').textContent='Initialisation…';
+    $('scannerHint')?.classList.add('hidden');
+    $('sourceFact').textContent='—';
     await Promise.all([startCamera(),requestOrientation()]);
     startGPS();
     $('sensorStatus').textContent='GPS en cours…';
     $('startBtn').classList.add('hidden');
+    $('reloadBtn')?.classList.remove('disabledControl');
   }catch(e){
+    $('scannerHint')?.classList.remove('hidden');
     $('sensorStatus').textContent='Erreur';$('targetMeta').textContent=e.message||String(e);
     $('startBtn').disabled=false;$('startBtn').textContent='Réessayer';
   }
