@@ -1,3 +1,4 @@
+import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
 
@@ -419,3 +420,72 @@ $('closeObservation')?.addEventListener('click',closeObservation);
 $('observationBackdrop')?.addEventListener('click',closeObservation);
 $('saveObservationBtn')?.addEventListener('click',saveObservation);
 $('voiceObservationBtn')?.addEventListener('click',startVoiceObservation);
+
+
+// HERIT Lens 1.0 — internationalisation mondiale
+const STORAGE_LOCALE='herit.locale';
+
+function currentLocale(){
+  return localStorage.getItem(STORAGE_LOCALE)||getPreferredLocale();
+}
+function setLocale(locale){
+  localStorage.setItem(STORAGE_LOCALE,locale);
+  document.documentElement.lang=locale;
+  const rtl=/^(ar|he|fa|ur)/i.test(locale);
+  document.documentElement.dir=rtl?'rtl':'ltr';
+  document.body.classList.toggle('rtl',rtl);
+  $('languageLabel').textContent=localeLabel(locale);
+  renderLanguageList(locale);
+  applyTranslations(locale);
+}
+function renderLanguageList(active){
+  const root=$('languageList'); if(!root)return;
+  root.innerHTML=SUPPORTED_LANGUAGES.map(l=>'<button data-locale="'+l.code+'" class="'+(l.code===active?'active':'')+'"><strong>'+l.native+'</strong><small>'+l.name+'</small></button>').join('');
+  root.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{setLocale(b.dataset.locale);closeLanguageSheet();}));
+}
+function openLanguageSheet(){
+  closeMenu();
+  renderLanguageList(currentLocale());
+  $('languageSheet').classList.remove('hidden');
+  $('languageSheet').setAttribute('aria-hidden','false');
+}
+function closeLanguageSheet(){
+  $('languageSheet').classList.add('hidden');
+  $('languageSheet').setAttribute('aria-hidden','true');
+}
+$('languageBtn')?.addEventListener('click',openLanguageSheet);
+$('closeLanguage')?.addEventListener('click',closeLanguageSheet);
+$('languageBackdrop')?.addEventListener('click',closeLanguageSheet);
+setLocale(currentLocale());
+
+// Tag every new field observation with its original language.
+const saveObservation10=saveObservation;
+saveObservation=function(){
+  const before=readList(STORAGE_OBSERVATIONS).length;
+  saveObservation10();
+  const list=readList(STORAGE_OBSERVATIONS);
+  if(list.length>before){
+    list[0].language=currentLocale();
+    list[0].original_language=currentLocale();
+    writeList(STORAGE_OBSERVATIONS,list);
+  }
+};
+
+// Speech recognition follows the chosen locale when supported.
+const startVoiceObservation10=startVoiceObservation;
+startVoiceObservation=function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return startVoiceObservation10();
+  try{
+    speechRecognition=new SR();
+    speechRecognition.lang=currentLocale();
+    speechRecognition.interimResults=true;
+    speechRecognition.continuous=false;
+    let finalText='';
+    speechRecognition.onstart=()=>{$('voiceObservationBtn').classList.add('listening');$('voiceObservationBtn').textContent='●';$('voiceStatus').textContent='…';};
+    speechRecognition.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+' ';else interim+=t;}$('observationText').value=(finalText+interim).trim();};
+    speechRecognition.onerror=e=>{$('voiceStatus').textContent=(e.error||'voice error');};
+    speechRecognition.onend=()=>{$('voiceObservationBtn').classList.remove('listening');$('voiceObservationBtn').textContent='🎙️';};
+    speechRecognition.start();
+  }catch{return startVoiceObservation10();}
+};
