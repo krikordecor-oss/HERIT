@@ -1,0 +1,14 @@
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;color:#fff;background:#050607}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}body{background:#050607}
+#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#111}
+.scrim{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 55%,rgba(0,0,0,.8))}
+header{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(14px + env(safe-area-inset-top)) 18px 12px;z-index:3}
+.brand{font-weight:800;letter-spacing:.03em}.brand span{font-weight:500;opacity:.7}.badge{font-size:12px;padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.42);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14)}
+main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43%;width:56px;height:56px;transform:translate(-50%,-50%);border:1.5px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.04)}
+.reticle:before,.reticle:after{content:"";position:absolute;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}.reticle:before{width:18px;height:1px}.reticle:after{width:1px;height:18px}
+.reticle span{position:absolute;inset:6px;border:1px solid rgba(255,255,255,.25);border-radius:50%}
+.card{position:absolute;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));padding:18px;border-radius:22px;background:rgba(13,15,18,.76);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.12)}
+.eyebrow{font-size:11px;letter-spacing:.14em;opacity:.58}.target{font-size:26px;font-weight:800;margin-top:5px}.meta{font-size:14px;opacity:.72;margin-top:5px;min-height:20px}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}.metrics div{background:rgba(255,255,255,.07);padding:10px;border-radius:12px}.metrics small{display:block;font-size:9px;opacity:.5;letter-spacing:.08em}.metrics strong{font-size:12px}
+button{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:750;font-size:15px;background:#fff;color:#0b0d10}
+.debug{position:fixed;z-index:5;left:12px;top:calc(62px + env(safe-area-inset-top));max-width:calc(100% - 24px);font-size:11px;background:rgba(0,0,0,.55);padding:7px 10px;border-radius:10px}.debug pre{white-space:pre-wrap;max-height:180px;overflow:auto}
+button.secondary{margin-top:8px;background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.15)}
