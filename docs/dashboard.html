@@ -1,14 +1,14 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c"><link rel="stylesheet" href="info.css?v=0.7"><title>Mon activité · HERIT Lens</title></head><body><main class="infoPage"><a class="back" href="./?v=0.7">← HERIT Lens</a>
 <header class="hero"><div class="eyebrow">MON ACTIVITÉ</div><h1>Votre terrain, organisé.</h1><p>Historique et bâtiments enregistrés sur cet appareil. Le cloud et la synchronisation d’équipe arriveront avec HERIT Pro.</p></header>
-<section><div class="activityTabs"><button class="active" data-tab="saved">Enregistrés <span id="savedCount">0</span></button><button data-tab="history">Historique <span id="historyCount">0</span></button></div><div id="activityList" class="activityList"></div></section>
+<section><div class="activitySummary"><div><small>OBSERVATIONS TERRAIN</small><strong id="observationCount">0</strong></div></div><div class="activityTabs"><button class="active" data-tab="saved">Enregistrés <span id="savedCount">0</span></button><button data-tab="history">Historique <span id="historyCount">0</span></button></div><div id="activityList" class="activityList"></div></section>
 <section class="notice"><strong>Local pour l’instant :</strong> ces données sont stockées uniquement dans ce navigateur. Elles ne sont pas encore synchronisées avec un compte HERIT.</section>
 <section><a class="upgradeCta" href="pricing.html">Découvrir HERIT Pro →</a></section>
 <script>
-const S='herit.savedBuildings',H='herit.history';let tab='saved';
+const S='herit.savedBuildings',H='herit.history',O='herit.observations';let tab='saved';
 function read(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}}
 function esc(s){return String(s||'—').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 function render(){
- const saved=read(S),history=read(H);document.getElementById('savedCount').textContent=saved.length;document.getElementById('historyCount').textContent=history.length;
+ const saved=read(S),history=read(H),observations=read(O);document.getElementById('savedCount').textContent=saved.length;document.getElementById('historyCount').textContent=history.length;document.getElementById('observationCount').textContent=observations.length;
  const list=tab==='saved'?saved:history,root=document.getElementById('activityList');
  if(!list.length){root.innerHTML='<div class="emptyState">Aucun bâtiment pour le moment.<br><span>Scannez un bâtiment puis ouvrez sa fiche.</span></div>';return;}
  root.innerHTML=list.map(x=>'<article class="activityCard"><div><strong>'+esc(x.label)+'</strong><span>'+(x.rnb_id?'RNB '+esc(x.rnb_id):'Bâtiment')+' · '+esc(x.mode||'Immobilier')+'</span></div><div class="activityMeta">'+(x.confidence?x.confidence+'%':'—')+'</div></article>').join('');
