@@ -159,3 +159,19 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
   .modeList button{grid-template-columns:38px 1fr 22px;min-height:70px;padding:13px!important}
   .modeIcon{width:36px;height:36px}
 }
+
+
+/* HERIT 2.9 — isolated onboarding */
+.welcomeOnboarding{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:24px;background:rgba(4,7,10,.86);backdrop-filter:blur(18px)}
+.onboardingCard{width:min(560px,100%);padding:28px;border-radius:28px;background:linear-gradient(180deg,#111820,#0a0e13);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 100px rgba(0,0,0,.55)}
+.onboardingMark{width:62px;height:62px;border-radius:19px;background:linear-gradient(145deg,#fff,#cbd3dc);color:#091017;display:grid;place-items:center;margin-bottom:18px}
+.onboardingMark svg{width:32px;height:32px}
+.onboardingCard h2{font-size:31px;line-height:1.06;letter-spacing:-.04em;margin:7px 0 12px}
+.onboardingCard>p{font-size:14px;line-height:1.55;opacity:.62;margin:0 0 18px}
+.onboardingChoices{display:grid;gap:9px;margin:18px 0}
+.onboardingChoices button{width:100%;text-align:left;padding:15px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);color:#fff}
+.onboardingChoices button.active{background:#fff;color:#080a0d}
+.onboardingChoices strong,.onboardingChoices span{display:block}.onboardingChoices strong{font-size:15px}.onboardingChoices span{font-size:11px;opacity:.56;margin-top:4px}
+.onboardingContinue,.onboardingSkip{width:100%;min-height:54px;border-radius:15px;font:inherit;font-weight:850}
+.onboardingContinue{border:0;background:#fff;color:#080a0d}.onboardingSkip{margin-top:8px;border:1px solid rgba(255,255,255,.09);background:transparent;color:#fff;opacity:.66}
+@media(max-width:620px){.welcomeOnboarding{align-items:end;padding:0}.onboardingCard{border-radius:28px 28px 0 0;padding:24px 18px calc(24px + env(safe-area-inset-bottom));width:100%}.onboardingCard h2{font-size:27px}}
