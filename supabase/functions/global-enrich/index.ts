@@ -94,6 +94,36 @@ Deno.serve(async(req)=>{
       return new Response(JSON.stringify({ok:true,state:"enriched",country:"NL",source:"nl-bag",facts:["country_building_id","construction_year","building_status","geometry_source"]}),{headers});
     }
 
+    if(cc==="US"){
+      const r=await rights(admin,"us-fema-nfhl");
+      const u=new URL("https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/28/query");
+      u.searchParams.set("f","json");
+      u.searchParams.set("geometry",lon+","+lat);
+      u.searchParams.set("geometryType","esriGeometryPoint");
+      u.searchParams.set("inSR","4326");
+      u.searchParams.set("spatialRel","esriSpatialRelIntersects");
+      u.searchParams.set("outFields","FLD_ZONE,ZONE_SUBTY,SFHA_TF,DFIRM_ID");
+      u.searchParams.set("returnGeometry","false");
+      const res=await fetch(u,{headers:{Accept:"application/json","User-Agent":"HERIT-Lens/Global-1.0"}});
+      if(!res.ok)throw new Error("us_fema_nfhl_"+res.status);
+      const data=await res.json();
+      if(data?.error)throw new Error("us_fema_nfhl_api");
+      const features=Array.isArray(data?.features)?data.features:[];
+      const a=features[0]?.attributes||null;
+      if(!a){
+        await upsertFact(admin,buildingId,"us-fema-nfhl","FEMA NFHL","fema_nfhl_polygon_match",false,null,r,85);
+        await admin.from("audit_events").insert({actor_user_id:user.id,event_type:"global_enrichment",entity_type:"building",entity_id:buildingId,payload:{country:"US",source:"us-fema-nfhl",match:false}});
+        return new Response(JSON.stringify({ok:true,state:"enriched",country:"US",source:"us-fema-nfhl",flood_polygon_match:false}),{headers});
+      }
+      const recordId=String(a.DFIRM_ID||"");
+      await upsertFact(admin,buildingId,"us-fema-nfhl","FEMA NFHL","fema_nfhl_polygon_match",true,recordId,r,95);
+      await upsertFact(admin,buildingId,"us-fema-nfhl","FEMA NFHL","flood_zone",a.FLD_ZONE||null,recordId,r,95);
+      await upsertFact(admin,buildingId,"us-fema-nfhl","FEMA NFHL","flood_zone_subtype",a.ZONE_SUBTY||null,recordId,r,90);
+      await upsertFact(admin,buildingId,"us-fema-nfhl","FEMA NFHL","special_flood_hazard_area",a.SFHA_TF||null,recordId,r,95);
+      await admin.from("audit_events").insert({actor_user_id:user.id,event_type:"global_enrichment",entity_type:"building",entity_id:buildingId,payload:{country:"US",source:"us-fema-nfhl",record_id:recordId,zone:a.FLD_ZONE||null}});
+      return new Response(JSON.stringify({ok:true,state:"enriched",country:"US",source:"us-fema-nfhl",flood_polygon_match:true,flood_zone:a.FLD_ZONE||null,sfha:a.SFHA_TF||null}),{headers});
+    }
+
     if(cc==="GB"){
       const r=await rights(admin,"gb-planning");
       const u=new URL("https://www.planning.data.gov.uk/entity.json");
