@@ -14,6 +14,7 @@
 </head>
 <body>
   <section id="welcome" class="welcome">
+    <button class="menuBtn" id="menuBtn" aria-label="Ouvrir le menu">☰</button>
     <div class="welcomeGlow"></div>
     <div class="welcomeContent">
       <div class="logoMark" aria-hidden="true">
@@ -24,11 +25,43 @@
       </div>
       <div class="welcomeBrand">HERIT <span>Lens</span></div>
       <h1>Regardez un bâtiment.<br>Comprenez-le.</h1>
-      <p>Identifiez instantanément le bâtiment que vous regardez et accédez à son intelligence terrain.</p>
+      <p>Données, historique et intelligence du bâtiment en un regard.</p>
       <button id="enterBtn" class="primaryHero">Scanner un bâtiment</button>
-      <div class="welcomeNote">Prototype terrain · Targeting Engine 0.3</div>
+      <div class="privacyHint">Caméra, localisation et orientation sont utilisées uniquement pour identifier le bâtiment visé.</div>
     </div>
   </section>
+
+  <aside id="drawer" class="drawer hidden" aria-hidden="true">
+    <div class="drawerPanel">
+      <div class="drawerTop">
+        <div class="brandWrap">
+          <div class="miniMark">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M20 18v64M80 18v64M20 50h60" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+              <circle cx="50" cy="50" r="8" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="brand">HERIT <span>Lens</span></div>
+        </div>
+        <button class="closeBtn" id="closeMenu" aria-label="Fermer">×</button>
+      </div>
+
+      <nav class="drawerNav">
+        <a href="about.html">À propos de HERIT Lens <span>›</span></a>
+        <a href="sources.html">Sources des données <span>›</span></a>
+        <a href="privacy.html">Confidentialité <span>›</span></a>
+        <a href="legal.html">Mentions légales <span>›</span></a>
+        <a href="terms.html">Conditions d’utilisation <span>›</span></a>
+      </nav>
+
+      <div class="publisher">
+        <small>ÉDITÉ PAR</small>
+        <strong>KRIKOR DECOR</strong>
+        <span>EURL · France</span>
+      </div>
+    </div>
+    <button class="drawerBackdrop" id="drawerBackdrop" aria-label="Fermer le menu"></button>
+  </aside>
 
   <section id="scanner" class="scanner hidden">
     <video id="camera" autoplay playsinline muted></video>
@@ -36,12 +69,12 @@
 
     <header>
       <div class="brandWrap">
-        <div class="miniMark">
+        <button class="miniMark iconButton" id="scannerMenuBtn" aria-label="Menu">
           <svg viewBox="0 0 100 100" aria-hidden="true">
             <path d="M20 18v64M80 18v64M20 50h60" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
             <circle cx="50" cy="50" r="8" fill="currentColor"/>
           </svg>
-        </div>
+        </button>
         <div class="brand">HERIT <span>Lens</span></div>
       </div>
       <div class="badge" id="sensorStatus">Capteurs arrêtés</div>
@@ -53,7 +86,7 @@
       <section class="card">
         <div class="eyebrow">BÂTIMENT VISÉ</div>
         <div class="target" id="targetName">—</div>
-        <div class="meta" id="targetMeta">Démarre les capteurs pour commencer.</div>
+        <div class="meta" id="targetMeta">Active la détection pour commencer.</div>
 
         <div class="metrics">
           <div><small>GPS</small><strong id="gps">—</strong></div>
