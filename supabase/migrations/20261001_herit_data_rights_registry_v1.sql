@@ -1,0 +1,5 @@
+-- HERIT Data Rights Registry v1
+-- Legal-by-design source governance. Applied 2026-10-01.
+-- Core live objects: public.data_licenses, public.country_adapters,
+-- public.source_ingestion_policy, rights columns on data_source_registry,
+-- and field-level rights provenance on building_facts/construction_events/sitadel_records.
