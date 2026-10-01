@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=0.6" />
+  <link rel="stylesheet" href="styles.css?v=0.7" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -47,6 +47,8 @@
       </div>
 
       <nav class="drawerNav">
+        <a href="dashboard.html">Mon activité <span>›</span></a>
+        <button class="drawerAction" id="modeBtn">Mode métier <span id="modeLabel">Immobilier</span></button>
         <a href="about.html">À propos de HERIT Lens <span>›</span></a>
         <a href="sources.html">Sources des données <span>›</span></a>
         <a href="privacy.html">Confidentialité <span>›</span></a>
@@ -78,7 +80,7 @@
         </button>
         <div class="brand">HERIT <span>Lens</span></div>
       </div>
-      <div class="badge" id="sensorStatus">Capteurs arrêtés</div>
+      <div class="headerBadges"><div class="modePill" id="scannerMode">Immobilier</div><div class="badge" id="sensorStatus">Capteurs arrêtés</div></div>
     </header>
 
     <main>
@@ -141,6 +143,7 @@
           <div><small>Précision GPS</small><strong id="sheetAccuracy">—</strong></div>
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
         </div>
+        <div class="sheetActions"><button id="saveBuildingBtn" class="sheetPrimary">Enregistrer ce bâtiment</button><a href="pricing.html" class="sheetPro">Passer à HERIT Pro</a></div>
         <div class="sheetSource">
           <span>Source actuelle</span>
           <strong>Référentiel National des Bâtiments</strong>
@@ -150,6 +153,21 @@
     </section>
   </section>
 
-  <script type="module" src="app.js?v=0.6"></script>
+  <section id="modeSheet" class="modeSheet hidden" aria-hidden="true">
+    <button class="sheetBackdrop" id="modeBackdrop" aria-label="Fermer"></button>
+    <div class="modePanel">
+      <div class="sheetHandle"></div>
+      <div class="sheetHead"><div><div class="eyebrow">PERSONNALISATION</div><h2>Votre mode métier</h2></div><button id="closeMode" class="sheetClose" aria-label="Fermer">×</button></div>
+      <p class="modeIntro">HERIT adaptera progressivement les données, scores et actions au métier sélectionné.</p>
+      <div class="modeList">
+        <button data-mode="Immobilier"><strong>Immobilier</strong><span>Valeur, DPE, DVF, comparables, prospection.</span></button>
+        <button data-mode="Collectivité"><strong>Collectivité</strong><span>RNB, cadastre, PLU, autorisations, contrôle terrain.</span></button>
+        <button data-mode="Rénovation"><strong>Rénovation</strong><span>DPE, surfaces, risques, potentiel travaux.</span></button>
+        <button data-mode="Investissement"><strong>Investissement</strong><span>Valeur, rendement, risques, potentiel.</span></button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="app.js?v=0.7"></script>
 </body>
 </html>
