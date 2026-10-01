@@ -144,13 +144,61 @@ function modeLabel(mode){
   if(mode==='point')return'Point RNB';
   return'Cône de secours';
 }
+const targetingHistory=[];
+let stableTargetKey=null;
+let stableSince=0;
+
+function targetKey(hit){
+  if(!hit)return null;
+  const p=hit.feature?.properties||{};
+  return String(p.rnb_id||p.gers_id||p.id||hit.feature?.id||labelFor(hit.feature));
+}
+function pushTargetSample(hit){
+  const now=Date.now();
+  targetingHistory.push({
+    ts:now,
+    key:targetKey(hit),
+    heading:Number(state.heading),
+    accuracy:Number(state.position?.accuracy||99),
+    distance:Number(hit?.distance||999),
+    angle:Number(hit?.angle||99)
+  });
+  while(targetingHistory.length && now-targetingHistory[0].ts>3500)targetingHistory.shift();
+}
+function stabilizationMetrics(hit){
+  if(!hit||targetingHistory.length<3)return {stable:false,durationMs:0,consistency:0,headingSpread:99};
+  const key=targetKey(hit);
+  const same=targetingHistory.filter(x=>x.key===key);
+  const consistency=same.length/targetingHistory.length;
+  const hs=same.map(x=>x.heading).filter(Number.isFinite);
+  let headingSpread=99;
+  if(hs.length>=2){
+    const base=hs[0];
+    headingSpread=Math.max(...hs.map(h=>Math.abs(((h-base+540)%360)-180)));
+  }
+  if(key!==stableTargetKey){
+    stableTargetKey=key;
+    stableSince=Date.now();
+  }
+  const durationMs=Date.now()-stableSince;
+  const stable=consistency>=0.8 && headingSpread<=4 && durationMs>=2500;
+  return {stable,durationMs,consistency,headingSpread};
+}
 function confidenceFor(hit){
   if(!hit||!state.position)return null;
   const acc=Number(state.position.accuracy||20);
   let score=hit.mode==='ray'?96:hit.mode==='cone'?82:76;
   score-=Math.min(25,Math.max(0,acc-3)*1.7);
   score-=Math.min(18,(hit.angle||0)*1.4);
-  return Math.max(35,Math.min(98,Math.round(score)));
+
+  const m=stabilizationMetrics(hit);
+  if(m.consistency>=0.8)score+=4;
+  if(m.headingSpread<=3)score+=4;
+  if(m.stable)score+=6;
+  if(acc>12)score-=8;
+  if(acc>20)score-=10;
+
+  return Math.max(25,Math.min(99,Math.round(score)));
 }
 function paintConfidence(score){
   const b=$('confidenceBadge');
@@ -161,9 +209,22 @@ function paintConfidence(score){
 function updateTarget(){
   if(!state.position||state.heading==null)return;
   const hit=selectTarget({origin:state.position,heading:state.heading,features:state.features,maxDistance:180,fallbackConeDeg:9,pointConeDeg:7});
+  pushTargetSample(hit);
   state.currentHit=hit||null;
   state.currentConfidence=confidenceFor(hit);
   paintConfidence(state.currentConfidence);
+
+  const sm=stabilizationMetrics(hit);
+  const sb=$('stabilizeBadge');
+  if(sb){
+    if(hit && !sm.stable){
+      const left=Math.max(0,Math.ceil((2500-sm.durationMs)/1000));
+      sb.textContent=left>0?('Stabilisation '+left+' s'):'Stabilisation…';
+      sb.classList.remove('hidden');
+    }else{
+      sb.classList.add('hidden');
+    }
+  }
 
   if(!hit){
     $('targetName').textContent='Aucun bâtiment';
@@ -175,7 +236,12 @@ function updateTarget(){
     const p=hit.feature.properties||{};
     $('targetName').textContent=labelFor(hit.feature);
     { const s=sourceFactEl(); if(s)s.textContent=p.rnb_id?'RNB':(p.source||'GLOBAL'); }
-    $('targetMeta').textContent=p.rnb_id?`RNB ${p.rnb_id}`:'Bâtiment identifié par le RNB';
+    const sm=stabilizationMetrics(hit);
+    const acc=Number(state.position?.accuracy||99);
+    let statusLabel='Cible probable';
+    if(sm.stable && state.currentConfidence>=82 && acc<=10)statusLabel='Bâtiment identifié';
+    else if(state.currentConfidence>=68)statusLabel='Bâtiment probable';
+    $('targetMeta').textContent=statusLabel+' · '+(p.rnb_id?`RNB ${p.rnb_id}`:(p.gers_id||'source globale'));
     $('distanceFact').textContent=`${Math.round(hit.distance)} m`;
     $('openBuildingBtn').classList.remove('hidden');
   }
