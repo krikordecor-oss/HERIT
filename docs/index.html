@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=1.6" />
+  <link rel="stylesheet" href="styles.css?v=1.7" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -154,7 +154,14 @@
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
           <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
         </div>
-        <div id="futureContextCard" class="moduleCard">
+        <div id="constructionHistoryCard" class="moduleCard">
+  <div>
+    <strong>Construction & autorisations</strong>
+    <span id="constructionHistoryText">Historique récent SITADEL.</span>
+  </div>
+  <span id="constructionHistoryBadge" class="moduleTag pro">5 ANS</span>
+</div>
+<div id="futureContextCard" class="moduleCard">
   <div>
     <strong>HERIT Building Graph</strong>
     <span id="futureContextText">Timeline, composants et contexte spatial.</span>
@@ -281,6 +288,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=1.6"></script>
+  <script type="module" src="app.js?v=1.7"></script>
 </body>
 </html>
