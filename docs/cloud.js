@@ -26,3 +26,5 @@ async function invoke(name,body){
 }
 export function cloudIngestScan(payload){return invoke('ingest-scan',payload);}
 export function cloudIngestObservation(payload){return invoke('ingest-observation',payload);}
+
+export function cloudLibrary(action='list',payload={}){return invoke('user-library',{action,...payload});}
