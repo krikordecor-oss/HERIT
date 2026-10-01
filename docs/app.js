@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory } from './cloud.js?v=1.8';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory, cloudBuildingBrief } from './cloud.js?v=2.1';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -633,6 +633,7 @@ openSheet=async function(){
   await refreshConstructionHistory();
   await refreshFutureContext();
   await refreshOpportunityScore();
+  await refreshBuildingBrief();
 };
 
 $('saveObservationBtn')?.addEventListener('click',()=>{
@@ -810,5 +811,34 @@ async function refreshConstructionHistory(){
     badge.textContent='—';
     textEl.textContent='Historique construction temporairement indisponible.';
     console.warn('HERIT construction history',e);
+  }
+}
+
+
+async function refreshBuildingBrief(){
+  const card=$('buildingBriefCard'),title=$('buildingBriefTitle'),summary=$('buildingBriefSummary'),badge=$('buildingBriefBadge'),signals=$('buildingBriefSignals');
+  if(!card||!title||!summary||!badge||!signals)return;
+  if(!cloudSession?.user){
+    title.textContent='Synthèse décisionnelle';
+    summary.textContent='Connectez-vous pour générer le brief bâtiment.';
+    badge.textContent='—%';signals.innerHTML='';return;
+  }
+  if(!state.currentCloudBuildingId){
+    summary.textContent='Synchronisation du bâtiment…';badge.textContent='…';return;
+  }
+  try{
+    const r=await cloudBuildingBrief(state.currentCloudBuildingId);
+    title.textContent=r.title||'Synthèse décisionnelle';
+    summary.textContent=r.summary||'Données insuffisantes pour une synthèse.';
+    badge.textContent=Math.round(r.completeness||0)+'%';
+    const items=[];
+    for(const x of (r.highlights||[]).slice(0,3))items.push('<span class="briefSignal">'+escapeHtml(String(x))+'</span>');
+    for(const x of (r.cautions||[]).slice(0,2))items.push('<span class="briefSignal caution">'+escapeHtml(String(x))+'</span>');
+    if(!items.length)items.push('<span class="briefSignal muted">Données à compléter</span>');
+    signals.innerHTML=items.join('');
+  }catch(e){
+    summary.textContent='Brief temporairement indisponible.';
+    badge.textContent='—%';
+    console.warn('HERIT building brief',e);
   }
 }
