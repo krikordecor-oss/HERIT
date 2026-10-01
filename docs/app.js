@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory, cloudBuildingBrief, cloudOvertureZone } from './cloud.js?v=2.3';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudResendConfirmation, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory, cloudBuildingBrief, cloudOvertureZone } from './cloud.js?v=2.6';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -607,7 +607,31 @@ $('authBackdrop')?.addEventListener('click',closeAuthSheet);
 $('signInBtn')?.addEventListener('click',async()=>{
   const email=$('authEmail').value.trim(),password=$('authPassword').value;
   $('authStatus').textContent='Connexion…';
-  try{const s=await cloudSignIn(email,password);renderAuth(s);$('authStatus').textContent='Connecté à HERIT Cloud.';}catch(e){$('authStatus').textContent=e.message||String(e);}
+  $('resendConfirmBtn')?.classList.add('hidden');
+  try{
+    const s=await cloudSignIn(email,password);
+    renderAuth(s);
+    $('authStatus').textContent='Connecté à HERIT Cloud.';
+  }catch(e){
+    const msg=e?.message||String(e);
+    if(/email not confirmed/i.test(msg)){
+      $('authStatus').textContent='Votre e-mail n’est pas encore confirmé. Ouvrez le message reçu de HERIT puis cliquez sur le lien de confirmation.';
+      $('resendConfirmBtn')?.classList.remove('hidden');
+    }else{
+      $('authStatus').textContent=msg;
+    }
+  }
+});
+$('resendConfirmBtn')?.addEventListener('click',async()=>{
+  const email=$('authEmail').value.trim();
+  if(!email){$('authStatus').textContent='Saisissez votre e-mail HERIT.';return;}
+  $('authStatus').textContent='Envoi du nouvel e-mail de confirmation…';
+  try{
+    await cloudResendConfirmation(email);
+    $('authStatus').textContent='E-mail de confirmation renvoyé. Vérifiez aussi le dossier Spam/Indésirables.';
+  }catch(e){
+    $('authStatus').textContent=e?.message||String(e);
+  }
 });
 $('signUpBtn')?.addEventListener('click',async()=>{
   const email=$('authEmail').value.trim(),password=$('authPassword').value;
