@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.8" />
+  <link rel="stylesheet" href="styles.css?v=2.9" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -28,6 +28,30 @@
       <p>Données, historique et intelligence du bâtiment en un regard.</p>
       <button id="enterBtn" class="primaryHero">Scanner un bâtiment</button>
       <div class="privacyHint">Caméra, localisation et orientation sont utilisées uniquement pour identifier le bâtiment visé.</div>
+    </div>
+  </section>
+
+  <section id="welcomeOnboarding" class="welcomeOnboarding hidden" aria-hidden="true">
+    <div class="onboardingCard">
+      <div class="onboardingMark" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <path d="M20 18v64M80 18v64M20 50h60" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="8" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="eyebrow">BIENVENUE DANS HERIT</div>
+      <h2>Votre bâtiment. Les bonnes données. Au bon moment.</h2>
+      <p>HERIT adapte l’expérience à votre activité pour afficher en priorité ce qui vous est vraiment utile.</p>
+
+      <div class="onboardingChoices">
+        <button data-onboard-mode="Immobilier" class="active"><strong>Immobilier</strong><span>Valeur, DPE, transactions et prospection.</span></button>
+        <button data-onboard-mode="Collectivité"><strong>Collectivité</strong><span>Cadastre, PLU, autorisations et terrain.</span></button>
+        <button data-onboard-mode="Rénovation"><strong>Rénovation</strong><span>Énergie, surfaces, risques et travaux.</span></button>
+        <button data-onboard-mode="Investissement"><strong>Investissement</strong><span>Valeur, rendement, risques et potentiel.</span></button>
+      </div>
+
+      <button id="onboardingContinue" class="onboardingContinue">Continuer avec Immobilier</button>
+      <button id="onboardingSkip" class="onboardingSkip">Découvrir HERIT d’abord</button>
     </div>
   </section>
 
@@ -347,6 +371,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=2.8"></script>
+  <script type="module" src="app.js?v=2.9"></script>
 </body>
 </html>
