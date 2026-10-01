@@ -37,3 +37,5 @@ export function cloudEnrichBuilding(building_id){return invoke('enrich-building'
 export function cloudBuildingContext(building_id){return invoke('building-context',{building_id});}
 
 export function cloudConstructionHistory(building_id){return invoke('construction-history',{building_id});}
+
+export function cloudGlobalEnrich(building_id){return invoke('global-enrich',{building_id});}
