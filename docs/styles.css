@@ -126,3 +126,36 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 .passwordFieldWrap .authInput{padding-right:58px}
 .passwordToggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;border-radius:12px;background:rgba(0,0,0,.12);color:#111;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .passwordToggle:focus{outline:2px solid rgba(255,255,255,.45);outline-offset:2px}
+
+
+/* HERIT 2.8 — premium onboarding */
+.modeWelcomeIcon{width:58px;height:58px;border-radius:18px;background:linear-gradient(145deg,#fff,#cbd3dc);color:#091017;display:grid;place-items:center;margin:10px 0 18px;box-shadow:0 12px 36px rgba(0,0,0,.25)}
+.modeWelcomeIcon svg{width:30px;height:30px}
+.modeWelcomeHead{align-items:flex-start}.modeWelcomeHead h2{font-size:29px;line-height:1.06;letter-spacing:-.035em;max-width:520px;margin-top:6px}
+.modeBenefit{display:flex;gap:11px;align-items:flex-start;padding:13px 14px;margin:12px 0 16px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08)}
+.modeBenefit>span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#080a0d;font-weight:900;flex:none}
+.modeBenefit strong,.modeBenefit small{display:block}.modeBenefit strong{font-size:12px}.modeBenefit small{font-size:11px;line-height:1.4;opacity:.5;margin-top:3px}
+.modeList button{display:grid!important;grid-template-columns:42px 1fr 24px;align-items:center;gap:12px;padding:15px 14px!important;min-height:74px;transition:.18s ease}
+.modeList button:hover{background:rgba(255,255,255,.075)}
+.modeIcon{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.075);display:grid!important;place-items:center;font-size:20px!important;opacity:1!important;margin:0!important}
+.modeList button>div{text-align:left}.modeList button>div strong{font-size:15px}.modeList button>div span{font-size:11px!important;line-height:1.45!important;margin-top:3px!important}
+.modeCheck{width:23px;height:23px;border-radius:50%;display:grid!important;place-items:center;background:#080a0d;color:#fff;opacity:0!important;font-size:11px!important;margin:0!important}
+.modeList button.active .modeIcon{background:rgba(8,10,13,.09)}
+.modeList button.active .modeCheck{opacity:1!important}
+.modeOnboardingActions{display:grid;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+.modeConfirm,.modeSkip{width:100%;min-height:52px;border-radius:15px;font:inherit;font-weight:850}
+.modeConfirm{border:0;background:#fff;color:#080a0d}.modeSkip{border:1px solid rgba(255,255,255,.09);background:transparent;color:#fff;opacity:.66}
+.firstRunActive .modePanel{max-height:94vh;padding:18px 20px calc(26px + env(safe-area-inset-bottom))}
+.firstRunActive .sheetHandle{opacity:.4}
+.modeSheet:not(.firstRunActive) .modeWelcomeIcon{display:none}
+.modeSheet:not(.firstRunActive) .modeBenefit{display:none}
+.modeSheet:not(.firstRunActive) .modeWelcomeHead h2{font-size:24px}
+.modeSheet:not(.firstRunActive) #modeEyebrow{font-size:0}
+.modeSheet:not(.firstRunActive) #modeEyebrow::after{content:'PERSONNALISATION';font-size:11px;letter-spacing:.16em}
+.modeSheet:not(.firstRunActive) #modeTitle{font-size:0}
+.modeSheet:not(.firstRunActive) #modeTitle::after{content:'Votre mode métier';font-size:24px}
+@media(max-width:620px){
+  .modeWelcomeHead h2{font-size:25px}
+  .modeList button{grid-template-columns:38px 1fr 22px;min-height:70px;padding:13px!important}
+  .modeIcon{width:36px;height:36px}
+}
