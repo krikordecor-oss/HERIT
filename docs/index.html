@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=0.9" />
+  <link rel="stylesheet" href="styles.css?v=1.0" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -49,6 +49,7 @@
       <nav class="drawerNav">
         <a href="dashboard.html">Mon activité <span>›</span></a>
         <button class="drawerAction" id="modeBtn">Mode métier <span id="modeLabel">Immobilier</span></button>
+        <button class="drawerAction" id="languageBtn">Langue <span id="languageLabel">Français</span></button>
         <a href="about.html">À propos de HERIT Lens <span>›</span></a>
         <a href="sources.html">Sources des données <span>›</span></a>
         <a href="privacy.html">Confidentialité <span>›</span></a>
@@ -203,6 +204,19 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=0.9"></script>
+  <section id="languageSheet" class="modeSheet hidden" aria-hidden="true">
+    <button class="sheetBackdrop" id="languageBackdrop" aria-label="Fermer"></button>
+    <div class="modePanel">
+      <div class="sheetHandle"></div>
+      <div class="sheetHead">
+        <div><div class="eyebrow">LANGUE</div><h2 id="languageTitle">Choisissez votre langue</h2></div>
+        <button id="closeLanguage" class="sheetClose" aria-label="Fermer">×</button>
+      </div>
+      <p class="modeIntro">HERIT détecte automatiquement la langue de votre appareil. Vous pouvez la modifier à tout moment.</p>
+      <div id="languageList" class="languageList"></div>
+    </div>
+  </section>
+
+  <script type="module" src="app.js?v=1.0"></script>
 </body>
 </html>
