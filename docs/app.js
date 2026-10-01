@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary } from './cloud.js?v=1.3';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects } from './cloud.js?v=1.4';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -624,6 +624,7 @@ const openSheet12=openSheet;
 openSheet=async function(){
   await openSheet12();
   await syncCurrentScan();
+  await refreshOpportunityScore();
 };
 
 $('saveObservationBtn')?.addEventListener('click',()=>{
@@ -661,4 +662,26 @@ if(saveBtnCloud){
       await syncCloudSavedState(isSaved(item.id));
     },0);
   });
+}
+
+async function refreshOpportunityScore(){
+  const scoreEl=$('opportunityScore'),textEl=$('opportunityText');
+  if(!scoreEl||!textEl)return;
+  if(!cloudSession?.user){scoreEl.textContent='—';textEl.textContent='Connectez-vous pour calculer le potentiel de ce bâtiment.';return;}
+  if(!state.currentCloudBuildingId){scoreEl.textContent='—';textEl.textContent='Synchronisation du bâtiment…';return;}
+  scoreEl.textContent='…'; textEl.textContent='Analyse des données disponibles…';
+  try{
+    const r=await cloudOpportunity(state.currentCloudBuildingId,'real_estate');
+    if(r.score_state!=='computed'){
+      scoreEl.textContent='—';
+      textEl.textContent='Données insuffisantes pour un score fiable. HERIT n’invente pas de note.';
+      return;
+    }
+    scoreEl.textContent=Math.round(r.score)+'/100';
+    const reasons=(r.reasons||[]).slice(0,2).map(x=>x.label).join(' · ');
+    textEl.textContent=(reasons||'Score calculé')+' · confiance '+Math.round(r.confidence_score||0)+'%';
+  }catch(e){
+    scoreEl.textContent='—'; textEl.textContent='Score temporairement indisponible.';
+    console.warn('HERIT opportunity score',e);
+  }
 }
