@@ -4,6 +4,7 @@ import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js'
 import { loadBuildingsNear } from './buildings.js';
 
 const $ = id => document.getElementById(id);
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false,currentHit:null,currentConfidence:null,geoContext:null};
 
 function openMenu(){ $('drawer').classList.remove('hidden'); $('drawer').setAttribute('aria-hidden','false'); }
