@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects } from './cloud.js?v=1.4';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding } from './cloud.js?v=1.5';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -254,7 +254,9 @@ async function reverseAddress(feature){
       label:prop.label||prop.name||prop.street||'Adresse proche',
       city:prop.city||prop.citycode||prop.municipality||'',
       postcode:prop.postcode||'',
-      source:'BAN'
+      source:'BAN',
+      ban_id:prop.id||prop.banId||null,
+      citycode:prop.citycode||prop.city_code||null
     };
     cache[id]=result;writeAddressCache(cache);return result;
   }catch{return null;}
@@ -306,6 +308,7 @@ openSheet=async function(){
     source:'OpenStreetMap / Nominatim'
   }:null);
   if(a){
+    state.banContext=a;
     $('sheetAddress').textContent=a.label||'Adresse non disponible';
     $('sheetLocality').textContent=[a.postcode,a.city].filter(Boolean).join(' ')||'Base Adresse Nationale';
     const item=buildingSnapshot();
@@ -592,7 +595,9 @@ function buildingCloudPayload(){
       address_original:state.geoContext?.display_name||p.address||p.adresse||null,
       address_normalized:state.geoContext?.display_name||null,
       locality:state.geoContext?.city||null,
-      postal_code:state.geoContext?.postcode||null,
+      postal_code:state.banContext?.postcode||state.geoContext?.postcode||null,
+      ban_id:state.banContext?.ban_id||null,
+      insee_code:state.banContext?.citycode||null,
       latitude:c.lat,longitude:c.lon
     },
     scan:{
@@ -624,6 +629,7 @@ const openSheet12=openSheet;
 openSheet=async function(){
   await openSheet12();
   await syncCurrentScan();
+  await refreshBuildingFacts();
   await refreshOpportunityScore();
 };
 
@@ -707,3 +713,32 @@ $('addProspectBtn')?.addEventListener('click',async()=>{
     console.warn('HERIT prospect add',e);
   }
 });
+
+
+async function refreshBuildingFacts(){
+  const textEl=$('buildingFactsText'),badge=$('buildingFactsBadge');
+  if(!textEl||!badge)return;
+  if(!cloudSession?.user){textEl.textContent='Connectez-vous pour enrichir ce bâtiment.';badge.textContent='DATA';return;}
+  if(!state.currentCloudBuildingId){textEl.textContent='Synchronisation du bâtiment…';badge.textContent='…';return;}
+  textEl.textContent='Interrogation des sources bâtimentaires…';badge.textContent='…';
+  try{
+    const r=await cloudEnrichBuilding(state.currentCloudBuildingId);
+    if(r.state!=='enriched'){
+      badge.textContent='—';
+      textEl.textContent=r.state==='unsupported_country'
+        ? 'Enrichissement France disponible ; sources internationales à venir.'
+        : 'Aucune donnée complémentaire fiable trouvée pour ce bâtiment.';
+      return;
+    }
+    const f=r.facts||{},parts=[];
+    if(f.dpe_class)parts.push('DPE '+f.dpe_class);
+    if(f.construction_year)parts.push('Constr. '+f.construction_year);
+    if(f.dwelling_count!=null)parts.push(f.dwelling_count+' log.');
+    if(f.footprint_surface_m2!=null)parts.push(Math.round(Number(f.footprint_surface_m2))+' m² emprise');
+    badge.textContent='BDNB';
+    textEl.textContent=(parts.length?parts.join(' · '):'Données BDNB trouvées')+' · source CSTB';
+  }catch(e){
+    badge.textContent='—';textEl.textContent='Enrichissement temporairement indisponible.';
+    console.warn('HERIT enrichment',e);
+  }
+}
