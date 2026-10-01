@@ -28,3 +28,6 @@ export function cloudIngestScan(payload){return invoke('ingest-scan',payload);}
 export function cloudIngestObservation(payload){return invoke('ingest-observation',payload);}
 
 export function cloudLibrary(action='list',payload={}){return invoke('user-library',{action,...payload});}
+
+export function cloudOpportunity(building_id,vertical='real_estate'){return invoke('opportunity-engine',{building_id,vertical});}
+export function cloudProspects(action='list',payload={}){return invoke('prospect-manager',{action,...payload});}
