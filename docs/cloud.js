@@ -33,3 +33,5 @@ export function cloudOpportunity(building_id,vertical='real_estate'){return invo
 export function cloudProspects(action='list',payload={}){return invoke('prospect-manager',{action,...payload});}
 
 export function cloudEnrichBuilding(building_id){return invoke('enrich-building',{building_id});}
+
+export function cloudBuildingContext(building_id){return invoke('building-context',{building_id});}
