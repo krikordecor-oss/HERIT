@@ -35,3 +35,5 @@ export function cloudProspects(action='list',payload={}){return invoke('prospect
 export function cloudEnrichBuilding(building_id){return invoke('enrich-building',{building_id});}
 
 export function cloudBuildingContext(building_id){return invoke('building-context',{building_id});}
+
+export function cloudConstructionHistory(building_id){return invoke('construction-history',{building_id});}
