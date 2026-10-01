@@ -7,3 +7,11 @@ section:not(.hero){padding:22px 0;border-top:1px solid rgba(255,255,255,.08)}h2{
 .muted{font-size:12px;opacity:.55}.notice{margin-top:18px;padding:16px!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:16px;background:rgba(255,255,255,.045)}
 .sourceCard{position:relative;padding:16px;margin:10px 0;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}.sourceCard strong,.sourceCard span{display:block}.sourceCard span{font-size:13px;line-height:1.5;opacity:.58;margin-top:5px}.sourceCard em{position:absolute;top:14px;right:14px;font-size:10px;font-style:normal;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.1)}
 @media(max-width:520px){.hero h1{font-size:36px}.hero{padding-top:34px}}
+.pricingGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:0!important;padding-top:0!important}
+.priceCard{padding:18px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09)}
+.priceCard.featured{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.24)}
+.priceCard .plan{font-size:12px;text-transform:uppercase;letter-spacing:.12em;opacity:.5}
+.priceCard .price{font-size:34px;font-weight:850;letter-spacing:-.04em;margin:8px 0}.priceCard .price span{font-size:13px;font-weight:500;opacity:.45}
+.priceCard p{font-size:13px}.priceCard ul{padding-left:18px;color:rgba(255,255,255,.7);font-size:13px;line-height:1.8}
+.priceCard button{width:100%;padding:11px;border-radius:12px;border:0;background:rgba(255,255,255,.09);color:#fff;font-weight:700}
+@media(max-width:620px){.pricingGrid{grid-template-columns:1fr}}
