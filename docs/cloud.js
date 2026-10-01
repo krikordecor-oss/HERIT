@@ -39,3 +39,5 @@ export function cloudBuildingContext(building_id){return invoke('building-contex
 export function cloudConstructionHistory(building_id){return invoke('construction-history',{building_id});}
 
 export function cloudGlobalEnrich(building_id){return invoke('global-enrich',{building_id});}
+
+export function cloudCoverageMatrix(country_code=null){return invoke('coverage-matrix',country_code?{country_code}:{});}
