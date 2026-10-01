@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding } from './cloud.js?v=1.5';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudBuildingContext } from './cloud.js?v=1.6';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -630,6 +630,7 @@ openSheet=async function(){
   await openSheet12();
   await syncCurrentScan();
   await refreshBuildingFacts();
+  await refreshFutureContext();
   await refreshOpportunityScore();
 };
 
@@ -740,5 +741,25 @@ async function refreshBuildingFacts(){
   }catch(e){
     badge.textContent='—';textEl.textContent='Enrichissement temporairement indisponible.';
     console.warn('HERIT enrichment',e);
+  }
+}
+
+
+async function refreshFutureContext(){
+  const textEl=$('futureContextText'),badge=$('futureContextBadge');
+  if(!textEl||!badge)return;
+  if(!cloudSession?.user){textEl.textContent='Connectez-vous pour ouvrir le Building Graph.';badge.textContent='GRAPH';return;}
+  if(!state.currentCloudBuildingId){textEl.textContent='Synchronisation du bâtiment…';badge.textContent='…';return;}
+  try{
+    const r=await cloudBuildingContext(state.currentCloudBuildingId);
+    const ctx=r?.context||{};
+    const timeline=Array.isArray(ctx.timeline)?ctx.timeline.length:0;
+    const components=Array.isArray(ctx.components)?ctx.components.length:0;
+    const anchors=Array.isArray(ctx.spatial_anchors)?ctx.spatial_anchors.length:0;
+    badge.textContent='GRAPH';
+    textEl.textContent=timeline+' événement'+(timeline>1?'s':'')+' · '+components+' composant'+(components>1?'s':'')+' · '+anchors+' ancre'+(anchors>1?'s':'')+' spatiale'+(anchors>1?'s':'');
+  }catch(e){
+    badge.textContent='—';textEl.textContent='Building Graph temporairement indisponible.';
+    console.warn('HERIT future context',e);
   }
 }
