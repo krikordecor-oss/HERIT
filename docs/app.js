@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudBuildingContext } from './cloud.js?v=1.6';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudBuildingContext, cloudConstructionHistory } from './cloud.js?v=1.7';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -630,6 +630,7 @@ openSheet=async function(){
   await openSheet12();
   await syncCurrentScan();
   await refreshBuildingFacts();
+  await refreshConstructionHistory();
   await refreshFutureContext();
   await refreshOpportunityScore();
 };
@@ -761,5 +762,42 @@ async function refreshFutureContext(){
   }catch(e){
     badge.textContent='—';textEl.textContent='Building Graph temporairement indisponible.';
     console.warn('HERIT future context',e);
+  }
+}
+
+
+async function refreshConstructionHistory(){
+  const textEl=$('constructionHistoryText'),badge=$('constructionHistoryBadge');
+  if(!textEl||!badge)return;
+  if(!cloudSession?.user){
+    textEl.textContent='Connectez-vous pour consulter les autorisations récentes.';
+    badge.textContent='5 ANS';
+    return;
+  }
+  if(!state.currentCloudBuildingId){
+    textEl.textContent='Synchronisation du bâtiment…';
+    badge.textContent='…';
+    return;
+  }
+  try{
+    const r=await cloudConstructionHistory(state.currentCloudBuildingId);
+    const recent=Array.isArray(r?.recent_events)?r.recent_events:[];
+    if(!recent.length){
+      badge.textContent='0';
+      textEl.textContent='Aucun événement SITADEL rattaché sur les 5 dernières années.';
+      return;
+    }
+    const e=recent[0];
+    const bits=[];
+    if(e.authorization_type)bits.push(e.authorization_type);
+    if(e.event_type)bits.push(e.event_type);
+    if(e.event_date)bits.push(String(e.event_date).slice(0,10));
+    if(e.housing_units!=null)bits.push(e.housing_units+' log.');
+    badge.textContent=String(recent.length);
+    textEl.textContent=bits.join(' · ')+' · source SITADEL/SDES';
+  }catch(e){
+    badge.textContent='—';
+    textEl.textContent='Historique construction temporairement indisponible.';
+    console.warn('HERIT construction history',e);
   }
 }
