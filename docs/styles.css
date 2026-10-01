@@ -199,3 +199,22 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 /* HERIT 2.14 — smart stabilization */
 .confidenceWrap{display:grid;gap:6px;justify-items:end}
 .stabilizeBadge{font-size:9px;letter-spacing:.05em;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08);opacity:.72;white-space:nowrap}
+
+
+/* HERIT 2.15 — clean camera view */
+.targetCard.detectedCompact{padding:16px 16px 14px}
+.targetCard.detectedCompact .targetHead{margin-bottom:8px}
+.targetCard.detectedCompact .targetFacts{margin-top:10px;gap:8px}
+.targetCard.detectedCompact .targetFacts>div{padding:10px 11px}
+.targetCard.detectedCompact .targetFacts small{font-size:8px}
+.targetCard.detectedCompact .targetFacts strong{font-size:14px}
+.targetCard.detectedCompact #targetMeta{font-size:12px;line-height:1.35;opacity:.58;margin-top:4px}
+.targetCard.detectedCompact #openBuildingBtn{margin-top:10px;padding:12px 14px}
+.targetCard.detectedCompact #reloadBtn{margin-top:8px;padding:11px 14px}
+.targetCard.detectedCompact .techDetails{margin-top:10px}
+.targetCard.detectedCompact .techDetails summary{font-size:11px;padding:9px 0}
+@media(max-width:620px){
+  .targetCard.detectedCompact{padding:14px}
+  .targetCard.detectedCompact .target{font-size:28px}
+  .targetCard.detectedCompact #targetMeta{font-size:11px}
+}
