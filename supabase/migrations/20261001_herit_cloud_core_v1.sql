@@ -70,6 +70,10 @@ create table if not exists public.observations (
   confidence_score numeric check (confidence_score between 0 and 100),
   evidence_type text not null default 'none'
     check (evidence_type in ('none','photo','document','audio','video','multi')),
+  visibility text not null default 'private'
+    check (visibility in ('private','team','verified_public')),
+  safety_status text not null default 'pending_review'
+    check (safety_status in ('pending_review','allowed','restricted','blocked')),
   professional_mode text,
   building_country_code text,
   created_at timestamptz not null default now(),
@@ -198,3 +202,27 @@ comment on table public.buildings is 'Canonical HERIT Building Graph nodes.';
 comment on table public.scans is 'Immutable field scan events used to improve targeting and data freshness.';
 comment on table public.observations is 'Human field observations with provenance and verification status.';
 comment on table public.building_facts is 'Normalized facts from official, observed, partner and HERIT-derived sources.';
+
+
+create table if not exists public.abuse_reports (
+  id uuid primary key default gen_random_uuid(),
+  reporter_user_id uuid references auth.users(id) on delete set null,
+  entity_type text not null,
+  entity_id text not null,
+  reason text not null,
+  details text,
+  status text not null default 'open' check (status in ('open','reviewing','actioned','dismissed')),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.sensitive_access_events (
+  id bigint generated always as identity primary key,
+  user_id uuid references auth.users(id) on delete set null,
+  building_id uuid references public.buildings(id) on delete set null,
+  action text not null,
+  context jsonb,
+  created_at timestamptz not null default now()
+);
+
+comment on table public.abuse_reports is 'Reports of unsafe or abusive use of HERIT data.';
+comment on table public.sensitive_access_events is 'Audit trail for access to higher-risk building information.';
