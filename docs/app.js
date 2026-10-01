@@ -7,6 +7,21 @@ const $ = id => document.getElementById(id);
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false,currentHit:null,currentConfidence:null,geoContext:null};
 
+function sourceFactEl(){
+  return $('sourceFact') || document.querySelector('.targetFacts > div:nth-child(2) strong');
+}
+function initScannerIdleState(){
+  const source=sourceFactEl();
+  if(source)source.textContent='—';
+  const reload=$('reloadBtn');
+  if(reload){
+    reload.disabled=true;
+    reload.classList.add('disabledControl');
+    reload.setAttribute('aria-disabled','true');
+  }
+}
+initScannerIdleState();
+
 function openMenu(){ $('drawer').classList.remove('hidden'); $('drawer').setAttribute('aria-hidden','false'); }
 function closeMenu(){ $('drawer').classList.add('hidden'); $('drawer').setAttribute('aria-hidden','true'); }
 $('menuBtn').addEventListener('click',openMenu);
@@ -152,14 +167,14 @@ function updateTarget(){
 
   if(!hit){
     $('targetName').textContent='Aucun bâtiment';
-    $('sourceFact').textContent='—';
+    { const s=sourceFactEl(); if(s)s.textContent='—'; }
     $('targetMeta').textContent=state.features.length?'Vise une façade au centre de l’écran.':'Chargement des bâtiments autour de toi…';
     $('distanceFact').textContent='—';
     $('openBuildingBtn').classList.add('hidden');
   }else{
     const p=hit.feature.properties||{};
     $('targetName').textContent=labelFor(hit.feature);
-    $('sourceFact').textContent=p.rnb_id?'RNB':(p.source||'GLOBAL');
+    { const s=sourceFactEl(); if(s)s.textContent=p.rnb_id?'RNB':(p.source||'GLOBAL'); }
     $('targetMeta').textContent=p.rnb_id?`RNB ${p.rnb_id}`:'Bâtiment identifié par le RNB';
     $('distanceFact').textContent=`${Math.round(hit.distance)} m`;
     $('openBuildingBtn').classList.remove('hidden');
@@ -171,12 +186,12 @@ $('startBtn').addEventListener('click',async()=>{
   try{
     $('startBtn').disabled=true;$('startBtn').textContent='Initialisation…';
     $('scannerHint')?.classList.add('hidden');
-    $('sourceFact').textContent='—';
+    { const s=sourceFactEl(); if(s)s.textContent='—'; }
     await Promise.all([startCamera(),requestOrientation()]);
     startGPS();
     $('sensorStatus').textContent='GPS en cours…';
     $('startBtn').classList.add('hidden');
-    if($('reloadBtn')){ $('reloadBtn').classList.remove('disabledControl'); $('reloadBtn').disabled=false; }
+    if($('reloadBtn')){ $('reloadBtn').classList.remove('disabledControl'); $('reloadBtn').disabled=false; $('reloadBtn').setAttribute('aria-disabled','false'); }
   }catch(e){
     $('scannerHint')?.classList.remove('hidden');
     $('sensorStatus').textContent='Erreur';$('targetMeta').textContent=e.message||String(e);
