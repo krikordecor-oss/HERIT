@@ -1,17 +1,57 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c"><link rel="stylesheet" href="info.css?v=0.7"><title>Mon activité · HERIT Lens</title></head><body><main class="infoPage"><a class="back" href="./?v=0.7">← HERIT Lens</a>
-<header class="hero"><div class="eyebrow">MON ACTIVITÉ</div><h1>Votre terrain, organisé.</h1><p>Historique et bâtiments enregistrés sur cet appareil. Le cloud et la synchronisation d’équipe arriveront avec HERIT Pro.</p></header>
-<section><div class="activitySummary"><div><small>OBSERVATIONS TERRAIN</small><strong id="observationCount">0</strong></div></div><div class="activityTabs"><button class="active" data-tab="saved">Enregistrés <span id="savedCount">0</span></button><button data-tab="history">Historique <span id="historyCount">0</span></button></div><div id="activityList" class="activityList"></div></section>
-<section class="notice"><strong>Local pour l’instant :</strong> ces données sont stockées uniquement dans ce navigateur. Elles ne sont pas encore synchronisées avec un compte HERIT.</section>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c"><link rel="stylesheet" href="info.css?v=1.3"><title>Mon activité · HERIT Lens</title></head><body><main class="infoPage"><a class="back" href="./?v=1.3">← HERIT Lens</a>
+<header class="hero"><div class="eyebrow">MON ACTIVITÉ</div><h1>Votre terrain, synchronisé.</h1><p id="activityIntro">Connexion à HERIT Cloud…</p></header>
+<section>
+  <div class="activitySummaryGrid">
+    <div><small>BÂTIMENTS ENREGISTRÉS</small><strong id="savedCount">0</strong></div>
+    <div><small>SCANS</small><strong id="historyCount">0</strong></div>
+    <div><small>OBSERVATIONS</small><strong id="observationCount">0</strong></div>
+  </div>
+  <div class="activityTabs"><button class="active" data-tab="saved">Enregistrés</button><button data-tab="history">Historique</button><button data-tab="observations">Observations</button></div>
+  <div id="activityList" class="activityList"></div>
+</section>
+<section id="cloudNotice" class="notice"><strong>HERIT Cloud :</strong> vos données synchronisées apparaissent ici lorsque vous êtes connecté.</section>
 <section><a class="upgradeCta" href="pricing.html">Découvrir HERIT Pro →</a></section>
-<script>
-const S='herit.savedBuildings',H='herit.history',O='herit.observations';let tab='saved';
+<script type="module">
+import { cloudGetSession, cloudLibrary } from './cloud.js?v=1.3';
+
+const S='herit.savedBuildings',H='herit.history',O='herit.observations';let tab='saved';let cloudData=null;
 function read(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}}
 function esc(s){return String(s||'—').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function render(){
- const saved=read(S),history=read(H),observations=read(O);document.getElementById('savedCount').textContent=saved.length;document.getElementById('historyCount').textContent=history.length;document.getElementById('observationCount').textContent=observations.length;
- const list=tab==='saved'?saved:history,root=document.getElementById('activityList');
- if(!list.length){root.innerHTML='<div class="emptyState">Aucun bâtiment pour le moment.<br><span>Scannez un bâtiment puis ouvrez sa fiche.</span></div>';return;}
- root.innerHTML=list.map(x=>'<article class="activityCard"><div><strong>'+esc(x.label)+'</strong><span>'+(x.rnb_id?'RNB '+esc(x.rnb_id):'Bâtiment')+' · '+esc(x.mode||'Immobilier')+'</span></div><div class="activityMeta">'+(x.confidence?x.confidence+'%':'—')+'</div></article>').join('');
+function localData(){return{saved:read(S),scans:read(H),observations:read(O),source:'local'}}
+function buildingLabel(row){
+ const b=row?.buildings||row?.buildings?.[0]||{};
+ return b.address_normalized||b.address_original||b.external_key||'Bâtiment';
 }
-document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));render()});render();
+function normalize(){
+ if(!cloudData)return localData();
+ return{
+  saved:(cloudData.saved||[]).map(x=>({label:buildingLabel(x),meta:[x.buildings?.postal_code,x.buildings?.locality].filter(Boolean).join(' '),confidence:null})),
+  scans:(cloudData.scans||[]).map(x=>({label:buildingLabel(x),meta:(x.detection_mode||'Scan')+' · '+new Date(x.scanned_at).toLocaleString(),confidence:x.targeting_confidence})),
+  observations:(cloudData.observations||[]).map(x=>({label:x.text_original,meta:(x.status||'declared')+' · '+new Date(x.created_at).toLocaleString(),confidence:null}))
+ };
+}
+function render(){
+ const d=normalize(),saved=d.saved||[],history=d.scans||[],obs=d.observations||[];
+ document.getElementById('savedCount').textContent=saved.length;
+ document.getElementById('historyCount').textContent=history.length;
+ document.getElementById('observationCount').textContent=obs.length;
+ const list=tab==='saved'?saved:tab==='history'?history:obs,root=document.getElementById('activityList');
+ if(!list.length){root.innerHTML='<div class="emptyState">Aucune donnée pour le moment.<br><span>Scannez un bâtiment puis ouvrez sa fiche.</span></div>';return;}
+ root.innerHTML=list.map(x=>'<article class="activityCard"><div><strong>'+esc(x.label)+'</strong><span>'+esc(x.meta||'')+'</span></div><div class="activityMeta">'+(x.confidence!=null?Math.round(x.confidence)+'%':'')+'</div></article>').join('');
+}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));render()});
+try{
+ const session=await cloudGetSession();
+ if(session?.user){
+   cloudData=await cloudLibrary('list');
+   document.getElementById('activityIntro').textContent='Vos bâtiments, scans et observations HERIT Cloud.';
+   document.getElementById('cloudNotice').innerHTML='<strong>Synchronisé :</strong> ce tableau de bord est alimenté par votre compte HERIT Cloud.';
+ }else{
+   document.getElementById('activityIntro').textContent='Vous êtes hors connexion HERIT Cloud. Affichage des données locales de cet appareil.';
+   document.getElementById('cloudNotice').innerHTML='<strong>Local :</strong> connectez-vous dans HERIT Lens pour synchroniser vos données entre appareils.';
+ }
+}catch(e){
+ document.getElementById('activityIntro').textContent='Cloud indisponible. Affichage des données locales.';
+}
+render();
 </script></main></body></html>
