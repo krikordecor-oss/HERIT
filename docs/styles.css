@@ -31,3 +31,28 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 .card button{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:750;font-size:15px;background:#fff;color:#0b0d10}.card button.secondary{margin-top:8px;background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.15)}
 .debug{position:fixed;z-index:5;left:12px;top:calc(62px + env(safe-area-inset-top));max-width:calc(100% - 24px);font-size:11px;background:rgba(0,0,0,.55);padding:7px 10px;border-radius:10px}.debug pre{white-space:pre-wrap;max-height:180px;overflow:auto}
 @media (max-height:690px){.welcome h1{font-size:32px}.logoMark{width:78px;height:78px;margin-bottom:18px}.welcome p{font-size:14px;margin-bottom:20px}}
+/* HERIT Lens 0.5 — scanner produit */
+.targetCard{padding:16px 16px 14px}
+.cardTop{display:flex;gap:14px;justify-content:space-between;align-items:flex-start}
+.cardTop>div:first-child{min-width:0;flex:1}
+.target{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.confidence{flex:0 0 auto;min-width:54px;text-align:center;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08)}
+.confidence.good{background:rgba(255,255,255,.92);color:#080a0d}.confidence.medium{background:rgba(255,255,255,.16);color:#fff}.confidence.low,.confidence.neutral{background:rgba(255,255,255,.07);color:rgba(255,255,255,.65)}
+.targetFacts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:15px 0 13px}
+.targetFacts>div{min-width:0;padding:10px 9px;border-radius:12px;background:rgba(255,255,255,.06)}
+.targetFacts small{display:block;font-size:8px;letter-spacing:.09em;opacity:.44;margin-bottom:4px}.targetFacts strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.primaryAction{margin-top:0;background:#fff!important;color:#090b0e!important}
+.techDetails{margin-top:10px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px}
+.techDetails summary{list-style:none;text-align:center;font-size:11px;opacity:.45;padding:4px}.techDetails summary::-webkit-details-marker{display:none}
+.techDetails .metrics{margin:10px 0 0}
+.debug{display:none}
+.buildingSheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end}
+.sheetBackdrop{position:absolute;inset:0;border:0;background:rgba(0,0,0,.58);backdrop-filter:blur(3px)}
+.sheetPanel{position:relative;width:100%;max-height:82vh;overflow:auto;background:#0b0e12;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.11);padding:10px 18px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -18px 60px rgba(0,0,0,.45)}
+.sheetHandle{width:42px;height:5px;border-radius:999px;background:rgba(255,255,255,.18);margin:2px auto 14px}
+.sheetHead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.sheetHead h2{font-size:27px;line-height:1.08;margin:4px 0 0;letter-spacing:-.03em}
+.sheetClose{border:0;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-size:25px}
+.sheetGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}
+.sheetGrid>div{padding:13px;border-radius:14px;background:rgba(255,255,255,.055);min-width:0}.sheetGrid small{display:block;font-size:9px;letter-spacing:.09em;opacity:.42;margin-bottom:5px}.sheetGrid strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.sheetSource{padding:15px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)}.sheetSource span{display:block;font-size:9px;letter-spacing:.1em;opacity:.42}.sheetSource strong{display:block;font-size:14px;margin-top:4px}.sheetSource p{font-size:12px;line-height:1.45;opacity:.5;margin:9px 0 0}
+@media(max-width:380px){.targetFacts{grid-template-columns:1fr 1fr}.targetFacts>div:last-child{grid-column:1/-1}}
