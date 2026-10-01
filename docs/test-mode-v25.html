@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090c">
+<title>HERIT · Mode test Fondateur 2.5</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;background:#07090c;color:#f5f7fa}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#16202a 0,#090c10 30%,#060709 68%)}
+main{max-width:820px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 20px calc(60px + env(safe-area-inset-bottom))}
+a{color:inherit}
+.back{display:inline-flex;padding:10px 14px;border:1px solid rgba(255,255,255,.14);border-radius:12px;text-decoration:none;background:rgba(255,255,255,.05);font-size:14px}
+.hero{padding:42px 0 26px;border-bottom:1px solid rgba(255,255,255,.08)}
+.eyebrow{font-size:11px;letter-spacing:.16em;opacity:.45}
+h1{font-size:44px;letter-spacing:-.045em;margin:8px 0 12px}
+.hero p{font-size:17px;line-height:1.55;opacity:.64;margin:0;max-width:650px}
+.version{display:inline-flex;margin-top:16px;padding:6px 9px;border-radius:999px;background:#fff;color:#080a0d;font-size:10px;font-weight:900}
+section{padding:24px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+h2{font-size:20px;margin:0 0 14px}
+.status{padding:18px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.status strong{display:block;margin-bottom:5px}.status span{font-size:13px;opacity:.62;line-height:1.45}
+.pill{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:11px;font-weight:900}
+.pill.ok{background:#fff;color:#080a0d}
+.actions{display:none;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions a,.actions button{padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.06);color:#fff;text-decoration:none;font-weight:800}
+.cards{display:grid;gap:10px}
+.card{padding:15px 16px;border-radius:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;gap:14px;align-items:center}
+.card strong{display:block;font-size:15px}.card span{display:block;font-size:12px;opacity:.5;margin-top:4px}.tag{font-size:11px;font-weight:900;opacity:.9}
+.formIntro{font-size:14px;line-height:1.55;opacity:.62;margin:0 0 20px}
+.form{display:grid;gap:18px}
+.field{display:grid;gap:8px}
+label{font-size:13px;font-weight:850;color:rgba(255,255,255,.88)}
+select,textarea{
+ width:100%;border:1px solid rgba(255,255,255,.16);background:#111820;color:#fff;border-radius:15px;
+ font:inherit;outline:none
+}
+select{height:54px;padding:0 15px;font-size:16px}
+textarea{min-height:240px;padding:16px;font-size:16px;line-height:1.5;resize:vertical}
+select:focus,textarea:focus{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.06)}
+.hint{font-size:12px;opacity:.46;line-height:1.5}
+button.send{width:100%;min-height:58px;border:0;border-radius:16px;background:#fff;color:#080a0d;font-size:16px;font-weight:950;cursor:pointer}
+button.send:disabled{opacity:.5}
+.result{display:none;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);line-height:1.5}
+@media(max-width:600px){main{padding-left:16px;padding-right:16px}h1{font-size:38px}textarea{min-height:280px}.card{align-items:flex-start}.tag{padding-top:2px}}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="./?v=2.5">← HERIT Lens</a>
+
+<header class="hero">
+<div class="eyebrow">FOUNDER TEST MODE</div>
+<h1>Test réel HERIT.</h1>
+<p>Teste l’application comme un vrai client. Signale tout ce qui est faux, lent, confus ou inutile.</p>
+<div class="version">VERSION TEST 2.5</div>
+</header>
+
+<section>
+<div id="status" class="status">
+ <div><strong>Vérification de ton accès…</strong><span>Lecture de ta session HERIT.</span></div>
+ <div id="pill" class="pill">…</div>
+</div>
+<div id="actions" class="actions">
+ <a href="./?v=2.5">Retour à HERIT / connexion</a>
+ <button id="retry" type="button">Revérifier</button>
+</div>
+</section>
+
+<section>
+<h2>Parcours recommandé</h2>
+<div class="cards">
+ <div class="card"><div><strong>1 · Scanner</strong><span>Détection, GPS, cap, confiance et ouverture de fiche.</span></div><div class="tag">TERRAIN</div></div>
+ <div class="card"><div><strong>2 · Fiche bâtiment</strong><span>Données, Decision Brief, graph, score et historique.</span></div><div class="tag">DATA</div></div>
+ <div class="card"><div><strong>3 · Prospection</strong><span>Enregistrement, prospects, signaux et priorisation.</span></div><div class="tag">BUSINESS</div></div>
+ <div class="card"><div><strong>4 · Global</strong><span>Couverture pays, conformité et fallback mondial.</span></div><div class="tag">WORLD</div></div>
+</div>
+</section>
+
+<section>
+<h2>Envoyer une remarque</h2>
+<p class="formIntro">Écris ici exactement comme tu me parlerais dans le chat. Même une remarque longue est bienvenue.</p>
+<div class="form">
+ <div class="field">
+   <label for="category">Type de remarque</label>
+   <select id="category">
+     <option value="bug">Bug</option>
+     <option value="ux">UX / interface</option>
+     <option value="data">Donnée fausse ou manquante</option>
+     <option value="performance">Lenteur / performance</option>
+     <option value="idea">Idée d’amélioration</option>
+     <option value="other">Autre</option>
+   </select>
+ </div>
+
+ <div class="field">
+   <label for="severity">Priorité</label>
+   <select id="severity">
+     <option value="normal">Normale</option>
+     <option value="high">Haute</option>
+     <option value="blocking">Bloquante</option>
+     <option value="low">Faible</option>
+   </select>
+ </div>
+
+ <div class="field">
+   <label for="message">Ta remarque</label>
+   <textarea id="message" placeholder="Exemple : je vise la maison en face, mais HERIT sélectionne celle de gauche. La fiche met ensuite 5 secondes à s’ouvrir et l’année de construction semble fausse."></textarea>
+   <div class="hint">Tu peux écrire plusieurs lignes : ce que tu faisais, ce que tu attendais et ce qui s’est passé.</div>
+ </div>
+
+ <button id="send" class="send" type="button">Envoyer la remarque à HERIT</button>
+ <div id="result" class="result"></div>
+</div>
+</section>
+
+<script type="module">
+import {cloudGetSession,cloudEntitlement,cloudSubmitFeedback} from './cloud.js?v=2.5';
+const status=document.getElementById('status');
+const pill=document.getElementById('pill');
+const actions=document.getElementById('actions');
+const result=document.getElementById('result');
+
+async function checkAccess(){
+ status.children[0].innerHTML='<strong>Vérification de ton accès…</strong><span>Lecture de ta session HERIT.</span>';
+ pill.textContent='…';pill.className='pill';actions.style.display='none';
+ try{
+   const session=await cloudGetSession();
+   if(!session?.user){
+     status.children[0].innerHTML='<strong>Session non active sur cet appareil.</strong><span>Ton compte existe. Retourne dans HERIT, connecte-toi, puis reviens ici.</span>';
+     pill.textContent='HORS CONNEXION';actions.style.display='flex';return;
+   }
+   const x=await cloudEntitlement();
+   const access=x.entitlement?.access_level||'free';
+   if(access==='founder_owner'){
+     status.children[0].innerHTML='<strong>Accès total Fondateur actif.</strong><span>Tous les modules de test sont ouverts, sans quota.</span>';
+     pill.textContent='FOUNDER';pill.className='pill ok';
+   }else{
+     status.children[0].innerHTML='<strong>Compte connecté, accès Fondateur non détecté.</strong><span>Utilise “Revérifier”.</span>';
+     pill.textContent=access.toUpperCase();actions.style.display='flex';
+   }
+ }catch(e){
+   status.children[0].innerHTML='<strong>Statut temporairement indisponible.</strong><span>Réessaie dans quelques secondes.</span>';
+   pill.textContent='ERREUR';actions.style.display='flex';
+ }
+}
+document.getElementById('retry').onclick=checkAccess;
+document.getElementById('send').onclick=async()=>{
+ const message=document.getElementById('message').value.trim();
+ result.style.display='block';
+ if(!message){result.textContent='Écris d’abord ta remarque.';return;}
+ const btn=document.getElementById('send');btn.disabled=true;btn.textContent='Envoi en cours…';result.style.display='none';
+ try{
+   await cloudSubmitFeedback({
+     category:document.getElementById('category').value,
+     severity:document.getElementById('severity').value,
+     message,
+     page:'test-mode-v25',
+     app_version:'2.5',
+     device_info:{ua:navigator.userAgent,viewport:[innerWidth,innerHeight]}
+   });
+   result.style.display='block';
+   result.innerHTML='<strong>Remarque enregistrée.</strong><br>Elle est maintenant dans la liste de correction HERIT.';
+   document.getElementById('message').value='';
+ }catch(e){
+   result.style.display='block';
+   result.innerHTML='<strong>Envoi impossible.</strong><br>Vérifie ta connexion HERIT puis réessaie.';
+ }
+ btn.disabled=false;btn.textContent='Envoyer la remarque à HERIT';
+};
+checkAccess();
+</script>
+</main>
+</body>
+</html>
