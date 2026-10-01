@@ -20,6 +20,12 @@ export async function cloudSignUp(email,password){
   const {data,error}=await supabase.auth.signUp({email,password});if(error)throw error;return data.session||data;
 }
 export async function cloudSignOut(){const {error}=await supabase.auth.signOut();if(error)throw error;}
+export async function cloudResendConfirmation(email){
+  if(!email)throw new Error('E-mail requis.');
+  const {data,error}=await supabase.auth.resend({type:'signup',email});
+  if(error)throw error;
+  return data;
+}
 async function invoke(name,body){
   const {data,error}=await supabase.functions.invoke(name,{body});
   if(error)throw error;return data;
