@@ -176,14 +176,17 @@ $('startBtn').addEventListener('click',async()=>{
     startGPS();
     $('sensorStatus').textContent='GPS en cours…';
     $('startBtn').classList.add('hidden');
-    $('reloadBtn')?.classList.remove('disabledControl');
+    if($('reloadBtn')){ $('reloadBtn').classList.remove('disabledControl'); $('reloadBtn').disabled=false; }
   }catch(e){
     $('scannerHint')?.classList.remove('hidden');
     $('sensorStatus').textContent='Erreur';$('targetMeta').textContent=e.message||String(e);
     $('startBtn').disabled=false;$('startBtn').textContent='Réessayer';
   }
 });
-$('reloadBtn').addEventListener('click',async()=>{await maybeReloadBuildings(true);});
+$('reloadBtn').addEventListener('click',async()=>{
+  if($('reloadBtn').disabled||!state.position)return;
+  await maybeReloadBuildings(true);
+});
 
 // HERIT Lens 0.7 — mode métier, historique et favoris locaux
 const STORAGE_MODE='herit.mode';
