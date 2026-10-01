@@ -186,3 +186,11 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
   .onboardingChoices span{font-size:10px}
   .onboardingCard{padding-top:20px}
 }
+
+
+/* HERIT 2.11 — scanner idle state */
+.scannerHint{position:absolute;left:50%;top:39%;transform:translate(-50%,-50%);z-index:3;text-align:center;width:min(420px,78vw);pointer-events:none}
+.scannerHint strong,.scannerHint span{display:block}
+.scannerHint strong{font-size:18px;line-height:1.25;letter-spacing:-.02em}
+.scannerHint span{font-size:12px;line-height:1.45;opacity:.52;margin-top:7px}
+.disabledControl{opacity:.35;pointer-events:none}
