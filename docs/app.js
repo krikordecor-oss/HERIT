@@ -1,4 +1,4 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory, cloudBuildingBrief } from './cloud.js?v=2.1';
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory, cloudBuildingBrief, cloudOvertureZone } from './cloud.js?v=2.3';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -61,11 +61,49 @@ async function maybeReloadBuildings(force=false){
   state.loading=true;$('rnbStatus').textContent='RNB…';
   try{
     state.features=await loadBuildingsNear(state.position.lat,state.position.lon,{radiusM:140,force});
+    let sourceLabel='RNB';
+    if((!state.features||!state.features.length) && cloudSession?.user){
+      try{
+        const g=await cloudOvertureZone({
+          lat:state.position.lat,
+          lon:state.position.lon,
+          radius_m:140,
+          country_code:state.geoContext?.country_code||null
+        });
+        if(g?.status==='ready' && Array.isArray(g.features) && g.features.length){
+          state.features=g.features;
+          sourceLabel='Overture';
+        }else if(g?.status==='queued' || g?.status==='processing'){
+          $('sensorStatus').textContent='Données mondiales en préparation';
+        }
+      }catch(e){
+        console.warn('HERIT Overture fallback',e);
+      }
+    }
     state.lastLoadPosition={lat:state.position.lat,lon:state.position.lon};
     $('rnbStatus').textContent=`${state.features.length} bât.`;
-    $('sensorStatus').textContent='RNB connecté';
+    $('sensorStatus').textContent=state.features.length ? sourceLabel+' connecté' : 'Aucun bâtiment';
     updateTarget();
   }catch(e){
+    try{
+      if(cloudSession?.user){
+        const g=await cloudOvertureZone({
+          lat:state.position.lat,lon:state.position.lon,radius_m:140,
+          country_code:state.geoContext?.country_code||null
+        });
+        if(g?.status==='ready' && Array.isArray(g.features) && g.features.length){
+          state.features=g.features;
+          state.lastLoadPosition={lat:state.position.lat,lon:state.position.lon};
+          $('rnbStatus').textContent=`${state.features.length} bât.`;
+          $('sensorStatus').textContent='Overture connecté';
+          updateTarget();
+          return;
+        }
+        $('rnbStatus').textContent='GLOBAL…';
+        $('targetMeta').textContent='Zone mondiale en préparation.';
+        return;
+      }
+    }catch(globalErr){console.warn('HERIT global fallback',globalErr);}
     $('rnbStatus').textContent='RNB erreur';
     $('targetMeta').textContent=`Erreur RNB : ${e.message||e}`;
   }finally{state.loading=false;}
