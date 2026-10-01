@@ -742,7 +742,12 @@ async function refreshBuildingFacts(){
     if(f.footprint_surface_m2!=null)parts.push(Math.round(Number(f.footprint_surface_m2))+' m² emprise');
     if(r.country==='GB')parts.push((r.planning_entities||0)+' contrainte(s) urbanisme');
     if(r.country==='NL'&&Array.isArray(r.facts))parts.push('BAG enrichi');
-    badge.textContent=r.source==='nl-bag'?'BAG':r.source==='gb-planning'?'UK':'BDNB';
+    if(r.country==='US'){
+      if(r.flood_polygon_match===false)parts.push('Aucun polygone FEMA trouvé');
+      if(r.flood_zone)parts.push('Zone FEMA '+r.flood_zone);
+      if(r.sfha)parts.push('SFHA '+r.sfha);
+    }
+    badge.textContent=r.source==='nl-bag'?'BAG':r.source==='gb-planning'?'UK':r.source==='us-fema-nfhl'?'FEMA':'BDNB';
     textEl.textContent=(parts.length?parts.join(' · '):'Données officielles trouvées')+' · '+(r.source||r.source_name||'HERIT');
   }catch(e){
     badge.textContent='—';textEl.textContent='Enrichissement temporairement indisponible.';
@@ -761,9 +766,10 @@ async function refreshFutureContext(){
     const ctx=r?.context||{};
     const timeline=Array.isArray(ctx.timeline)?ctx.timeline.length:0;
     const components=Array.isArray(ctx.components)?ctx.components.length:0;
+    const transactions=Array.isArray(ctx.transactions)?ctx.transactions.length:0;
     const anchors=Array.isArray(ctx.spatial_anchors)?ctx.spatial_anchors.length:0;
     badge.textContent='GRAPH';
-    textEl.textContent=timeline+' événement'+(timeline>1?'s':'')+' · '+components+' composant'+(components>1?'s':'')+' · '+anchors+' ancre'+(anchors>1?'s':'')+' spatiale'+(anchors>1?'s':'');
+    textEl.textContent=timeline+' événement'+(timeline>1?'s':'')+' · '+transactions+' transaction'+(transactions>1?'s':'')+' · '+components+' composant'+(components>1?'s':'')+' · '+anchors+' ancre'+(anchors>1?'s':'')+' spatiale'+(anchors>1?'s':'');
   }catch(e){
     badge.textContent='—';textEl.textContent='Building Graph temporairement indisponible.';
     console.warn('HERIT future context',e);
