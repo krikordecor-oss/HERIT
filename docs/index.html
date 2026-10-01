@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.13" />
+  <link rel="stylesheet" href="styles.css?v=2.14" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -123,7 +123,7 @@
             <div class="eyebrow">PRÊT À IDENTIFIER</div>
             <div class="target" id="targetName">Prêt à scanner</div>
           </div>
-          <div class="confidence neutral" id="confidenceBadge">—</div>
+          <div class="confidenceWrap"><div class="confidence neutral" id="confidenceBadge">—</div><div id="stabilizeBadge" class="stabilizeBadge hidden">Stabilisation…</div></div>
         </div>
 
         <div class="meta" id="targetMeta">Active la détection pour commencer.</div>
@@ -371,6 +371,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=2.13"></script>
+  <script type="module" src="app.js?v=2.14"></script>
 </body>
 </html>
