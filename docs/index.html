@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.7" />
+  <link rel="stylesheet" href="styles.css?v=2.8" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -209,13 +209,58 @@
     <button class="sheetBackdrop" id="modeBackdrop" aria-label="Fermer"></button>
     <div class="modePanel">
       <div class="sheetHandle"></div>
-      <div class="sheetHead"><div><div class="eyebrow">PERSONNALISATION</div><h2>Votre mode métier</h2></div><button id="closeMode" class="sheetClose" aria-label="Fermer">×</button></div>
-      <p class="modeIntro">Choisissez votre métier : HERIT adapte l’ordre des données, les actions et les fonctionnalités Pro.</p>
+
+      <div class="modeWelcomeIcon" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <path d="M20 18v64M80 18v64M20 50h60" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="8" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <div class="sheetHead modeWelcomeHead">
+        <div>
+          <div class="eyebrow" id="modeEyebrow">BIENVENUE DANS HERIT</div>
+          <h2 id="modeTitle">Adaptons HERIT à votre activité.</h2>
+        </div>
+        <button id="closeMode" class="sheetClose" aria-label="Fermer">×</button>
+      </div>
+
+      <p class="modeIntro">Votre choix personnalise les données, les raccourcis et les analyses affichés en priorité. Vous pourrez le modifier à tout moment.</p>
+
+      <div class="modeBenefit">
+        <span>✓</span>
+        <div>
+          <strong>Une expérience plus utile dès le premier scan</strong>
+          <small>HERIT met en avant les informations les plus pertinentes pour votre métier.</small>
+        </div>
+      </div>
+
       <div class="modeList">
-        <button data-mode="Immobilier"><strong>Immobilier</strong><span>Valeur, DPE, DVF, comparables, prospection.</span></button>
-        <button data-mode="Collectivité"><strong>Collectivité</strong><span>RNB, cadastre, PLU, autorisations, contrôle terrain.</span></button>
-        <button data-mode="Rénovation"><strong>Rénovation</strong><span>DPE, surfaces, risques, potentiel travaux.</span></button>
-        <button data-mode="Investissement"><strong>Investissement</strong><span>Valeur, rendement, risques, potentiel.</span></button>
+        <button data-mode="Immobilier">
+          <span class="modeIcon">⌂</span>
+          <div><strong>Immobilier</strong><span>Valeur, DPE, transactions, comparables et prospection.</span></div>
+          <span class="modeCheck">✓</span>
+        </button>
+        <button data-mode="Collectivité">
+          <span class="modeIcon">▦</span>
+          <div><strong>Collectivité</strong><span>Cadastre, PLU, autorisations et contrôle terrain.</span></div>
+          <span class="modeCheck">✓</span>
+        </button>
+        <button data-mode="Rénovation">
+          <span class="modeIcon">◇</span>
+          <div><strong>Rénovation</strong><span>DPE, surfaces, risques et potentiel travaux.</span></div>
+          <span class="modeCheck">✓</span>
+        </button>
+        <button data-mode="Investissement">
+          <span class="modeIcon">↗</span>
+          <div><strong>Investissement</strong><span>Valeur, rendement, risques et potentiel.</span></div>
+          <span class="modeCheck">✓</span>
+        </button>
+      </div>
+
+      <div id="modeOnboardingActions" class="modeOnboardingActions hidden">
+        <button id="confirmModeBtn" class="modeConfirm">Continuer avec Immobilier</button>
+        <button id="skipModeBtn" class="modeSkip">Découvrir HERIT d’abord</button>
       </div>
     </div>
   </section>
@@ -302,6 +347,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=2.7"></script>
+  <script type="module" src="app.js?v=2.8"></script>
 </body>
 </html>
