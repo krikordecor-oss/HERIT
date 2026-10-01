@@ -137,3 +137,79 @@ $('startBtn').addEventListener('click',async()=>{
   }
 });
 $('reloadBtn').addEventListener('click',async()=>{await maybeReloadBuildings(true);});
+
+// HERIT Lens 0.7 — mode métier, historique et favoris locaux
+const STORAGE_MODE='herit.mode';
+const STORAGE_SAVED='herit.savedBuildings';
+const STORAGE_HISTORY='herit.history';
+
+function getMode(){ return localStorage.getItem(STORAGE_MODE)||'Immobilier'; }
+function setMode(mode){
+  localStorage.setItem(STORAGE_MODE,mode);
+  $('modeLabel').textContent=mode;
+  $('scannerMode').textContent=mode;
+  document.querySelectorAll('.modeList button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+}
+function readList(key){
+  try{return JSON.parse(localStorage.getItem(key)||'[]');}catch{return[];}
+}
+function writeList(key,list){localStorage.setItem(key,JSON.stringify(list.slice(0,100)));}
+function buildingSnapshot(){
+  const hit=state.currentHit;
+  if(!hit)return null;
+  const p=hit.feature.properties||{};
+  return {
+    id:p.rnb_id||p.id||hit.feature.id||labelFor(hit.feature),
+    label:labelFor(hit.feature),
+    rnb_id:p.rnb_id||null,
+    distance:Math.round(hit.distance),
+    confidence:state.currentConfidence,
+    mode:getMode(),
+    scanned_at:new Date().toISOString()
+  };
+}
+function upsertById(key,item){
+  const list=readList(key).filter(x=>x.id!==item.id);
+  list.unshift(item);writeList(key,list);return list;
+}
+function isSaved(id){return readList(STORAGE_SAVED).some(x=>x.id===id);}
+function refreshSaveButton(){
+  const item=buildingSnapshot(),btn=$('saveBuildingBtn');
+  if(!btn||!item)return;
+  const saved=isSaved(item.id);
+  btn.textContent=saved?'Bâtiment enregistré':'Enregistrer ce bâtiment';
+  btn.classList.toggle('saved',saved);
+}
+function openModeSheet(){
+  closeMenu();
+  $('modeSheet').classList.remove('hidden');
+  $('modeSheet').setAttribute('aria-hidden','false');
+  setMode(getMode());
+}
+function closeModeSheet(){
+  $('modeSheet').classList.add('hidden');
+  $('modeSheet').setAttribute('aria-hidden','true');
+}
+$('modeBtn')?.addEventListener('click',openModeSheet);
+$('closeMode')?.addEventListener('click',closeModeSheet);
+$('modeBackdrop')?.addEventListener('click',closeModeSheet);
+document.querySelectorAll('.modeList button').forEach(b=>b.addEventListener('click',()=>{setMode(b.dataset.mode);closeModeSheet();}));
+$('saveBuildingBtn')?.addEventListener('click',()=>{
+  const item=buildingSnapshot(); if(!item)return;
+  const list=readList(STORAGE_SAVED);
+  if(list.some(x=>x.id===item.id)) writeList(STORAGE_SAVED,list.filter(x=>x.id!==item.id));
+  else upsertById(STORAGE_SAVED,item);
+  refreshSaveButton();
+});
+const originalOpenSheet=openSheet;
+openSheet=function(){
+  originalOpenSheet();
+  const item=buildingSnapshot();
+  if(item)upsertById(STORAGE_HISTORY,item);
+  refreshSaveButton();
+};
+setMode(getMode());
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=0.7').catch(()=>{}));
+}
