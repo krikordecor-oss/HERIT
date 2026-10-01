@@ -1,0 +1,9 @@
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;background:#07090c;color:#f5f7fa}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#16202a 0,#090c10 28%,#060709 65%);min-height:100vh}
+.infoPage{max-width:760px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 22px calc(46px + env(safe-area-inset-bottom))}
+.back{display:inline-flex;padding:9px 12px;border:1px solid rgba(255,255,255,.11);border-radius:12px;color:#fff;text-decoration:none;background:rgba(255,255,255,.04);font-size:14px}
+.hero{padding:42px 0 24px}.eyebrow{font-size:11px;letter-spacing:.16em;opacity:.45}.hero h1{font-size:42px;letter-spacing:-.045em;margin:8px 0 12px}.hero p{font-size:17px;line-height:1.55;opacity:.65;margin:0;max-width:620px}
+section:not(.hero){padding:22px 0;border-top:1px solid rgba(255,255,255,.08)}h2{font-size:19px;margin:0 0 12px}p{line-height:1.65;color:rgba(255,255,255,.72);margin:8px 0}strong{color:#fff}
+.muted{font-size:12px;opacity:.55}.notice{margin-top:18px;padding:16px!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:16px;background:rgba(255,255,255,.045)}
+.sourceCard{position:relative;padding:16px;margin:10px 0;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}.sourceCard strong,.sourceCard span{display:block}.sourceCard span{font-size:13px;line-height:1.5;opacity:.58;margin-top:5px}.sourceCard em{position:absolute;top:14px;right:14px;font-size:10px;font-style:normal;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.1)}
+@media(max-width:520px){.hero h1{font-size:36px}.hero{padding-top:34px}}
