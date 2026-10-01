@@ -1,0 +1,55 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c"><link rel="stylesheet" href="info.css?v=1.4"><title>Prospection · HERIT Lens</title></head><body><main class="infoPage"><a class="back" href="./?v=1.4">← HERIT Lens</a>
+<header class="hero"><div class="eyebrow">HERIT PROSPECT ENGINE</div><h1>Vos opportunités terrain.</h1><p>Transformez les bâtiments repérés en liste de prospection structurée. Les scores restent volontairement absents tant que les données ne sont pas suffisantes.</p></header>
+<section>
+  <div class="activitySummaryGrid">
+    <div><small>LISTES</small><strong id="listCount">0</strong></div>
+    <div><small>PROSPECTS</small><strong id="prospectCount">0</strong></div>
+    <div><small>QUALIFIÉS</small><strong id="qualifiedCount">0</strong></div>
+  </div>
+  <div class="authActions" style="margin:14px 0">
+    <input id="newListName" class="authInput" type="text" maxlength="120" placeholder="Nouvelle liste">
+    <button id="createListBtn">Créer</button>
+  </div>
+  <div id="prospectStatus" class="notice">Connexion à HERIT Cloud…</div>
+  <div id="prospectLists" class="activityList"></div>
+</section>
+<script type="module">
+import { cloudGetSession, cloudProspects } from './cloud.js?v=1.4';
+const $=id=>document.getElementById(id);
+function esc(s){return String(s||'—').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+let session=null,data={lists:[],items:[]};
+async function load(){
+ session=await cloudGetSession();
+ if(!session?.user){$('prospectStatus').innerHTML='<strong>Compte requis :</strong> connectez-vous dans HERIT Lens pour utiliser la prospection cloud.';render();return;}
+ try{
+  data=await cloudProspects('list');
+  $('prospectStatus').innerHTML='<strong>Synchronisé :</strong> vos listes de prospection sont stockées dans HERIT Cloud.';
+ }catch(e){$('prospectStatus').textContent='Prospection temporairement indisponible.';}
+ render();
+}
+function render(){
+ const lists=data.lists||[],items=data.items||[];
+ $('listCount').textContent=lists.length;$('prospectCount').textContent=items.length;
+ $('qualifiedCount').textContent=items.filter(x=>x.status==='qualified'||x.status==='won').length;
+ const root=$('prospectLists');
+ if(!lists.length){root.innerHTML='<div class="emptyState">Aucune liste pour le moment.<br><span>Créez une liste ou ajoutez un bâtiment depuis sa fiche.</span></div>';return;}
+ root.innerHTML=lists.map(list=>{
+   const rows=items.filter(x=>x.list_id===list.id);
+   const body=rows.length?rows.map(x=>{
+     const b=x.buildings||{},score=(x.opportunity_scores||[])[0];
+     const label=b.address_normalized||b.address_original||b.external_key||'Bâtiment';
+     const scoreText=score?.score_state==='computed'?Math.round(score.score)+'/100':'Données insuffisantes';
+     return '<article class="activityCard"><div><strong>'+esc(label)+'</strong><span>'+esc(x.status)+' · '+esc(scoreText)+'</span></div><div class="activityMeta">'+(score?.score_state==='computed'?Math.round(score.score):'—')+'</div></article>';
+   }).join(''):'<div class="emptyState">Liste vide</div>';
+   return '<section><h2>'+esc(list.name)+'</h2>'+body+'</section>';
+ }).join('');
+}
+$('createListBtn').addEventListener('click',async()=>{
+ if(!session?.user)return;
+ const name=$('newListName').value.trim();if(!name)return;
+ $('createListBtn').disabled=true;
+ try{await cloudProspects('create_list',{name,vertical:'real_estate'});$('newListName').value='';data=await cloudProspects('list');render();}
+ finally{$('createListBtn').disabled=false;}
+});
+load();
+</script></main></body></html>
