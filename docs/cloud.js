@@ -43,3 +43,7 @@ export function cloudGlobalEnrich(building_id){return invoke('global-enrich',{bu
 export function cloudCoverageMatrix(country_code=null){return invoke('coverage-matrix',country_code?{country_code}:{});}
 
 export function cloudBuildingBrief(building_id){return invoke('building-brief',{building_id});}
+
+export function cloudSubmitFeedback(payload){return invoke('test-feedback',payload);}
+export function cloudEntitlement(){return invoke('my-entitlement',{});}
+export function cloudOvertureZone(payload){return invoke('overture-zone-request',payload);}
