@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=0.4.1" />
+  <link rel="stylesheet" href="styles.css?v=0.5" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -83,20 +83,36 @@
     <main>
       <div class="reticle"><span></span></div>
 
-      <section class="card">
-        <div class="eyebrow">BÂTIMENT VISÉ</div>
-        <div class="target" id="targetName">—</div>
+      <section class="card targetCard">
+        <div class="cardTop">
+          <div>
+            <div class="eyebrow">BÂTIMENT DÉTECTÉ</div>
+            <div class="target" id="targetName">Prêt à scanner</div>
+          </div>
+          <div class="confidence neutral" id="confidenceBadge">—</div>
+        </div>
+
         <div class="meta" id="targetMeta">Active la détection pour commencer.</div>
 
-        <div class="metrics">
-          <div><small>GPS</small><strong id="gps">—</strong></div>
-          <div><small>CAP</small><strong id="heading">—</strong></div>
-          <div><small>PRÉCISION</small><strong id="accuracy">—</strong></div>
-          <div><small>RNB</small><strong id="rnbStatus">—</strong></div>
+        <div class="targetFacts">
+          <div><small>DISTANCE</small><strong id="distanceFact">—</strong></div>
+          <div><small>SOURCE</small><strong>RNB</strong></div>
+          <div><small>PRÉCISION GPS</small><strong id="accuracyFact">—</strong></div>
         </div>
 
         <button id="startBtn">Activer la détection</button>
-        <button id="reloadBtn" class="secondary">Recharger les bâtiments</button>
+        <button id="openBuildingBtn" class="primaryAction hidden">Ouvrir la fiche bâtiment</button>
+        <button id="reloadBtn" class="secondary">Recalibrer autour de moi</button>
+
+        <details class="techDetails">
+          <summary>Détails techniques</summary>
+          <div class="metrics">
+            <div><small>GPS</small><strong id="gps">—</strong></div>
+            <div><small>CAP</small><strong id="heading">—</strong></div>
+            <div><small>PRÉCISION</small><strong id="accuracy">—</strong></div>
+            <div><small>RNB</small><strong id="rnbStatus">—</strong></div>
+          </div>
+        </details>
       </section>
     </main>
 
@@ -104,8 +120,35 @@
       <summary>Debug moteur</summary>
       <pre id="debug"></pre>
     </details>
+
+    <section id="buildingSheet" class="buildingSheet hidden" aria-hidden="true">
+      <button id="sheetBackdrop" class="sheetBackdrop" aria-label="Fermer"></button>
+      <div class="sheetPanel">
+        <div class="sheetHandle"></div>
+        <div class="sheetHead">
+          <div>
+            <div class="eyebrow">FICHE BÂTIMENT</div>
+            <h2 id="sheetTitle">Bâtiment</h2>
+          </div>
+          <button id="closeSheet" class="sheetClose" aria-label="Fermer">×</button>
+        </div>
+        <div class="sheetGrid">
+          <div><small>ID RNB</small><strong id="sheetRnb">—</strong></div>
+          <div><small>Distance</small><strong id="sheetDistance">—</strong></div>
+          <div><small>Mode de détection</small><strong id="sheetMode">—</strong></div>
+          <div><small>Confiance ciblage</small><strong id="sheetConfidence">—</strong></div>
+          <div><small>Précision GPS</small><strong id="sheetAccuracy">—</strong></div>
+          <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
+        </div>
+        <div class="sheetSource">
+          <span>Source actuelle</span>
+          <strong>Référentiel National des Bâtiments</strong>
+          <p>Les données DPE, DVF, fibre, cadastre et risques seront ajoutées uniquement après validation du ciblage terrain.</p>
+        </div>
+      </div>
+    </section>
   </section>
 
-  <script type="module" src="app.js?v=0.4.1"></script>
+  <script type="module" src="app.js?v=0.5"></script>
 </body>
 </html>
