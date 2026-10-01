@@ -2,20 +2,35 @@ import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js'
 import { loadBuildingsNear } from './buildings.js';
 
 const $ = id => document.getElementById(id);
-const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false};
+const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false,currentHit:null,currentConfidence:null};
 
-function openMenu(){
-  $('drawer').classList.remove('hidden');
-  $('drawer').setAttribute('aria-hidden','false');
-}
-function closeMenu(){
-  $('drawer').classList.add('hidden');
-  $('drawer').setAttribute('aria-hidden','true');
-}
+function openMenu(){ $('drawer').classList.remove('hidden'); $('drawer').setAttribute('aria-hidden','false'); }
+function closeMenu(){ $('drawer').classList.add('hidden'); $('drawer').setAttribute('aria-hidden','true'); }
 $('menuBtn').addEventListener('click',openMenu);
 $('scannerMenuBtn').addEventListener('click',openMenu);
 $('closeMenu').addEventListener('click',closeMenu);
 $('drawerBackdrop').addEventListener('click',closeMenu);
+
+function openSheet(){
+  if(!state.currentHit)return;
+  const hit=state.currentHit, p=hit.feature.properties||{};
+  $('sheetTitle').textContent=labelFor(hit.feature);
+  $('sheetRnb').textContent=p.rnb_id||p.id||hit.feature.id||'—';
+  $('sheetDistance').textContent=`${Math.round(hit.distance)} m`;
+  $('sheetMode').textContent=modeLabel(hit.mode);
+  $('sheetConfidence').textContent=state.currentConfidence!=null?`${state.currentConfidence}%`:'—';
+  $('sheetAccuracy').textContent=state.position?`±${Math.round(state.position.accuracy)} m`:'—';
+  $('sheetNearby').textContent=`${state.features.length}`;
+  $('buildingSheet').classList.remove('hidden');
+  $('buildingSheet').setAttribute('aria-hidden','false');
+}
+function closeSheet(){
+  $('buildingSheet').classList.add('hidden');
+  $('buildingSheet').setAttribute('aria-hidden','true');
+}
+$('openBuildingBtn').addEventListener('click',openSheet);
+$('closeSheet').addEventListener('click',closeSheet);
+$('sheetBackdrop').addEventListener('click',closeSheet);
 
 async function startCamera(){
   const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
@@ -58,6 +73,7 @@ function startGPS(){
     state.position={lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy};
     $('gps').textContent=`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`;
     $('accuracy').textContent=`±${Math.round(p.coords.accuracy)} m`;
+    $('accuracyFact').textContent=`±${Math.round(p.coords.accuracy)} m`;
     await maybeReloadBuildings(false);updateTarget();
   },err=>{$('targetMeta').textContent=`Erreur GPS : ${err.message}`;},{
     enableHighAccuracy:true,maximumAge:1000,timeout:12000
@@ -68,32 +84,53 @@ function labelFor(feature){
   return p.address||p.adresse||p.rnb_id||p.id||feature.id||'Bâtiment';
 }
 function modeLabel(mode){
-  if(mode==='ray')return'intersection directe';
-  if(mode==='point')return'point RNB';
-  return'cône de secours';
+  if(mode==='ray')return'Intersection directe';
+  if(mode==='point')return'Point RNB';
+  return'Cône de secours';
+}
+function confidenceFor(hit){
+  if(!hit||!state.position)return null;
+  const acc=Number(state.position.accuracy||20);
+  let score=hit.mode==='ray'?96:hit.mode==='cone'?82:76;
+  score-=Math.min(25,Math.max(0,acc-3)*1.7);
+  score-=Math.min(18,(hit.angle||0)*1.4);
+  return Math.max(35,Math.min(98,Math.round(score)));
+}
+function paintConfidence(score){
+  const b=$('confidenceBadge');
+  if(score==null){b.textContent='—';b.className='confidence neutral';return;}
+  b.textContent=`${score}%`;
+  b.className='confidence '+(score>=82?'good':score>=65?'medium':'low');
 }
 function updateTarget(){
   if(!state.position||state.heading==null)return;
   const hit=selectTarget({origin:state.position,heading:state.heading,features:state.features,maxDistance:180,fallbackConeDeg:9,pointConeDeg:7});
+  state.currentHit=hit||null;
+  state.currentConfidence=confidenceFor(hit);
+  paintConfidence(state.currentConfidence);
+
   if(!hit){
     $('targetName').textContent='Aucun bâtiment';
-    $('targetMeta').textContent=state.features.length?'Aucun bâtiment dans l’axe de visée.':'Chargement des bâtiments autour de toi…';
+    $('targetMeta').textContent=state.features.length?'Vise une façade au centre de l’écran.':'Chargement des bâtiments autour de toi…';
+    $('distanceFact').textContent='—';
+    $('openBuildingBtn').classList.add('hidden');
   }else{
     const p=hit.feature.properties||{};
     $('targetName').textContent=labelFor(hit.feature);
-    $('targetMeta').textContent=`${Math.round(hit.distance)} m · ${modeLabel(hit.mode)}${p.rnb_id?` · RNB ${p.rnb_id}`:''}`;
+    $('targetMeta').textContent=p.rnb_id?`RNB ${p.rnb_id}`:'Bâtiment identifié par le RNB';
+    $('distanceFact').textContent=`${Math.round(hit.distance)} m`;
+    $('openBuildingBtn').classList.remove('hidden');
   }
-  $('debug').textContent=JSON.stringify({heading:state.heading,position:state.position,buildings:state.features.length,hit:hit?{name:labelFor(hit.feature),rnb_id:hit.feature.properties?.rnb_id,distance:hit.distance,angle:hit.angle,mode:hit.mode}:null},null,2);
+  $('debug').textContent=JSON.stringify({heading:state.heading,position:state.position,buildings:state.features.length,confidence:state.currentConfidence,hit:hit?{name:labelFor(hit.feature),rnb_id:hit.feature.properties?.rnb_id,distance:hit.distance,angle:hit.angle,mode:hit.mode}:null},null,2);
 }
-$('enterBtn').addEventListener('click',()=>{
-  $('welcome').classList.add('hidden');
-  $('scanner').classList.remove('hidden');
-});
+$('enterBtn').addEventListener('click',()=>{$('welcome').classList.add('hidden');$('scanner').classList.remove('hidden');});
 $('startBtn').addEventListener('click',async()=>{
   try{
     $('startBtn').disabled=true;$('startBtn').textContent='Initialisation…';
     await Promise.all([startCamera(),requestOrientation()]);
-    startGPS();$('sensorStatus').textContent='GPS en cours…';$('startBtn').textContent='HERIT Lens actif';
+    startGPS();
+    $('sensorStatus').textContent='GPS en cours…';
+    $('startBtn').classList.add('hidden');
   }catch(e){
     $('sensorStatus').textContent='Erreur';$('targetMeta').textContent=e.message||String(e);
     $('startBtn').disabled=false;$('startBtn').textContent='Réessayer';
