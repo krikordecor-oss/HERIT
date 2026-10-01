@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=1.1" />
+  <link rel="stylesheet" href="styles.css?v=1.2" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -51,6 +51,7 @@
         <button class="drawerAction" id="modeBtn">Mode métier <span id="modeLabel">Immobilier</span></button>
         <button class="drawerAction" id="languageBtn">Langue <span id="languageLabel">Français</span></button>
         <button class="drawerAction" id="speechLanguageBtn">Langue de dictée <span id="speechLanguageLabel">Français</span></button>
+        <button class="drawerAction" id="accountBtn">Compte HERIT <span id="accountLabel">Se connecter</span></button>
         <a href="about.html">À propos de HERIT Lens <span>›</span></a>
         <a href="sources.html">Sources des données <span>›</span></a>
         <a href="privacy.html">Confidentialité <span>›</span></a>
@@ -233,6 +234,33 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=1.1"></script>
+  <section id="authSheet" class="modeSheet hidden" aria-hidden="true">
+    <button class="sheetBackdrop" id="authBackdrop" aria-label="Fermer"></button>
+    <div class="modePanel">
+      <div class="sheetHandle"></div>
+      <div class="sheetHead">
+        <div><div class="eyebrow">HERIT CLOUD</div><h2>Votre compte</h2></div>
+        <button id="closeAuth" class="sheetClose" aria-label="Fermer">×</button>
+      </div>
+      <p class="modeIntro">Le compte synchronise vos scans, bâtiments enregistrés et observations avec HERIT Cloud.</p>
+      <div id="authSignedOut">
+        <label class="fieldLabel" for="authEmail">E-mail</label>
+        <input id="authEmail" class="authInput" type="email" autocomplete="email" placeholder="vous@exemple.com">
+        <label class="fieldLabel" for="authPassword">Mot de passe</label>
+        <input id="authPassword" class="authInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 caractères minimum">
+        <div class="authActions">
+          <button id="signInBtn">Se connecter</button>
+          <button id="signUpBtn" class="secondaryAuth">Créer un compte</button>
+        </div>
+      </div>
+      <div id="authSignedIn" class="hidden">
+        <div class="accountCard"><small>CONNECTÉ</small><strong id="accountEmail">—</strong><span>Synchronisation HERIT Cloud active</span></div>
+        <button id="signOutBtn" class="secondaryAuth fullAuth">Se déconnecter</button>
+      </div>
+      <div id="authStatus" class="voiceStatus">Les données cloud restent protégées par les règles d’accès HERIT.</div>
+    </div>
+  </section>
+
+  <script type="module" src="app.js?v=1.2"></script>
 </body>
 </html>
