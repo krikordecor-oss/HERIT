@@ -1,9 +1,11 @@
 {
-  "name": "HERIT Lens Targeting Engine",
-  "short_name": "HERIT Lens",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#050607",
-  "theme_color": "#0b0d10",
-  "icons": []
+  "name":"HERIT Lens",
+  "short_name":"HERIT Lens",
+  "description":"Building Intelligence in the field",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#050607",
+  "theme_color":"#07090c",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
