@@ -3,7 +3,8 @@ const headers={"Content-Type":"application/json"};
 const tokenKey=(fn:string)=>({
   "sitadel-sync":"sitadel_cron",
   "gb-hmlr-discover":"gb_hmlr_cron",
-  "au-abs-ingest":"au_abs_cron"
+  "au-abs-ingest":"au_abs_cron",
+  "overture-release-discover":"overture_release_cron"
 } as Record<string,string>)[fn]||null;
 
 Deno.serve(async(req)=>{
