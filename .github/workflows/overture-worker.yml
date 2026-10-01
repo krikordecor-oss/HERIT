@@ -1,0 +1,33 @@
+name: HERIT Overture zone worker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: herit-overture-zone-worker
+  cancel-in-progress: false
+
+jobs:
+  process-zone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Overture client
+        run: python -m pip install --disable-pip-version-check "overturemaps>=0.15,<1"
+
+      - name: Process one queued HERIT zone
+        run: python scripts/overture_worker.py
