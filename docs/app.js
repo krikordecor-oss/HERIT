@@ -685,3 +685,25 @@ async function refreshOpportunityScore(){
     console.warn('HERIT opportunity score',e);
   }
 }
+
+$('addProspectBtn')?.addEventListener('click',async()=>{
+  const btn=$('addProspectBtn');
+  if(!cloudSession?.user){openAuthSheet();return;}
+  await syncCurrentScan();
+  if(!state.currentCloudBuildingId)return;
+  const original=btn.textContent; btn.disabled=true; btn.textContent='Ajout…';
+  try{
+    let data=await cloudProspects('list');
+    let list=(data.lists||[])[0];
+    if(!list){
+      const created=await cloudProspects('create_list',{name:'Prospects',vertical:'real_estate'});
+      list=created.list;
+    }
+    await cloudProspects('add',{list_id:list.id,building_id:state.currentCloudBuildingId});
+    btn.textContent='Ajouté aux prospects';
+    setTimeout(()=>{btn.textContent=original;btn.disabled=false;},1600);
+  }catch(e){
+    btn.textContent='Erreur — réessayer';btn.disabled=false;
+    console.warn('HERIT prospect add',e);
+  }
+});
