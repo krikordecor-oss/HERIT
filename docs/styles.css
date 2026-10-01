@@ -89,3 +89,10 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 
 /* HERIT Lens 1.1 — langue parlée indépendante + contexte pays */
 .geoAttribution{font-size:9px;opacity:.38;margin-top:4px}
+
+/* HERIT Lens 1.2 — compte et cloud */
+.authInput{width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.055);color:#fff;padding:13px 14px;font:inherit;font-size:16px;outline:none}.authInput:focus{border-color:rgba(255,255,255,.32)}
+.authActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.authActions button,.fullAuth{border:0;border-radius:14px;padding:13px;font-weight:800}.authActions button:first-child{background:#fff;color:#080a0d}.secondaryAuth{background:rgba(255,255,255,.08)!important;color:#fff!important;border:1px solid rgba(255,255,255,.11)!important}
+.accountCard{padding:15px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);margin:12px 0}.accountCard small,.accountCard strong,.accountCard span{display:block}.accountCard small{font-size:9px;letter-spacing:.1em;opacity:.4}.accountCard strong{font-size:15px;margin-top:5px}.accountCard span{font-size:11px;opacity:.48;margin-top:5px}
+.fullAuth{width:100%}
+.cloudSync{font-size:10px;opacity:.52;margin-top:6px}
