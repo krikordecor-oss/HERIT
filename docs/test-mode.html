@@ -1,36 +1,198 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c"><link rel="stylesheet" href="info.css?v=2.2"><title>HERIT · Mode test Fondateur</title></head><body><main class="infoPage"><a class="back" href="./?v=2.2">← HERIT Lens</a>
-<header class="hero"><div class="eyebrow">FOUNDER TEST MODE</div><h1>Test réel HERIT.</h1><p>Teste chaque module comme un client. Note immédiatement ce qui est faux, lent, confus ou inutile.</p></header>
-<section><div id="entitlement" class="notice">Vérification de ton accès…</div></section>
-<section><h2>Parcours recommandé</h2><div class="activityList">
-<article class="activityCard"><div><strong>1 · Scanner</strong><span>Détection, GPS, cap, confiance, ouverture fiche.</span></div><div class="activityMeta">TERRAIN</div></article>
-<article class="activityCard"><div><strong>2 · Fiche bâtiment</strong><span>Données, Decision Brief, graph, score, historique.</span></div><div class="activityMeta">DATA</div></article>
-<article class="activityCard"><div><strong>3 · Prospection</strong><span>Enregistrement, prospects, signaux et priorisation.</span></div><div class="activityMeta">BUSINESS</div></article>
-<article class="activityCard"><div><strong>4 · Global</strong><span>Couverture pays, conformité et fallback mondial.</span></div><div class="activityMeta">WORLD</div></article>
-</div></section>
-<section><h2>Envoyer une remarque</h2>
-<label>Type</label><select id="category"><option value="bug">Bug</option><option value="ux">UX</option><option value="data">Donnée</option><option value="performance">Performance</option><option value="idea">Idée</option><option value="other">Autre</option></select>
-<label>Priorité</label><select id="severity"><option value="normal">Normale</option><option value="high">Haute</option><option value="blocking">Bloquante</option><option value="low">Faible</option></select>
-<label>Remarque</label><textarea id="message" rows="7" placeholder="Exemple : la fiche met 4 secondes à s’ouvrir, ou le bâtiment détecté n’est pas le bon."></textarea>
-<button id="send">Envoyer à HERIT</button><div id="result" class="notice" style="margin-top:10px;display:none"></div></section>
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07090c">
+  <link rel="stylesheet" href="info.css?v=2.4">
+  <title>HERIT · Mode test Fondateur</title>
+  <style>
+    .testStatus{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .testStatus .statusText{flex:1;min-width:220px}
+    .statusBadge{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:850;letter-spacing:.05em;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
+    .statusBadge.ok{background:#fff;color:#080a0d}
+    .statusActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .statusActions a,.statusActions button{appearance:none;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;text-decoration:none;padding:11px 13px;border-radius:12px;font-weight:750;font-size:13px}
+
+    .feedbackIntro{font-size:13px;opacity:.6;margin:0 0 18px;line-height:1.55}
+    .feedbackForm{display:grid;gap:16px}
+    .formRow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .field{display:grid;gap:8px}
+    .field label{font-size:12px;font-weight:750;letter-spacing:.02em;color:rgba(255,255,255,.82)}
+    .field select,.field textarea{
+      width:100%;
+      appearance:none;
+      border:1px solid rgba(255,255,255,.13);
+      background:#101419;
+      color:#f7f8fa;
+      border-radius:14px;
+      font:inherit;
+      outline:none;
+      transition:border-color .18s,background .18s,box-shadow .18s
+    }
+    .field select{min-height:48px;padding:0 42px 0 14px;background-image:linear-gradient(45deg,transparent 50%,rgba(255,255,255,.65) 50%),linear-gradient(135deg,rgba(255,255,255,.65) 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+    .field textarea{min-height:180px;resize:vertical;padding:14px 15px;line-height:1.5}
+    .field select:focus,.field textarea:focus{border-color:rgba(255,255,255,.4);background:#13191f;box-shadow:0 0 0 3px rgba(255,255,255,.05)}
+    .fieldHint{font-size:11px;line-height:1.5;color:rgba(255,255,255,.43)}
+    .sendBtn{width:100%;min-height:52px;border:0;border-radius:15px;background:#fff;color:#080a0d;font:inherit;font-weight:900;font-size:15px;cursor:pointer}
+    .sendBtn:disabled{opacity:.45;cursor:wait}
+    .resultBox{margin-top:2px!important}
+    .activityCard{min-height:62px}
+    @media(max-width:620px){
+      .formRow{grid-template-columns:1fr}
+      .field textarea{min-height:210px}
+      .sendBtn{min-height:56px}
+    }
+  </style>
+</head>
+<body>
+<main class="infoPage">
+  <a class="back" href="./?v=2.4">← HERIT Lens</a>
+
+  <header class="hero">
+    <div class="eyebrow">FOUNDER TEST MODE</div>
+    <h1>Test réel HERIT.</h1>
+    <p>Teste chaque module comme un client. Note immédiatement ce qui est faux, lent, confus ou inutile.</p>
+  </header>
+
+  <section>
+    <div id="entitlement" class="notice testStatus">
+      <div class="statusText"><strong>Vérification de ton accès…</strong></div>
+      <span id="statusBadge" class="statusBadge">…</span>
+    </div>
+    <div id="statusActions" class="statusActions" style="display:none">
+      <a href="./?v=2.4">Retour à HERIT / connexion</a>
+      <button id="retryAccess" type="button">Revérifier</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Parcours recommandé</h2>
+    <div class="activityList">
+      <article class="activityCard"><div><strong>1 · Scanner</strong><span>Détection, GPS, cap, confiance, ouverture fiche.</span></div><div class="activityMeta">TERRAIN</div></article>
+      <article class="activityCard"><div><strong>2 · Fiche bâtiment</strong><span>Données, Decision Brief, graph, score, historique.</span></div><div class="activityMeta">DATA</div></article>
+      <article class="activityCard"><div><strong>3 · Prospection</strong><span>Enregistrement, prospects, signaux et priorisation.</span></div><div class="activityMeta">BUSINESS</div></article>
+      <article class="activityCard"><div><strong>4 · Global</strong><span>Couverture pays, conformité et fallback mondial.</span></div><div class="activityMeta">WORLD</div></article>
+    </div>
+  </section>
+
+  <section>
+    <h2>Envoyer une remarque</h2>
+    <p class="feedbackIntro">Écris comme tu me parlerais ici. Plus le problème est précis, plus je pourrai le corriger vite.</p>
+
+    <div class="feedbackForm">
+      <div class="formRow">
+        <div class="field">
+          <label for="category">Type de remarque</label>
+          <select id="category">
+            <option value="bug">Bug</option>
+            <option value="ux">UX / interface</option>
+            <option value="data">Donnée fausse ou manquante</option>
+            <option value="performance">Lenteur / performance</option>
+            <option value="idea">Idée d’amélioration</option>
+            <option value="other">Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="severity">Priorité</label>
+          <select id="severity">
+            <option value="normal">Normale</option>
+            <option value="high">Haute</option>
+            <option value="blocking">Bloquante</option>
+            <option value="low">Faible</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="message">Décris le problème</label>
+        <textarea id="message" placeholder="Exemple : je vise le bâtiment en face mais HERIT sélectionne celui de gauche. La fiche met ensuite plusieurs secondes à s’ouvrir."></textarea>
+        <div class="fieldHint">Tu peux noter ce que tu faisais, ce que tu attendais et ce qui s’est réellement passé.</div>
+      </div>
+
+      <button id="send" class="sendBtn" type="button">Envoyer la remarque à HERIT</button>
+      <div id="result" class="notice resultBox" style="display:none"></div>
+    </div>
+  </section>
+
 <script type="module">
-import {cloudGetSession,cloudEntitlement,cloudSubmitFeedback} from './cloud.js?v=2.2';
-const e=document.getElementById('entitlement'),r=document.getElementById('result');
+import {cloudGetSession,cloudEntitlement,cloudSubmitFeedback} from './cloud.js?v=2.4';
+
+const entitlement=document.getElementById('entitlement');
+const badge=document.getElementById('statusBadge');
+const actions=document.getElementById('statusActions');
+const result=document.getElementById('result');
+
 async function init(){
- const s=await cloudGetSession();
- if(!s?.user){e.innerHTML='<strong>Connexion requise.</strong> Crée ou connecte ton compte HERIT depuis l’application.';return;}
- try{
-  const x=await cloudEntitlement(),a=x.entitlement?.access_level||'free';
-  e.innerHTML='<strong>Accès : '+a+'</strong><br>'+ (a==='founder_owner'?'Accès total Fondateur actif.':'Ton compte existe, mais le droit Fondateur n’est pas encore attaché.');
- }catch{e.textContent='Vérification temporairement indisponible.'}
+  entitlement.querySelector('.statusText').innerHTML='<strong>Vérification de ton accès…</strong>';
+  badge.textContent='…';badge.className='statusBadge';
+  actions.style.display='none';
+
+  try{
+    const session=await cloudGetSession();
+    if(!session?.user){
+      entitlement.querySelector('.statusText').innerHTML='<strong>Compte créé, mais aucune session active sur cet appareil.</strong><br><span style="opacity:.62">Retourne sur HERIT Lens, connecte-toi, puis reviens dans le Mode test Fondateur.</span>';
+      badge.textContent='HORS CONNEXION';
+      actions.style.display='flex';
+      return;
+    }
+
+    const x=await cloudEntitlement();
+    const access=x.entitlement?.access_level||'free';
+    if(access==='founder_owner'){
+      entitlement.querySelector('.statusText').innerHTML='<strong>Accès total Fondateur actif.</strong><br><span style="opacity:.62">Tous les modules de test sont ouverts, sans quota de scans.</span>';
+      badge.textContent='FOUNDER';
+      badge.className='statusBadge ok';
+    }else{
+      entitlement.querySelector('.statusText').innerHTML='<strong>Compte connecté, mais accès Fondateur non détecté.</strong><br><span style="opacity:.62">Utilise “Revérifier” après avoir rouvert HERIT.</span>';
+      badge.textContent=access.toUpperCase();
+      actions.style.display='flex';
+    }
+  }catch(err){
+    entitlement.querySelector('.statusText').innerHTML='<strong>Vérification temporairement indisponible.</strong><br><span style="opacity:.62">La connexion existe peut-être, mais le statut n’a pas pu être lu.</span>';
+    badge.textContent='ERREUR';
+    actions.style.display='flex';
+  }
 }
+
+document.getElementById('retryAccess').onclick=init;
+
 document.getElementById('send').onclick=async()=>{
- const message=document.getElementById('message').value.trim(); if(!message)return;
- const btn=document.getElementById('send');btn.disabled=true;btn.textContent='Envoi…';
- try{
-   const x=await cloudSubmitFeedback({category:document.getElementById('category').value,severity:document.getElementById('severity').value,message,page:'test-mode',app_version:'2.2',device_info:{ua:navigator.userAgent,viewport:[innerWidth,innerHeight]}});
-   r.style.display='block';r.textContent='Remarque enregistrée · '+x.feedback.id;document.getElementById('message').value='';
- }catch{r.style.display='block';r.textContent='Envoi impossible pour le moment.'}
- btn.disabled=false;btn.textContent='Envoyer à HERIT';
+  const message=document.getElementById('message').value.trim();
+  if(!message){
+    result.style.display='block';
+    result.textContent='Écris d’abord ta remarque avant de l’envoyer.';
+    return;
+  }
+
+  const btn=document.getElementById('send');
+  btn.disabled=true;
+  btn.textContent='Envoi en cours…';
+  result.style.display='none';
+
+  try{
+    const x=await cloudSubmitFeedback({
+      category:document.getElementById('category').value,
+      severity:document.getElementById('severity').value,
+      message,
+      page:'test-mode',
+      app_version:'2.4',
+      device_info:{ua:navigator.userAgent,viewport:[innerWidth,innerHeight]}
+    });
+    result.style.display='block';
+    result.innerHTML='<strong>Remarque enregistrée.</strong><br>Merci — elle est maintenant dans la liste de correction HERIT.';
+    document.getElementById('message').value='';
+  }catch(err){
+    result.style.display='block';
+    result.innerHTML='<strong>Envoi impossible.</strong><br>Vérifie que tu es connecté à HERIT puis réessaie.';
+  }
+
+  btn.disabled=false;
+  btn.textContent='Envoyer la remarque à HERIT';
 };
+
 init();
-</script></main></body></html>
+</script>
+</main>
+</body>
+</html>
