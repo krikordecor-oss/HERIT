@@ -88,6 +88,24 @@ Deno.serve(async(req)=>{
   let requestBody:any={}; try{requestBody=await req.json()}catch{}
   const requestedCommune = requestBody?.commune ? String(requestBody.commune).trim() : null;
 
+  const {data:rights}=await admin.from("source_ingestion_policy")
+    .select("ingest_allowed,raw_storage_allowed,derived_storage_allowed,redistribute_raw_allowed,attribution_required,attribution_template,requires_human_legal_review,policy_version")
+    .eq("source_key","sitadel").maybeSingle();
+  const {data:sourceMeta}=await admin.from("data_source_registry")
+    .select("license_key,commercial_use_allowed,storage_allowed,redistribution_allowed,modification_allowed,attribution_text")
+    .eq("source_key","sitadel").maybeSingle();
+  const sitadelRightsSnapshot={
+    commercial_use:sourceMeta?.commercial_use_allowed??false,
+    storage:sourceMeta?.storage_allowed??false,
+    redistribution:sourceMeta?.redistribution_allowed??false,
+    modification:sourceMeta?.modification_allowed??false,
+    attribution_required:rights?.attribution_required??false,
+    policy_version:rights?.policy_version||"1.0"
+  };
+  if(!rights?.ingest_allowed || rights.requires_human_legal_review){
+    return new Response(JSON.stringify({error:"source_not_legally_approved"}),{status:403,headers});
+  }
+
   const runStart=new Date().toISOString();
   const {data:run}=await admin.from("source_sync_runs").insert({source_key:"sitadel",status:"running"}).select("id").single();
   const runId=run?.id;
@@ -222,7 +240,10 @@ Deno.serve(async(req)=>{
             application_date:applicationDate,authorization_date:authorizationDate,start_date:startDate,
             completion_date:completionDate,cancellation_date:cancellationDate,
             housing_units:toInt(rowValue(row,housingCol)),floor_area_m2:toNum(rowValue(row,floorAreaCol)),
-            raw_payload:row,upstream_last_modified:upstreamModified,updated_at:new Date().toISOString()
+            raw_payload:row,upstream_last_modified:upstreamModified,updated_at:new Date().toISOString(),
+            source_key:"sitadel",license_key:sourceMeta?.license_key||null,
+            attribution_text:rights?.attribution_template||sourceMeta?.attribution_text||null,
+            rights_snapshot:sitadelRightsSnapshot
           };
           const {error:upErr}=await admin.from("sitadel_records").upsert(rec,{onConflict:"source_datafile_rid,source_record_key"});
           if(!upErr){rowsUpserted++;fileUpsert++;}
@@ -239,7 +260,10 @@ Deno.serve(async(req)=>{
                 building_id:buildingId,external_authorization_id:authId,source_name:"SITADEL / SDES",
                 authorization_type:authorizationType||null,event_type,event_date,status:null,
                 housing_type:null,housing_units:rec.housing_units,floor_area_m2:rec.floor_area_m2,
-                non_residential_area_m2:null,insee_code:insee,parcel_ids:rowParcels,raw_payload:row
+                non_residential_area_m2:null,insee_code:insee,parcel_ids:rowParcels,raw_payload:row,
+                source_key:"sitadel",license_key:sourceMeta?.license_key||null,
+                attribution_text:rights?.attribution_template||sourceMeta?.attribution_text||null,
+                rights_snapshot:sitadelRightsSnapshot
               };
               const {error}=await admin.from("construction_events").upsert(evt,{
                 onConflict:"source_name,external_authorization_id,event_type,event_date"
