@@ -1,31 +1,33 @@
 :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;color:#fff;background:#050607}
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}body{background:#050607}.hidden{display:none!important}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
 .welcome{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 28%,#1a2632 0,#0d1218 34%,#050607 72%);padding:28px;z-index:20}
+.menuBtn{position:absolute;top:calc(14px + env(safe-area-inset-top));right:18px;width:44px;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(10,12,15,.46);backdrop-filter:blur(16px);color:#fff;font-size:22px;z-index:2}
 .welcomeGlow{position:absolute;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.09),rgba(255,255,255,0) 70%);top:8%;left:50%;transform:translateX(-50%);filter:blur(5px)}
 .welcomeContent{position:relative;text-align:center;max-width:430px;width:100%}
 .logoMark{width:94px;height:94px;margin:0 auto 24px;border-radius:28px;display:grid;place-items:center;background:linear-gradient(145deg,#f8fafc,#aab5c2);color:#080a0d;box-shadow:0 20px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.85)}
-.logoMark svg{width:51px;height:51px}
-.welcomeBrand{font-size:22px;font-weight:850;letter-spacing:.045em}.welcomeBrand span{font-weight:500;opacity:.62}
-.welcome h1{font-size:39px;line-height:1.04;margin:22px 0 16px;letter-spacing:-.045em}
-.welcome p{font-size:16px;line-height:1.5;opacity:.68;margin:0 auto 30px;max-width:365px}
+.logoMark svg{width:51px;height:51px}.welcomeBrand{font-size:22px;font-weight:850;letter-spacing:.045em}.welcomeBrand span{font-weight:500;opacity:.62}
+.welcome h1{font-size:39px;line-height:1.04;margin:22px 0 16px;letter-spacing:-.045em}.welcome p{font-size:16px;line-height:1.5;opacity:.68;margin:0 auto 30px;max-width:365px}
 .primaryHero{width:100%;padding:17px 18px;border:0;border-radius:16px;background:#fff;color:#090b0e;font-size:17px;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.28)}
-.welcomeNote{font-size:12px;opacity:.38;margin-top:18px;letter-spacing:.03em}
-.scanner{position:fixed;inset:0}
-#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#111}
+.privacyHint{font-size:11px;line-height:1.45;opacity:.38;margin:16px auto 0;max-width:310px}
+.drawer{position:fixed;inset:0;z-index:50;display:grid;grid-template-columns:min(84vw,360px) 1fr}
+.drawerPanel{height:100%;background:#0b0e12;border-right:1px solid rgba(255,255,255,.1);padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.drawerBackdrop{border:0;background:rgba(0,0,0,.56);backdrop-filter:blur(3px)}
+.drawerTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}.closeBtn{border:0;background:rgba(255,255,255,.08);color:#fff;border-radius:12px;width:38px;height:38px;font-size:25px}
+.drawerNav{display:flex;flex-direction:column}.drawerNav a{display:flex;align-items:center;justify-content:space-between;padding:17px 2px;border-bottom:1px solid rgba(255,255,255,.08);font-size:16px}.drawerNav a span{opacity:.35;font-size:24px}
+.publisher{margin-top:auto;padding-top:24px;display:flex;flex-direction:column;gap:4px}.publisher small{font-size:10px;letter-spacing:.14em;opacity:.38}.publisher strong{font-size:15px}.publisher span{font-size:12px;opacity:.45}
+.scanner{position:fixed;inset:0}#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#111}
 .scrim{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.56),transparent 30%,transparent 55%,rgba(0,0,0,.82))}
 header{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(14px + env(safe-area-inset-top)) 18px 12px;z-index:3}
 .brandWrap{display:flex;align-items:center;gap:9px}.miniMark{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.92);color:#07090c;display:grid;place-items:center}.miniMark svg{width:18px;height:18px}
-.brand{font-weight:800;letter-spacing:.03em}.brand span{font-weight:500;opacity:.7}
+.iconButton{border:0;padding:0}.brand{font-weight:800;letter-spacing:.03em}.brand span{font-weight:500;opacity:.7}
 .badge{font-size:12px;padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.42);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14)}
-main{position:fixed;inset:0;z-index:2}
-.reticle{position:absolute;left:50%;top:43%;width:58px;height:58px;transform:translate(-50%,-50%);border:1.5px solid rgba(255,255,255,.92);border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.04)}
-.reticle:before,.reticle:after{content:"";position:absolute;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}.reticle:before{width:18px;height:1px}.reticle:after{width:1px;height:18px}
-.reticle span{position:absolute;inset:6px;border:1px solid rgba(255,255,255,.25);border-radius:50%}
+main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43%;width:58px;height:58px;transform:translate(-50%,-50%);border:1.5px solid rgba(255,255,255,.92);border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.04)}
+.reticle:before,.reticle:after{content:"";position:absolute;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}.reticle:before{width:18px;height:1px}.reticle:after{width:1px;height:18px}.reticle span{position:absolute;inset:6px;border:1px solid rgba(255,255,255,.25);border-radius:50%}
 .card{position:absolute;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));padding:18px;border-radius:22px;background:rgba(13,15,18,.78);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.12)}
 .eyebrow{font-size:11px;letter-spacing:.14em;opacity:.58}.target{font-size:26px;font-weight:800;margin-top:5px}.meta{font-size:14px;opacity:.72;margin-top:5px;min-height:20px}
-.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}.metrics div{background:rgba(255,255,255,.07);padding:10px;border-radius:12px}
-.metrics small{display:block;font-size:9px;opacity:.5;letter-spacing:.08em}.metrics strong{font-size:12px}
-button{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:750;font-size:15px;background:#fff;color:#0b0d10}
-button.secondary{margin-top:8px;background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.15)}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}.metrics div{background:rgba(255,255,255,.07);padding:10px;border-radius:12px}.metrics small{display:block;font-size:9px;opacity:.5;letter-spacing:.08em}.metrics strong{font-size:12px}
+.card button{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:750;font-size:15px;background:#fff;color:#0b0d10}.card button.secondary{margin-top:8px;background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.15)}
 .debug{position:fixed;z-index:5;left:12px;top:calc(62px + env(safe-area-inset-top));max-width:calc(100% - 24px);font-size:11px;background:rgba(0,0,0,.55);padding:7px 10px;border-radius:10px}.debug pre{white-space:pre-wrap;max-height:180px;overflow:auto}
 @media (max-height:690px){.welcome h1{font-size:32px}.logoMark{width:78px;height:78px;margin-bottom:18px}.welcome p{font-size:14px;margin-bottom:20px}}
