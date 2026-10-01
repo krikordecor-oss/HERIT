@@ -1,0 +1,19 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c"><link rel="stylesheet" href="info.css?v=1.9"><title>Couverture mondiale · HERIT</title></head><body><main class="infoPage"><a class="back" href="./?v=1.9">← HERIT Lens</a>
+<header class="hero"><div class="eyebrow">HERIT GLOBAL DATA FABRIC</div><h1>Couverture mondiale.</h1><p>Chaque pays est activé source par source. Une donnée n’entre dans HERIT que si ses droits d’usage ont été validés.</p></header>
+<section><div id="status" class="notice">Chargement de la matrice…</div><div id="coverage" class="activityList"></div></section>
+<script type="module">
+import {cloudGetSession,cloudCoverageMatrix} from './cloud.js?v=1.9';
+const esc=s=>String(s??'—').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const pct=v=>v==null?'—':Math.round(Number(v))+'%';
+async function load(){
+ const s=await cloudGetSession();
+ if(!s?.user){document.getElementById('status').innerHTML='<strong>Compte requis :</strong> connectez-vous dans HERIT Lens pour afficher la matrice détaillée.';return;}
+ try{
+  const r=await cloudCoverageMatrix();
+  const a=r.adapters||[];
+  document.getElementById('status').innerHTML='<strong>'+a.length+' adaptateur(s)</strong> configuré(s). Les statuts reflètent la couverture technique actuelle, pas une promesse marketing.';
+  document.getElementById('coverage').innerHTML=a.map(x=>'<article class="activityCard"><div><strong>'+esc(x.display_name)+'</strong><span>'+esc(x.status)+' · '+x.sources_active+'/'+x.sources_total+' source(s) actives</span><span>Identité '+pct(x.coverage_identity)+' · Transactions '+pct(x.coverage_transactions)+' · Énergie '+pct(x.coverage_energy)+' · Urbanisme '+pct(x.coverage_planning)+' · Risques '+pct(x.coverage_risk)+'</span></div><div class="activityMeta">'+esc(x.country_code)+'</div></article>').join('');
+ }catch(e){document.getElementById('status').textContent='Matrice temporairement indisponible.';}
+}
+load();
+</script></main></body></html>
