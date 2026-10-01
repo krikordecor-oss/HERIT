@@ -4,6 +4,19 @@ import { loadBuildingsNear } from './buildings.js';
 const $ = id => document.getElementById(id);
 const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false};
 
+function openMenu(){
+  $('drawer').classList.remove('hidden');
+  $('drawer').setAttribute('aria-hidden','false');
+}
+function closeMenu(){
+  $('drawer').classList.add('hidden');
+  $('drawer').setAttribute('aria-hidden','true');
+}
+$('menuBtn').addEventListener('click',openMenu);
+$('scannerMenuBtn').addEventListener('click',openMenu);
+$('closeMenu').addEventListener('click',closeMenu);
+$('drawerBackdrop').addEventListener('click',closeMenu);
+
 async function startCamera(){
   const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
   $('camera').srcObject=stream;
