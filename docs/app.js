@@ -211,7 +211,7 @@ openSheet=function(){
 setMode(getMode());
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=0.8').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=0.9').catch(()=>{}));
 }
 
 
@@ -322,3 +322,100 @@ function maybeFirstRun(){
   document.querySelectorAll('.modeList button').forEach(b=>b.addEventListener('click',finish,{once:true}));
 }
 setTimeout(maybeFirstRun,300);
+
+
+// HERIT Lens 0.9 — observations terrain structurées
+const STORAGE_OBSERVATIONS='herit.observations';
+let speechRecognition=null;
+
+function observationBuildingId(){
+  const hit=state.currentHit;if(!hit)return null;
+  const p=hit.feature.properties||{};
+  return p.rnb_id||p.id||hit.feature.id||labelFor(hit.feature);
+}
+function openObservation(){
+  const id=observationBuildingId();if(!id)return;
+  const p=state.currentHit.feature.properties||{};
+  $('observationBuilding').textContent=p.rnb_id?('RNB '+p.rnb_id):labelFor(state.currentHit.feature);
+  $('observationText').value='';
+  $('voiceStatus').textContent='La dictée vocale utilise les capacités disponibles sur l’appareil. Si elle n’est pas prise en charge, saisissez le texte.';
+  $('observationSheet').classList.remove('hidden');
+  $('observationSheet').setAttribute('aria-hidden','false');
+}
+function closeObservation(){
+  if(speechRecognition){try{speechRecognition.stop()}catch{}}
+  $('observationSheet').classList.add('hidden');
+  $('observationSheet').setAttribute('aria-hidden','true');
+}
+function saveObservation(){
+  const text=$('observationText').value.trim();
+  const id=observationBuildingId();
+  if(!text||!id)return;
+  const hit=state.currentHit,p=hit.feature.properties||{};
+  const entry={
+    observation_id:'obs_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+    building_id:id,
+    rnb_id:p.rnb_id||null,
+    building_label:labelFor(hit.feature),
+    text:text,
+    status:'declared',
+    confidence_status:'to_verify',
+    evidence:'none',
+    source:'user_observation',
+    professional_mode:getMode(),
+    created_at:new Date().toISOString(),
+    targeting:{
+      confidence:state.currentConfidence,
+      distance_m:Math.round(hit.distance),
+      gps_accuracy_m:state.position?Math.round(state.position.accuracy):null,
+      heading_deg:state.heading!=null?Math.round(state.heading):null
+    }
+  };
+  const list=readList(STORAGE_OBSERVATIONS);
+  list.unshift(entry);writeList(STORAGE_OBSERVATIONS,list);
+  $('voiceStatus').textContent='Observation enregistrée sur cet appareil avec provenance et statut « Déclarée · À vérifier ».';
+  $('observationText').value='';
+}
+function startVoiceObservation(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    $('voiceStatus').textContent='Dictée vocale non disponible ici. Utilisez le clavier ou la dictée native de l’iPhone.';
+    $('observationText').focus();
+    return;
+  }
+  try{
+    speechRecognition=new SR();
+    speechRecognition.lang='fr-FR';
+    speechRecognition.interimResults=true;
+    speechRecognition.continuous=false;
+    let finalText='';
+    speechRecognition.onstart=()=>{
+      $('voiceObservationBtn').classList.add('listening');
+      $('voiceObservationBtn').textContent='● Écoute…';
+      $('voiceStatus').textContent='Parlez naturellement. HERIT prépare une observation déclarative.';
+    };
+    speechRecognition.onresult=e=>{
+      let interim='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const t=e.results[i][0].transcript;
+        if(e.results[i].isFinal)finalText+=t+' '; else interim+=t;
+      }
+      $('observationText').value=(finalText+interim).trim();
+    };
+    speechRecognition.onerror=e=>{
+      $('voiceStatus').textContent='Dictée interrompue : '+(e.error||'erreur')+'. Vous pouvez continuer au clavier.';
+    };
+    speechRecognition.onend=()=>{
+      $('voiceObservationBtn').classList.remove('listening');
+      $('voiceObservationBtn').textContent='🎙️ Dicter';
+    };
+    speechRecognition.start();
+  }catch{
+    $('voiceStatus').textContent='Impossible de lancer la dictée. Utilisez la dictée native du clavier iPhone.';
+  }
+}
+$('addObservationBtn')?.addEventListener('click',openObservation);
+$('closeObservation')?.addEventListener('click',closeObservation);
+$('observationBackdrop')?.addEventListener('click',closeObservation);
+$('saveObservationBtn')?.addEventListener('click',saveObservation);
+$('voiceObservationBtn')?.addEventListener('click',startVoiceObservation);
