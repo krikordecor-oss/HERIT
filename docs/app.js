@@ -3,7 +3,7 @@ import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js'
 import { loadBuildingsNear } from './buildings.js';
 
 const $ = id => document.getElementById(id);
-const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false,currentHit:null,currentConfidence:null};
+const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false,currentHit:null,currentConfidence:null,geoContext:null};
 
 function openMenu(){ $('drawer').classList.remove('hidden'); $('drawer').setAttribute('aria-hidden','false'); }
 function closeMenu(){ $('drawer').classList.add('hidden'); $('drawer').setAttribute('aria-hidden','true'); }
@@ -296,7 +296,14 @@ openSheet=async function(){
   $('sheetAddress').textContent='Recherche de l’adresse…';
   $('sheetLocality').textContent='Source BAN / Géoplateforme';
   const hit=state.currentHit;if(!hit)return;
-  const a=await reverseAddress(hit.feature);
+  state.geoContext=await resolveBuildingGeoContext(hit.feature);
+  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||'—';
+  const a=state.geoContext?.country_code==='FR' ? await reverseAddress(hit.feature) : (state.geoContext?{
+    label:[state.geoContext.house_number,state.geoContext.road].filter(Boolean).join(' ')||state.geoContext.display_name,
+    city:state.geoContext.city,
+    postcode:state.geoContext.postcode,
+    source:'OpenStreetMap / Nominatim'
+  }:null);
   if(a){
     $('sheetAddress').textContent=a.label||'Adresse non disponible';
     $('sheetLocality').textContent=[a.postcode,a.city].filter(Boolean).join(' ')||'Base Adresse Nationale';
@@ -364,6 +371,11 @@ function saveObservation(){
     evidence:'none',
     source:'user_observation',
     professional_mode:getMode(),
+    ui_locale:typeof currentLocale==='function'?currentLocale():document.documentElement.lang,
+    speech_locale:typeof currentSpeechLocale==='function'?currentSpeechLocale():document.documentElement.lang,
+    original_language:typeof currentSpeechLocale==='function'?currentSpeechLocale():document.documentElement.lang,
+    building_country_code:state.geoContext?.country_code||null,
+    building_country:state.geoContext?.country||null,
     created_at:new Date().toISOString(),
     targeting:{
       confidence:state.currentConfidence,
@@ -386,7 +398,7 @@ function startVoiceObservation(){
   }
   try{
     speechRecognition=new SR();
-    speechRecognition.lang='fr-FR';
+    speechRecognition.lang=currentSpeechLocale();
     speechRecognition.interimResults=true;
     speechRecognition.continuous=false;
     let finalText='';
@@ -424,9 +436,50 @@ $('voiceObservationBtn')?.addEventListener('click',startVoiceObservation);
 
 // HERIT Lens 1.0 — internationalisation mondiale
 const STORAGE_LOCALE='herit.locale';
+const STORAGE_SPEECH_LOCALE='herit.speechLocale';
+const GEO_CACHE_KEY='herit.geoContextCache';
+let lastNominatimAt=0;
 
 function currentLocale(){
   return localStorage.getItem(STORAGE_LOCALE)||getPreferredLocale();
+}
+function currentSpeechLocale(){
+  return localStorage.getItem(STORAGE_SPEECH_LOCALE)||currentLocale();
+}
+function setSpeechLocale(locale){
+  localStorage.setItem(STORAGE_SPEECH_LOCALE,locale);
+  const label=localeLabel(locale);
+  if($('speechLanguageLabel'))$('speechLanguageLabel').textContent=label;
+  renderSpeechLanguageList(locale);
+}
+function readGeoCache(){try{return JSON.parse(localStorage.getItem(GEO_CACHE_KEY)||'{}')}catch{return{}}}
+function writeGeoCache(v){localStorage.setItem(GEO_CACHE_KEY,JSON.stringify(v))}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+async function nominatimReverse(lat,lon){
+  const key=lat.toFixed(5)+','+lon.toFixed(5);
+  const cache=readGeoCache(); if(cache[key])return cache[key];
+  const wait=Math.max(0,1100-(Date.now()-lastNominatimAt)); if(wait)await sleep(wait);
+  lastNominatimAt=Date.now();
+  const url='https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat='+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lon)+'&accept-language='+encodeURIComponent(currentLocale());
+  const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
+  if(!r.ok)throw new Error('Global geocoder '+r.status);
+  const d=await r.json();
+  const a=d.address||{};
+  const out={
+    display_name:d.display_name||'',
+    country:a.country||'',
+    country_code:(a.country_code||'').toUpperCase(),
+    city:a.city||a.town||a.village||a.municipality||'',
+    postcode:a.postcode||'',
+    road:a.road||a.pedestrian||a.residential||'',
+    house_number:a.house_number||'',
+    provider:'OpenStreetMap / Nominatim'
+  };
+  cache[key]=out;writeGeoCache(cache);return out;
+}
+async function resolveBuildingGeoContext(feature){
+  const c=geometryCenter(feature); if(!c)return null;
+  try{return await nominatimReverse(c.lat,c.lon)}catch{return null}
 }
 function setLocale(locale){
   localStorage.setItem(STORAGE_LOCALE,locale);
@@ -443,6 +496,18 @@ function renderLanguageList(active){
   root.innerHTML=SUPPORTED_LANGUAGES.map(l=>'<button data-locale="'+l.code+'" class="'+(l.code===active?'active':'')+'"><strong>'+l.native+'</strong><small>'+l.name+'</small></button>').join('');
   root.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{setLocale(b.dataset.locale);closeLanguageSheet();}));
 }
+function renderSpeechLanguageList(active){
+  const root=$('speechLanguageList');if(!root)return;
+  root.innerHTML=SUPPORTED_LANGUAGES.map(l=>'<button data-locale="'+l.code+'" class="'+(l.code===active?'active':'')+'"><strong>'+l.native+'</strong><small>'+l.name+'</small></button>').join('');
+  root.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{setSpeechLocale(b.dataset.locale);closeSpeechLanguageSheet();}));
+}
+function openSpeechLanguageSheet(){
+  closeMenu();renderSpeechLanguageList(currentSpeechLocale());
+  $('speechLanguageSheet').classList.remove('hidden');$('speechLanguageSheet').setAttribute('aria-hidden','false');
+}
+function closeSpeechLanguageSheet(){
+  $('speechLanguageSheet').classList.add('hidden');$('speechLanguageSheet').setAttribute('aria-hidden','true');
+}
 function openLanguageSheet(){
   closeMenu();
   renderLanguageList(currentLocale());
@@ -456,36 +521,9 @@ function closeLanguageSheet(){
 $('languageBtn')?.addEventListener('click',openLanguageSheet);
 $('closeLanguage')?.addEventListener('click',closeLanguageSheet);
 $('languageBackdrop')?.addEventListener('click',closeLanguageSheet);
+$('speechLanguageBtn')?.addEventListener('click',openSpeechLanguageSheet);
+$('closeSpeechLanguage')?.addEventListener('click',closeSpeechLanguageSheet);
+$('speechLanguageBackdrop')?.addEventListener('click',closeSpeechLanguageSheet);
 setLocale(currentLocale());
+setSpeechLocale(currentSpeechLocale());
 
-// Tag every new field observation with its original language.
-const saveObservation10=saveObservation;
-saveObservation=function(){
-  const before=readList(STORAGE_OBSERVATIONS).length;
-  saveObservation10();
-  const list=readList(STORAGE_OBSERVATIONS);
-  if(list.length>before){
-    list[0].language=currentLocale();
-    list[0].original_language=currentLocale();
-    writeList(STORAGE_OBSERVATIONS,list);
-  }
-};
-
-// Speech recognition follows the chosen locale when supported.
-const startVoiceObservation10=startVoiceObservation;
-startVoiceObservation=function(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR)return startVoiceObservation10();
-  try{
-    speechRecognition=new SR();
-    speechRecognition.lang=currentLocale();
-    speechRecognition.interimResults=true;
-    speechRecognition.continuous=false;
-    let finalText='';
-    speechRecognition.onstart=()=>{$('voiceObservationBtn').classList.add('listening');$('voiceObservationBtn').textContent='●';$('voiceStatus').textContent='…';};
-    speechRecognition.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+' ';else interim+=t;}$('observationText').value=(finalText+interim).trim();};
-    speechRecognition.onerror=e=>{$('voiceStatus').textContent=(e.error||'voice error');};
-    speechRecognition.onend=()=>{$('voiceObservationBtn').classList.remove('listening');$('voiceObservationBtn').textContent='🎙️';};
-    speechRecognition.start();
-  }catch{return startVoiceObservation10();}
-};
