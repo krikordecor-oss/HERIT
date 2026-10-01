@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.5" />
+  <link rel="stylesheet" href="styles.css?v=2.7" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -284,7 +284,10 @@
         <label class="fieldLabel" for="authEmail">E-mail</label>
         <input id="authEmail" class="authInput" type="email" autocomplete="email" placeholder="vous@exemple.com">
         <label class="fieldLabel" for="authPassword">Mot de passe</label>
-        <input id="authPassword" class="authInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 caractères minimum">
+        <div class="passwordFieldWrap">
+          <input id="authPassword" class="authInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 caractères minimum">
+          <button id="togglePasswordBtn" class="passwordToggle" type="button" aria-label="Afficher le mot de passe" aria-pressed="false">👁</button>
+        </div>
         <div class="authActions">
           <button id="signInBtn">Se connecter</button>
           <button id="signUpBtn" class="secondaryAuth">Créer un compte</button>
@@ -299,6 +302,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=2.6"></script>
+  <script type="module" src="app.js?v=2.7"></script>
 </body>
 </html>
