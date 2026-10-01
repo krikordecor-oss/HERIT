@@ -14,7 +14,7 @@ Deno.serve(async(req)=>{
   let body:any={};try{body=await req.json()}catch{}
   const country=body?.country_code?String(body.country_code).toUpperCase():null;
 
-  let aq=admin.from("country_adapters").select("adapter_key,country_code,region_code,display_name,status,priority,coverage_identity,coverage_transactions,coverage_energy,coverage_planning,coverage_risk,notes");
+  let aq=admin.from("country_adapters").select("adapter_key,country_code,region_code,display_name,status,priority,coverage_identity,coverage_transactions,coverage_energy,coverage_planning,coverage_risk,compliance_status,public_status_message,notes");
   if(country)aq=aq.eq("country_code",country);
   const {data:adapters}=await aq.order("priority");
 
