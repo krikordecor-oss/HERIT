@@ -1,5 +1,5 @@
-const CACHE='herit-lens-shell-v18';
-const ASSETS=['./','./index.html','./styles.css?v=1.8','./app.js?v=1.8','./cloud.js?v=1.8','./i18n.js?v=1.8','./targeting.js','./buildings.js','./manifest.webmanifest','./icon.svg','./about.html','./sources.html','./privacy.html','./legal.html','./terms.html','./pricing.html','./dashboard.html','./prospects.html','./info.css?v=1.8'];
+const CACHE='herit-lens-shell-v19';
+const ASSETS=['./','./index.html','./styles.css?v=1.9','./app.js?v=1.9','./cloud.js?v=1.9','./i18n.js?v=1.9','./targeting.js','./buildings.js','./manifest.webmanifest','./icon.svg','./about.html','./sources.html','./privacy.html','./legal.html','./terms.html','./pricing.html','./dashboard.html','./coverage.html','./prospects.html','./info.css?v=1.9'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
