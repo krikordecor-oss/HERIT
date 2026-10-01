@@ -1,3 +1,4 @@
+import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange } from './cloud.js?v=1.2';
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -529,3 +530,116 @@ $('speechLanguageBackdrop')?.addEventListener('click',closeSpeechLanguageSheet);
 setLocale(currentLocale());
 setSpeechLocale(currentSpeechLocale());
 
+
+
+// HERIT Lens 1.2 — compte et synchronisation cloud
+let cloudSession=null;
+let lastCloudScanKey=null;
+state.currentCloudScanId=null;
+
+function openAuthSheet(){
+  closeMenu();
+  $('authSheet').classList.remove('hidden');
+  $('authSheet').setAttribute('aria-hidden','false');
+}
+function closeAuthSheet(){
+  $('authSheet').classList.add('hidden');
+  $('authSheet').setAttribute('aria-hidden','true');
+}
+function renderAuth(session){
+  cloudSession=session||null;
+  const user=session?.user;
+  $('authSignedOut').classList.toggle('hidden',!!user);
+  $('authSignedIn').classList.toggle('hidden',!user);
+  $('accountLabel').textContent=user?'Connecté':'Se connecter';
+  if(user)$('accountEmail').textContent=user.email||user.id;
+}
+async function initCloudAuth(){
+  try{renderAuth(await cloudGetSession());}catch(e){$('authStatus').textContent='Cloud indisponible : '+(e.message||e);}
+  cloudOnAuthChange((_event,session)=>renderAuth(session));
+}
+$('accountBtn')?.addEventListener('click',openAuthSheet);
+$('closeAuth')?.addEventListener('click',closeAuthSheet);
+$('authBackdrop')?.addEventListener('click',closeAuthSheet);
+$('signInBtn')?.addEventListener('click',async()=>{
+  const email=$('authEmail').value.trim(),password=$('authPassword').value;
+  $('authStatus').textContent='Connexion…';
+  try{const s=await cloudSignIn(email,password);renderAuth(s);$('authStatus').textContent='Connecté à HERIT Cloud.';}catch(e){$('authStatus').textContent=e.message||String(e);}
+});
+$('signUpBtn')?.addEventListener('click',async()=>{
+  const email=$('authEmail').value.trim(),password=$('authPassword').value;
+  $('authStatus').textContent='Création du compte…';
+  try{
+    const s=await cloudSignUp(email,password);
+    renderAuth(s);
+    $('authStatus').textContent=s?.user&&!s?.access_token?'Compte créé. Vérifiez votre e-mail si une confirmation est demandée.':'Compte HERIT créé.';
+  }catch(e){$('authStatus').textContent=e.message||String(e);}
+});
+$('signOutBtn')?.addEventListener('click',async()=>{await cloudSignOut();renderAuth(null);$('authStatus').textContent='Déconnecté.';});
+
+function buildingCloudPayload(){
+  const hit=state.currentHit;if(!hit)return null;
+  const p=hit.feature.properties||{},c=geometryCenter(hit.feature);
+  if(!c)return null;
+  const external=p.rnb_id?('rnb:'+p.rnb_id):('geo:'+c.lat.toFixed(6)+','+c.lon.toFixed(6));
+  return {
+    building:{
+      external_key:external,
+      country_code:state.geoContext?.country_code||null,
+      primary_source:p.rnb_id?'RNB':'HERIT_TARGETING',
+      primary_source_id:p.rnb_id||null,
+      address_original:state.geoContext?.display_name||p.address||p.adresse||null,
+      address_normalized:state.geoContext?.display_name||null,
+      locality:state.geoContext?.city||null,
+      postal_code:state.geoContext?.postcode||null,
+      latitude:c.lat,longitude:c.lon
+    },
+    scan:{
+      user_latitude:state.position?.lat??null,
+      user_longitude:state.position?.lon??null,
+      gps_accuracy_m:state.position?.accuracy??null,
+      heading_deg:state.heading,
+      distance_m:hit.distance,
+      targeting_confidence:state.currentConfidence,
+      detection_mode:hit.mode,
+      device_locale:currentLocale(),
+      speech_locale:currentSpeechLocale()
+    }
+  };
+}
+async function syncCurrentScan(){
+  if(!cloudSession?.user||!state.currentHit)return;
+  const payload=buildingCloudPayload();if(!payload)return;
+  const key=payload.building.external_key;
+  if(lastCloudScanKey===key&&state.currentCloudScanId)return;
+  try{
+    const result=await cloudIngestScan(payload);
+    state.currentCloudScanId=result.scan_id||null;
+    lastCloudScanKey=key;
+  }catch(e){console.warn('HERIT cloud scan sync',e);}
+}
+const openSheet12=openSheet;
+openSheet=async function(){
+  await openSheet12();
+  await syncCurrentScan();
+};
+
+$('saveObservationBtn')?.addEventListener('click',()=>{
+  setTimeout(async()=>{
+    if(!cloudSession?.user)return;
+    const list=readList(STORAGE_OBSERVATIONS),o=list[0]; if(!o||!state.currentHit)return;
+    const payload=buildingCloudPayload(); if(!payload)return;
+    try{
+      await syncCurrentScan();
+      await cloudIngestObservation({
+        building_external_key:payload.building.external_key,
+        scan_id:state.currentCloudScanId,
+        text_original:o.text,
+        original_language:o.original_language||currentSpeechLocale(),
+        confidence_score:state.currentConfidence,
+        professional_mode:getMode()
+      });
+    }catch(e){console.warn('HERIT cloud observation sync',e);}
+  },0);
+});
+initCloudAuth();
