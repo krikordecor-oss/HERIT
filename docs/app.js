@@ -369,6 +369,8 @@ function saveObservation(){
     status:'declared',
     confidence_status:'to_verify',
     evidence:'none',
+    visibility:'private',
+    safety_status:'pending_review',
     source:'user_observation',
     professional_mode:getMode(),
     ui_locale:typeof currentLocale==='function'?currentLocale():document.documentElement.lang,
