@@ -211,5 +211,114 @@ openSheet=function(){
 setMode(getMode());
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=0.7').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=0.8').catch(()=>{}));
 }
+
+
+// HERIT Lens 0.8 — reverse geocoding officiel, onboarding métier, séparation Free/Pro
+const ADDRESS_CACHE='herit.addressCache';
+const FIRST_RUN='herit.onboarded';
+
+function geometryCenter(feature){
+  const g=feature?.geometry;
+  if(!g)return null;
+  if(g.type==='Point')return {lon:g.coordinates[0],lat:g.coordinates[1]};
+  let coords=[];
+  if(g.type==='Polygon')coords=g.coordinates?.[0]||[];
+  if(g.type==='MultiPolygon')coords=(g.coordinates||[]).flatMap(p=>p?.[0]||[]);
+  if(!coords.length)return null;
+  let lon=0,lat=0,n=0;
+  for(const c of coords){if(Array.isArray(c)&&Number.isFinite(c[0])&&Number.isFinite(c[1])){lon+=c[0];lat+=c[1];n++;}}
+  return n?{lon:lon/n,lat:lat/n}:null;
+}
+function readAddressCache(){try{return JSON.parse(localStorage.getItem(ADDRESS_CACHE)||'{}')}catch{return{}}}
+function writeAddressCache(c){localStorage.setItem(ADDRESS_CACHE,JSON.stringify(c))}
+async function reverseAddress(feature){
+  const p=feature?.properties||{};
+  const existing=p.address||p.adresse||null;
+  if(existing)return {label:existing,city:p.city||p.commune||'',postcode:p.postcode||p.code_postal||'',source:'RNB'};
+  const id=p.rnb_id||feature?.id||'unknown';
+  const cache=readAddressCache(); if(cache[id])return cache[id];
+  const c=geometryCenter(feature); if(!c)return null;
+  try{
+    const url=`https://data.geopf.fr/geocodage/reverse?lon=${encodeURIComponent(c.lon)}&lat=${encodeURIComponent(c.lat)}&limit=1`;
+    const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
+    if(!r.ok)throw new Error('geocoding '+r.status);
+    const data=await r.json();
+    const f=data.features?.[0]||data.results?.[0]||null;
+    if(!f)return null;
+    const prop=f.properties||f;
+    const result={
+      label:prop.label||prop.name||prop.street||'Adresse proche',
+      city:prop.city||prop.citycode||prop.municipality||'',
+      postcode:prop.postcode||'',
+      source:'BAN'
+    };
+    cache[id]=result;writeAddressCache(cache);return result;
+  }catch{return null;}
+}
+const MODE_MODULES={
+  Immobilier:[
+    ['Identité & adresse','RNB + BAN','free'],
+    ['DPE & GES','Diagnostic énergétique','pro'],
+    ['DVF & dernière mutation','Historique transactionnel','pro'],
+    ['Comparables & valeur','Estimation HERIT','pro']
+  ],
+  Collectivité:[
+    ['Identité RNB','Référentiel bâtiment','free'],
+    ['Cadastre & parcelle','Lien bâtiment/parcelle','pro'],
+    ['PLU & urbanisme','Zonage et règles','pro'],
+    ['Contrôle terrain','Anomalies et remontées','pro']
+  ],
+  Rénovation:[
+    ['Identité & adresse','Base bâtiment','free'],
+    ['DPE & énergie','Performance connue','pro'],
+    ['Risques','Argile, inondation, radon…','pro'],
+    ['Potentiel travaux','Pré-analyse HERIT','pro']
+  ],
+  Investissement:[
+    ['Identité & adresse','Base bâtiment','free'],
+    ['Dernières ventes','DVF','pro'],
+    ['Valeur & comparables','Analyse de marché','pro'],
+    ['Opportunity Score','Scoring HERIT','pro']
+  ]
+};
+function renderModeModules(){
+  const root=$('modeModules'); if(!root)return;
+  const rows=MODE_MODULES[getMode()]||MODE_MODULES.Immobilier;
+  root.innerHTML=rows.map(([name,desc,tier])=>`<div class="moduleCard"><div><strong>${name}</strong><span>${desc}</span></div><span class="moduleTag ${tier}">${tier==='free'?'INCLUS':'PRO'}</span></div>`).join('');
+}
+const openSheet08=openSheet;
+openSheet=async function(){
+  openSheet08();
+  renderModeModules();
+  $('sheetAddress').textContent='Recherche de l’adresse…';
+  $('sheetLocality').textContent='Source BAN / Géoplateforme';
+  const hit=state.currentHit;if(!hit)return;
+  const a=await reverseAddress(hit.feature);
+  if(a){
+    $('sheetAddress').textContent=a.label||'Adresse non disponible';
+    $('sheetLocality').textContent=[a.postcode,a.city].filter(Boolean).join(' ')||'Base Adresse Nationale';
+    const item=buildingSnapshot();
+    if(item){
+      item.label=a.label||item.label;
+      item.address=a.label||null;
+      upsertById(STORAGE_HISTORY,item);
+    }
+  }else{
+    $('sheetAddress').textContent='Adresse non déterminée';
+    $('sheetLocality').textContent='Le bâtiment reste identifié par son ID RNB';
+  }
+};
+const setMode08=setMode;
+setMode=function(mode){setMode08(mode);renderModeModules();};
+
+function maybeFirstRun(){
+  if(localStorage.getItem(FIRST_RUN))return;
+  openModeSheet();
+  const intro=document.querySelector('.modeIntro');
+  if(intro)intro.textContent='Première utilisation : choisissez votre métier. Vous pourrez le changer à tout moment.';
+  const finish=()=>localStorage.setItem(FIRST_RUN,'1');
+  document.querySelectorAll('.modeList button').forEach(b=>b.addEventListener('click',finish,{once:true}));
+}
+setTimeout(maybeFirstRun,300);
