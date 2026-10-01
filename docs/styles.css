@@ -175,3 +175,14 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 .onboardingContinue,.onboardingSkip{width:100%;min-height:54px;border-radius:15px;font:inherit;font-weight:850}
 .onboardingContinue{border:0;background:#fff;color:#080a0d}.onboardingSkip{margin-top:8px;border:1px solid rgba(255,255,255,.09);background:transparent;color:#fff;opacity:.66}
 @media(max-width:620px){.welcomeOnboarding{align-items:end;padding:0}.onboardingCard{border-radius:28px 28px 0 0;padding:24px 18px calc(24px + env(safe-area-inset-bottom));width:100%}.onboardingCard h2{font-size:27px}}
+
+
+/* HERIT 2.10 — onboarding polish */
+.onboardingHint{text-align:center;font-size:11px;line-height:1.45;opacity:.44;margin-top:10px}
+@media(max-width:620px){
+  .onboardingChoices{gap:7px;margin:14px 0}
+  .onboardingChoices button{padding:12px 14px;min-height:64px}
+  .onboardingChoices strong{font-size:14px}
+  .onboardingChoices span{font-size:10px}
+  .onboardingCard{padding-top:20px}
+}
