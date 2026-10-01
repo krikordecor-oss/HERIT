@@ -31,3 +31,5 @@ export function cloudLibrary(action='list',payload={}){return invoke('user-libra
 
 export function cloudOpportunity(building_id,vertical='real_estate'){return invoke('opportunity-engine',{building_id,vertical});}
 export function cloudProspects(action='list',payload={}){return invoke('prospect-manager',{action,...payload});}
+
+export function cloudEnrichBuilding(building_id){return invoke('enrich-building',{building_id});}
