@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=1.0" />
+  <link rel="stylesheet" href="styles.css?v=1.1" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -50,6 +50,7 @@
         <a href="dashboard.html">Mon activité <span>›</span></a>
         <button class="drawerAction" id="modeBtn">Mode métier <span id="modeLabel">Immobilier</span></button>
         <button class="drawerAction" id="languageBtn">Langue <span id="languageLabel">Français</span></button>
+        <button class="drawerAction" id="speechLanguageBtn">Langue de dictée <span id="speechLanguageLabel">Français</span></button>
         <a href="about.html">À propos de HERIT Lens <span>›</span></a>
         <a href="sources.html">Sources des données <span>›</span></a>
         <a href="privacy.html">Confidentialité <span>›</span></a>
@@ -148,6 +149,7 @@
           <div><small>Confiance ciblage</small><strong id="sheetConfidence">—</strong></div>
           <div><small>Précision GPS</small><strong id="sheetAccuracy">—</strong></div>
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
+          <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
         </div>
         <div id="modeModules" class="modeModules"></div>
         <div class="sheetActions">
@@ -217,6 +219,19 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=1.0"></script>
+  <section id="speechLanguageSheet" class="modeSheet hidden" aria-hidden="true">
+    <button class="sheetBackdrop" id="speechLanguageBackdrop" aria-label="Fermer"></button>
+    <div class="modePanel">
+      <div class="sheetHandle"></div>
+      <div class="sheetHead">
+        <div><div class="eyebrow">DICTÉE VOCALE</div><h2>Langue parlée</h2></div>
+        <button id="closeSpeechLanguage" class="sheetClose" aria-label="Fermer">×</button>
+      </div>
+      <p class="modeIntro">Cette langue peut être différente de la langue de l’interface et du pays du bâtiment.</p>
+      <div id="speechLanguageList" class="languageList"></div>
+    </div>
+  </section>
+
+  <script type="module" src="app.js?v=1.1"></script>
 </body>
 </html>
