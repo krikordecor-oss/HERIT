@@ -218,3 +218,23 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
   .targetCard.detectedCompact .target{font-size:28px}
   .targetCard.detectedCompact #targetMeta{font-size:11px}
 }
+
+
+/* HERIT 2.16 — mini HUD */
+.compactToggleBtn{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);color:#fff;width:34px;height:28px;border-radius:999px;font-size:15px;line-height:1;display:grid;place-items:center}
+.targetCard.detectedCompact:not(.detectedExpanded){padding:12px 14px}
+.targetCard.detectedCompact:not(.detectedExpanded) .eyebrow{display:none}
+.targetCard.detectedCompact:not(.detectedExpanded) #targetMeta{display:none}
+.targetCard.detectedCompact:not(.detectedExpanded) .targetFacts>div:nth-child(3){display:none}
+.targetCard.detectedCompact:not(.detectedExpanded) .targetFacts{grid-template-columns:1fr 1fr;margin-top:7px}
+.targetCard.detectedCompact:not(.detectedExpanded) #reloadBtn{display:none}
+.targetCard.detectedCompact:not(.detectedExpanded) .techDetails{display:none}
+.targetCard.detectedCompact:not(.detectedExpanded) #openBuildingBtn{margin-top:8px;padding:11px 12px}
+.targetCard.detectedCompact:not(.detectedExpanded) .target{font-size:24px;line-height:1.08}
+.targetCard.detectedCompact:not(.detectedExpanded) .confidence{font-size:16px;padding:8px 10px}
+.targetCard.detectedCompact:not(.detectedExpanded) .targetHead{margin-bottom:4px}
+.targetCard.detectedExpanded{padding:16px}
+@media(max-width:620px){
+  .targetCard.detectedCompact:not(.detectedExpanded){padding:11px 12px}
+  .targetCard.detectedCompact:not(.detectedExpanded) .target{font-size:22px}
+}
