@@ -234,7 +234,15 @@ function closeModeSheet(){
 $('modeBtn')?.addEventListener('click',openModeSheet);
 $('closeMode')?.addEventListener('click',closeModeSheet);
 $('modeBackdrop')?.addEventListener('click',closeModeSheet);
-document.querySelectorAll('.modeList button').forEach(b=>b.addEventListener('click',()=>{setMode(b.dataset.mode);closeModeSheet();}));
+document.querySelectorAll('.modeList button').forEach(b=>b.addEventListener('click',()=>{
+  setMode(b.dataset.mode);
+  if($('modeSheet')?.classList.contains('firstRunActive')){
+    const btn=$('confirmModeBtn');
+    if(btn)btn.textContent='Continuer avec '+b.dataset.mode;
+  }else{
+    closeModeSheet();
+  }
+}));
 $('saveBuildingBtn')?.addEventListener('click',()=>{
   const item=buildingSnapshot(); if(!item)return;
   const list=readList(STORAGE_SAVED);
@@ -364,14 +372,27 @@ openSheet=async function(){
 const setMode08=setMode;
 setMode=function(mode){setMode08(mode);renderModeModules();};
 
+function finishFirstRun(){
+  localStorage.setItem(FIRST_RUN,'1');
+  $('modeSheet')?.classList.remove('firstRunActive');
+  $('modeOnboardingActions')?.classList.add('hidden');
+  closeModeSheet();
+}
 function maybeFirstRun(){
   if(localStorage.getItem(FIRST_RUN))return;
   openModeSheet();
-  const intro=document.querySelector('.modeIntro');
-  if(intro)intro.textContent='Première utilisation : choisissez votre métier. Vous pourrez le changer à tout moment.';
-  const finish=()=>localStorage.setItem(FIRST_RUN,'1');
-  document.querySelectorAll('.modeList button').forEach(b=>b.addEventListener('click',finish,{once:true}));
+  $('modeSheet')?.classList.add('firstRunActive');
+  $('modeOnboardingActions')?.classList.remove('hidden');
+  if($('modeEyebrow'))$('modeEyebrow').textContent='BIENVENUE DANS HERIT';
+  if($('modeTitle'))$('modeTitle').textContent='Adaptons HERIT à votre activité.';
+  const btn=$('confirmModeBtn');
+  if(btn)btn.textContent='Continuer avec '+getMode();
 }
+$('confirmModeBtn')?.addEventListener('click',finishFirstRun);
+$('skipModeBtn')?.addEventListener('click',()=>{
+  setMode('Immobilier');
+  finishFirstRun();
+});
 setTimeout(maybeFirstRun,300);
 
 
