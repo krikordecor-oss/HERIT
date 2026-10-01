@@ -96,3 +96,28 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 .accountCard{padding:15px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);margin:12px 0}.accountCard small,.accountCard strong,.accountCard span{display:block}.accountCard small{font-size:9px;letter-spacing:.1em;opacity:.4}.accountCard strong{font-size:15px;margin-top:5px}.accountCard span{font-size:11px;opacity:.48;margin-top:5px}
 .fullAuth{width:100%}
 .cloudSync{font-size:10px;opacity:.52;margin-top:6px}
+
+
+/* HERIT Lens 2.1 — Decision Brief + adaptive field workspace */
+.buildingBriefCard{margin:10px 0;padding:15px;border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.12)}
+.buildingBriefHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.buildingBriefHead small,.buildingBriefHead strong{display:block}.buildingBriefHead small{font-size:8px;letter-spacing:.13em;opacity:.42}.buildingBriefHead strong{font-size:15px;margin-top:4px}.buildingBriefHead>span{font-size:10px;font-weight:850;padding:6px 8px;border-radius:999px;background:#fff;color:#080a0d;white-space:nowrap}
+.buildingBriefCard p{font-size:12px;line-height:1.45;opacity:.66;margin:11px 0}
+.buildingBriefSignals{display:flex;flex-wrap:wrap;gap:6px}.briefSignal{font-size:9px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08)}.briefSignal.caution{border-style:dashed;opacity:.82}.briefSignal.muted{opacity:.42}
+
+@media (min-width:700px) and (orientation:landscape){
+  .buildingSheet{align-items:stretch;justify-content:flex-end}
+  .buildingSheet .sheetBackdrop{background:linear-gradient(90deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.18) 45%,rgba(0,0,0,.62) 100%);backdrop-filter:none}
+  .buildingSheet .sheetPanel{width:min(48vw,590px);height:100dvh;max-height:none;border-radius:26px 0 0 26px;border-top:0;border-left:1px solid rgba(255,255,255,.12);padding:calc(16px + env(safe-area-inset-top)) 22px calc(20px + env(safe-area-inset-bottom));box-shadow:-22px 0 70px rgba(0,0,0,.45)}
+  .buildingSheet .sheetHandle{display:none}
+  .buildingSheet .sheetGrid{grid-template-columns:repeat(3,1fr)}
+  .targetCard{max-width:440px}
+  .scanner main{right:48vw}
+  .scanner header{right:48vw}
+  .debug{right:48vw}
+}
+@media (min-width:900px){
+  .buildingSheet .sheetPanel{width:min(44vw,620px)}
+  .scanner main{right:44vw}
+  .scanner header{right:44vw}
+  .debug{right:44vw}
+}
