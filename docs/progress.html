@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HERIT — Cockpit MVP</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;background:#07090b;color:#f5f7f8}
+*{box-sizing:border-box}body{margin:0;background:#07090b}.wrap{max-width:860px;margin:auto;padding:calc(24px + env(safe-area-inset-top)) 18px 48px}
+header{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.back{color:#fff;text-decoration:none;font-size:28px}.eyebrow{letter-spacing:.18em;text-transform:uppercase;color:#8b9299;font-size:12px;font-weight:700}h1{font-size:34px;margin:6px 0}.sub{color:#a8afb6;margin:0;line-height:1.45}
+.hero,.card{border:1px solid #252a2f;background:#111418;border-radius:24px}.hero{padding:22px;margin:22px 0}.heroTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.build{font-size:13px;color:#a8afb6}.goal{font-size:20px;font-weight:750;margin:6px 0 0}.pill{padding:8px 11px;border-radius:999px;border:1px solid #384047;font-size:12px;font-weight:750;white-space:nowrap}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.legend span{font-size:11px;color:#a8afb6}
+.grid{display:grid;gap:12px}.card{padding:16px}.row{display:grid;grid-template-columns:12px 1fr auto;gap:12px;align-items:start}.dot{width:10px;height:10px;border-radius:50%;margin-top:6px;background:#687078}.ok{background:#32d583}.field{background:#fdb022}.bad{background:#f04438}.todo{background:#667085}.title{font-weight:750}.desc{font-size:13px;color:#929aa2;margin-top:5px;line-height:1.4}.state{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#a8afb6;text-align:right}
+section h2{font-size:18px;margin:28px 2px 12px}.critical{border-color:#4a2727}.footer{margin-top:28px;color:#737b83;font-size:12px;line-height:1.5}
+@media(max-width:520px){h1{font-size:30px}.heroTop{display:block}.pill{display:inline-block;margin-top:14px}.state{max-width:92px}}
+</style></head><body><main class="wrap">
+<header><div><div class="eyebrow">HERIT · Cockpit fondateur</div><h1>Route vers le MVP</h1><p class="sub">État factuel du prototype. Aucun pourcentage artificiel : un bloc n'est vert que lorsqu'il possède une preuve.</p></div><a class="back" href="./?v=2.18-audit1" aria-label="Retour à HERIT">×</a></header>
+<div class="hero"><div class="heroTop"><div><div class="build">BUILD AUDIT · 2.18-audit1</div><div class="goal">Objectif : démonstration professionnelle fiable</div></div><span class="pill">MVP EN ASSAINISSEMENT</span></div><div class="legend"><span>🟢 validé</span><span>🟠 validation terrain requise</span><span>🔴 anomalie critique</span><span>⚪ à faire</span></div></div>
+<section><h2>Noyau terrain</h2><div class="grid">
+<div class="card"><div class="row"><i class="dot ok"></i><div><div class="title">Démarrage iPhone / Safari</div><div class="desc">L'application atteint le scanner et la fiche bâtiment sur l'iPhone de test.</div></div><div class="state">Terrain ✓</div></div></div>
+<div class="card"><div class="row"><i class="dot ok"></i><div><div class="title">GPS</div><div class="desc">Mesure terrain observée à ±4 m.</div></div><div class="state">Terrain ✓</div></div></div>
+<div class="card"><div class="row"><i class="dot field"></i><div><div class="title">Caméra + orientation + ciblage</div><div class="desc">Ciblage opérationnel ; dernier essai : 2 m, confiance affichée 91 %. La justesse de la maison visée reste à valider sur une série.</div></div><div class="state">À confirmer</div></div></div>
+<div class="card"><div class="row"><i class="dot ok"></i><div><div class="title">Identification RNB</div><div class="desc">Un identifiant RNB est obtenu sur le test terrain.</div></div><div class="state">Terrain ✓</div></div></div>
+<div class="card critical"><div class="row"><i class="dot bad"></i><div><div class="title">Adresse / commune / pays</div><div class="desc">Dernier test : l'adresse reste sur « Recherche de l'adresse… ». Correction structurelle en cours : la résolution locale ne doit plus dépendre du Cloud/Pro.</div></div><div class="state">Critique</div></div></div>
+</div></section>
+<section><h2>Résilience</h2><div class="grid">
+<div class="card"><div class="row"><i class="dot field"></i><div><div class="title">Indépendance Cloud</div><div class="desc">Cloud chargé à la demande et enrichissements Pro découplés de la fiche publique. Audit de régression encore ouvert.</div></div><div class="state">En cours</div></div></div>
+<div class="card"><div class="row"><i class="dot field"></i><div><div class="title">Réseau / API indisponible</div><div class="desc">Timeouts ajoutés aux géocodeurs et au RNB. Il reste à vérifier chaque état dégradé.</div></div><div class="state">En cours</div></div></div>
+<div class="card"><div class="row"><i class="dot field"></i><div><div class="title">Cache / Service Worker</div><div class="desc">Rotation du cache et installation rendue tolérante à l'échec d'un asset. Validation finale à faire.</div></div><div class="state">En cours</div></div></div>
+<div class="card"><div class="row"><i class="dot field"></i><div><div class="title">Parcours sans compte</div><div class="desc">Le scanner de base ne doit jamais imposer l'authentification ; contrôle des écrans secondaires en cours.</div></div><div class="state">En cours</div></div></div>
+</div></section>
+<section><h2>Produit vendable</h2><div class="grid">
+<div class="card"><div class="row"><i class="dot todo"></i><div><div class="title">Interface Lens premium</div><div class="desc">Caméra dominante, réticule discret, carte bâtiment compacte et détails à la demande.</div></div><div class="state">À faire</div></div></div>
+<div class="card"><div class="row"><i class="dot todo"></i><div><div class="title">Parcours opportunité → action</div><div class="desc">Transformer une identification fiable en information utile puis en action professionnelle mesurable.</div></div><div class="state">À finaliser</div></div></div>
+<div class="card"><div class="row"><i class="dot todo"></i><div><div class="title">Stress-test 10 bâtiments</div><div class="desc">10 bâtiments réels consécutifs, zéro blocage critique, contrôle de l'identité et de l'adresse.</div></div><div class="state">À faire</div></div></div>
+<div class="card"><div class="row"><i class="dot todo"></i><div><div class="title">Prêt démonstration client</div><div class="desc">Ce statut restera fermé tant que le stress-test et le parcours MVP ne seront pas validés.</div></div><div class="state">Non validé</div></div></div>
+</div></section>
+<p class="footer">Principe de preuve : « déployé » ne signifie pas « validé terrain ». Les validations iPhone nécessitent une observation réelle ; les services optionnels ne doivent jamais empêcher le noyau scanner → RNB → adresse → fiche.</p>
+</main></body></html>
