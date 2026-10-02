@@ -3,7 +3,7 @@ let cloudModule=null;
 const cloudUnavailable=()=>Promise.reject(new Error('Services cloud temporairement indisponibles.'));
 async function loadCloud(){
   if(cloudModule)return cloudModule;
-  try{ cloudModule=await import('./cloud.js?v=2.18-audit1'); return cloudModule; }
+  try{ cloudModule=await import('./cloud.js?v=2.18-core1'); return cloudModule; }
   catch(err){ console.warn('[HERIT] Cloud unavailable; local scanner remains active.',err); return null; }
 }
 const cloudCall=(name)=>(...args)=>loadCloud().then(m=>m?.[name]?m[name](...args):cloudUnavailable());
@@ -391,7 +391,7 @@ openSheet=function(){
 setMode(getMode());
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=2.18-audit1').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=2.18-core1').catch(()=>{}));
 }
 
 
