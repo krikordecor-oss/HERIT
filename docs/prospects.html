@@ -14,7 +14,7 @@
   <div id="prospectLists" class="activityList"></div>
 </section>
 <script type="module">
-import { cloudGetSession, cloudProspects } from './cloud.js?v=1.4';
+import { cloudGetSession, cloudProspects } from './cloud.js?v=2.18-audit1';
 const $=id=>document.getElementById(id);
 function esc(s){return String(s||'—').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 let session=null,data={lists:[],items:[]};
