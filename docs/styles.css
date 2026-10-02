@@ -265,3 +265,29 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 .targetCard.detectedCompact:not(.detectedExpanded) #openBuildingBtn{border-radius:999px;margin-top:10px}
 .targetCard.detectedCompact:not(.detectedExpanded) #startBtn{display:none}
 @media(max-width:620px){.scannerHint{top:25%}.targetCard.detectedCompact{left:10px;right:10px}}
+
+
+/* HERIT 2.20 — product-first building sheet */
+.buildingSheet .sheetPanel{background:linear-gradient(180deg,#0c1014 0%,#090c10 100%)}
+.buildingSheet .sheetHead{margin-bottom:14px}
+.buildingSheet .sheetHead h2{font-size:clamp(28px,8vw,42px);letter-spacing:-.045em;line-height:1}
+.buildingSheet .addressBlock{padding:18px 20px;border-radius:20px;background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.1);margin-bottom:12px}
+.buildingSheet .addressBlock small{font-size:9px;letter-spacing:.16em;opacity:.42}
+.buildingSheet .addressBlock strong{font-size:21px;line-height:1.18;margin-top:7px}
+.buildingSheet .addressBlock span{font-size:14px;margin-top:5px;opacity:.55}
+.identityTech{margin:0 0 22px;border-bottom:1px solid rgba(255,255,255,.08)}
+.identityTech summary{list-style:none;padding:11px 2px 14px;font-size:11px;opacity:.46;cursor:pointer}.identityTech summary::-webkit-details-marker{display:none}
+.identityTech summary:after{content:"+";float:right;font-size:16px}.identityTech[open] summary:after{content:"−"}
+.identityTech:not([open]) .sheetGrid{display:none}
+.identityTech .sheetGrid{margin:0 0 14px}
+.heritSectionTitle{margin:20px 2px 11px}.heritSectionTitle small,.heritSectionTitle strong{display:block}.heritSectionTitle small{font-size:9px;letter-spacing:.16em;opacity:.38;margin-bottom:4px}.heritSectionTitle strong{font-size:18px;letter-spacing:-.02em}
+.buildingSheet .moduleCard{border-radius:17px;margin-top:7px;padding:15px 16px;background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.075)}
+.buildingSheet .moduleCard>div>strong{font-size:14px}.buildingSheet .moduleCard>div>span{font-size:11px;opacity:.48;margin-top:3px}
+.buildingSheet .moduleTag{font-size:8px;opacity:.58}
+.buildingBriefCard{border-radius:17px!important;background:rgba(255,255,255,.045)!important}
+.actionTitle{margin-top:26px}
+.sheetActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sheetActions>*{margin:0!important;min-height:48px;border-radius:14px!important;font-size:12px!important}
+.sheetActions .sheetPrimary{grid-column:1/-1}
+.sheetSource{margin-top:24px;opacity:.55}
+@media(max-width:620px){.buildingSheet .sheetPanel{padding-left:14px;padding-right:14px}.buildingSheet .sheetHead h2{font-size:32px}.buildingSheet .addressBlock strong{font-size:20px}}
