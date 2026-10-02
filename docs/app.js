@@ -413,6 +413,21 @@ function geometryCenter(feature){
 }
 function readAddressCache(){try{return JSON.parse(localStorage.getItem(ADDRESS_CACHE)||'{}')}catch{return{}}}
 function writeAddressCache(c){localStorage.setItem(ADDRESS_CACHE,JSON.stringify(c))}
+async function addressFromRnb(feature){
+  const p=feature?.properties||{};
+  const id=p.rnb_id||feature?.id||p.id;
+  if(!id)return null;
+  try{
+    const url='https://rnb-api.beta.gouv.fr/api/alpha/buildings/'+encodeURIComponent(id)+'/';
+    const r=await fetchWithTimeout(url,{headers:{Accept:'application/json'},cache:'no-store'},4000);
+    if(!r.ok)return null;
+    const data=await r.json();
+    const a=data.addresses?.[0]||data.address||data;
+    const label=a.full_address||a.label||a.address||a.street_address||null;
+    if(!label)return null;
+    return {label,city:a.city||a.city_name||a.commune||'',postcode:a.postcode||a.postal_code||'',source:'RNB'};
+  }catch{return null;}
+}
 async function reverseAddress(feature){
   const p=feature?.properties||{};
   const existing=p.address||p.adresse||null;
@@ -478,14 +493,16 @@ openSheet=async function(){
   $('sheetLocality').textContent='Source BAN / Géoplateforme';
   const hit=state.currentHit;if(!hit)return;
   // Resolve global context and French BAN independently: one provider must never block the other.
-  const [geoResult,banResult]=await Promise.allSettled([
+  const [rnbResult,geoResult,banResult]=await Promise.allSettled([
+    addressFromRnb(hit.feature),
     resolveBuildingGeoContext(hit.feature),
     reverseAddress(hit.feature)
   ]);
+  const rnbAddress=rnbResult.status==='fulfilled'?rnbResult.value:null;
   state.geoContext=geoResult.status==='fulfilled'?geoResult.value:null;
   const ban=banResult.status==='fulfilled'?banResult.value:null;
-  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||(ban?'France':'—');
-  const a=ban || (state.geoContext?{
+  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||((rnbAddress||ban)?'France':'—');
+  const a=rnbAddress || ban || (state.geoContext?{
     label:[state.geoContext.house_number,state.geoContext.road].filter(Boolean).join(' ')||state.geoContext.display_name,
     city:state.geoContext.city,
     postcode:state.geoContext.postcode,
