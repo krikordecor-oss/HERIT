@@ -238,3 +238,30 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
   .targetCard.detectedCompact:not(.detectedExpanded){padding:11px 12px}
   .targetCard.detectedCompact:not(.detectedExpanded) .target{font-size:22px}
 }
+
+
+/* HERIT 2.19 — camera-first product shell */
+.scanner .scrim{background:linear-gradient(180deg,rgba(0,0,0,.48),transparent 22%,transparent 68%,rgba(0,0,0,.46))}
+.scanner header{padding:calc(12px + env(safe-area-inset-top)) 14px 10px}
+.scanner .brandWrap{gap:8px}.scanner .miniMark{width:34px;height:34px;border-radius:12px;background:rgba(8,10,12,.52);color:#fff;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(18px)}
+.scanner .brand{font-size:15px;letter-spacing:.01em}.scanner .brand span{display:none}
+.scanner .headerBadges{display:flex;gap:6px}.scanner .modePill{font-size:11px;padding:7px 10px;background:rgba(8,10,12,.48);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(18px)}
+.scanner .badge{font-size:0;width:34px;height:34px;padding:0;border-radius:50%;position:relative}
+.scanner .badge:after{content:"";position:absolute;inset:11px;border-radius:50%;background:#8c9298}.scanner .badge.active:after{background:#fff}
+.scannerHint{top:26%;width:min(330px,72vw);opacity:.82}.scannerHint strong{font-size:14px;font-weight:650}.scannerHint span{display:none}
+.reticle{top:45%;width:46px;height:46px;border-color:rgba(255,255,255,.76);box-shadow:none}.reticle span{display:none}.reticle:before{width:14px}.reticle:after{height:14px}
+
+/* Idle: the camera is the interface. */
+.targetCard:not(.detectedCompact){left:50%;right:auto;width:auto;min-width:0;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:0;background:transparent;border:0;backdrop-filter:none}
+.targetCard:not(.detectedCompact) .cardTop,.targetCard:not(.detectedCompact) #targetMeta,.targetCard:not(.detectedCompact) .targetFacts,.targetCard:not(.detectedCompact) #reloadBtn,.targetCard:not(.detectedCompact) .techDetails{display:none}
+.targetCard:not(.detectedCompact) #startBtn{width:auto;min-width:184px;padding:15px 22px;border-radius:999px;background:rgba(255,255,255,.94);color:#090b0d;font-size:14px;font-weight:800;box-shadow:0 12px 38px rgba(0,0,0,.28)}
+.targetCard:not(.detectedCompact) #openBuildingBtn{display:none!important}
+
+/* Detection: compact information capsule, not a dashboard. */
+.targetCard.detectedCompact{left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));border-radius:20px;background:rgba(10,12,15,.72);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(26px);box-shadow:0 16px 50px rgba(0,0,0,.3)}
+.targetCard.detectedCompact:not(.detectedExpanded) .targetFacts{display:none}
+.targetCard.detectedCompact:not(.detectedExpanded) .target{font-size:19px}
+.targetCard.detectedCompact:not(.detectedExpanded) .confidence{font-size:12px;padding:7px 9px}
+.targetCard.detectedCompact:not(.detectedExpanded) #openBuildingBtn{border-radius:999px;margin-top:10px}
+.targetCard.detectedCompact:not(.detectedExpanded) #startBtn{display:none}
+@media(max-width:620px){.scannerHint{top:25%}.targetCard.detectedCompact{left:10px;right:10px}}
