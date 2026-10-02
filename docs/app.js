@@ -422,7 +422,7 @@ async function reverseAddress(feature){
   const c=geometryCenter(feature); if(!c)return null;
   try{
     const url=`https://data.geopf.fr/geocodage/reverse?lon=${encodeURIComponent(c.lon)}&lat=${encodeURIComponent(c.lat)}&limit=1`;
-    const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
+    const r=await fetchWithTimeout(url,{headers:{Accept:'application/json'},cache:'no-store'},5000);
     if(!r.ok)throw new Error('geocoding '+r.status);
     const data=await r.json();
     const f=data.features?.[0]||data.results?.[0]||null;
@@ -477,9 +477,15 @@ openSheet=async function(){
   $('sheetAddress').textContent='Recherche de l’adresse…';
   $('sheetLocality').textContent='Source BAN / Géoplateforme';
   const hit=state.currentHit;if(!hit)return;
-  state.geoContext=await resolveBuildingGeoContext(hit.feature);
-  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||'—';
-  const a=state.geoContext?.country_code==='FR' ? await reverseAddress(hit.feature) : (state.geoContext?{
+  // Resolve global context and French BAN independently: one provider must never block the other.
+  const [geoResult,banResult]=await Promise.allSettled([
+    resolveBuildingGeoContext(hit.feature),
+    reverseAddress(hit.feature)
+  ]);
+  state.geoContext=geoResult.status==='fulfilled'?geoResult.value:null;
+  const ban=banResult.status==='fulfilled'?banResult.value:null;
+  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||(ban?'France':'—');
+  const a=ban || (state.geoContext?{
     label:[state.geoContext.house_number,state.geoContext.road].filter(Boolean).join(' ')||state.geoContext.display_name,
     city:state.geoContext.city,
     postcode:state.geoContext.postcode,
@@ -644,6 +650,12 @@ function setSpeechLocale(locale){
 function readGeoCache(){try{return JSON.parse(localStorage.getItem(GEO_CACHE_KEY)||'{}')}catch{return{}}}
 function writeGeoCache(v){localStorage.setItem(GEO_CACHE_KEY,JSON.stringify(v))}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+async function fetchWithTimeout(url,options={},timeoutMs=5000){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{return await fetch(url,{...options,signal:controller.signal});}
+  finally{clearTimeout(timer);}
+}
 async function nominatimReverse(lat,lon){
   const key=lat.toFixed(5)+','+lon.toFixed(5);
   const cache=readGeoCache(); if(cache[key])return cache[key];
