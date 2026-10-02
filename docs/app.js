@@ -925,7 +925,12 @@ async function refreshOpportunityScore(){
 
 $('addProspectBtn')?.addEventListener('click',async()=>{
   const btn=$('addProspectBtn');
-  if(!cloudSession?.user){openAuthSheet();return;}
+  if(!cloudSession?.user){
+    const original=btn.textContent;
+    btn.textContent='Compte requis pour la synchro Pro';
+    setTimeout(()=>{btn.textContent=original;},1800);
+    return;
+  }
   await syncCurrentScan();
   if(!state.currentCloudBuildingId)return;
   const original=btn.textContent; btn.disabled=true; btn.textContent='Ajout…';
