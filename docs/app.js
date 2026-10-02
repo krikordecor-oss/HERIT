@@ -872,13 +872,18 @@ async function syncCurrentScan(){
 }
 const openSheet12=openSheet;
 openSheet=async function(){
-  await openSheet12();
-  await syncCurrentScan();
-  await refreshBuildingFacts();
-  await refreshConstructionHistory();
-  await refreshFutureContext();
-  await refreshOpportunityScore();
-  await refreshBuildingBrief();
+  // The local/public building sheet must never wait for optional Cloud/Pro services.
+  // Start the address resolver immediately, then enrich independently in the background.
+  const localSheetPromise=Promise.resolve(openSheet12()).catch(e=>console.warn('HERIT local sheet',e));
+  Promise.allSettled([
+    syncCurrentScan(),
+    refreshBuildingFacts(),
+    refreshConstructionHistory(),
+    refreshFutureContext(),
+    refreshOpportunityScore(),
+    refreshBuildingBrief()
+  ]).catch(()=>{});
+  await localSheetPromise;
 };
 
 $('saveObservationBtn')?.addEventListener('click',()=>{
