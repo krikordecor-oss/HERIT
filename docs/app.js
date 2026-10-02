@@ -71,7 +71,7 @@ function closeSheet(){
   $('buildingSheet').classList.add('hidden');
   $('buildingSheet').setAttribute('aria-hidden','true');
 }
-$('openBuildingBtn').addEventListener('click',openSheet);
+$('openBuildingBtn').addEventListener('click',()=>openSheet());
 $('closeSheet').addEventListener('click',closeSheet);
 $('sheetBackdrop').addEventListener('click',closeSheet);
 
@@ -422,10 +422,23 @@ async function addressFromRnb(feature){
     const r=await fetchWithTimeout(url,{headers:{Accept:'application/json'},cache:'no-store'},4000);
     if(!r.ok)return null;
     const data=await r.json();
-    const a=data.addresses?.[0]||data.address||data;
-    const label=a.full_address||a.label||a.address||a.street_address||null;
+    const a=data.addresses?.[0]||data.address||null;
+    if(!a)return null;
+    const streetLine=[
+      a.street_number||a.number||'',
+      a.street_rep||a.rep||'',
+      a.street||a.street_name||a.road||''
+    ].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+    const label=a.full_address||a.label||a.address||a.street_address||streetLine||null;
     if(!label)return null;
-    return {label,city:a.city||a.city_name||a.commune||'',postcode:a.postcode||a.postal_code||'',source:'RNB'};
+    return {
+      label,
+      city:a.city||a.city_name||a.commune||'',
+      postcode:a.postcode||a.postal_code||a.city_zipcode||'',
+      citycode:a.city_insee_code||a.citycode||null,
+      ban_id:a.ban_id||a.id||null,
+      source:'RNB'
+    };
   }catch{return null;}
 }
 async function reverseAddress(feature){
