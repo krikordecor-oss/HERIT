@@ -2,7 +2,7 @@
 <header class="hero"><div class="eyebrow">HERIT GLOBAL DATA FABRIC</div><h1>Couverture mondiale.</h1><p>Chaque pays est activé source par source. Une donnée n’entre dans HERIT que si ses droits d’usage ont été validés.</p></header>
 <section><div id="status" class="notice">Chargement de la matrice…</div><div id="coverage" class="activityList"></div></section>
 <script type="module">
-import {cloudGetSession,cloudCoverageMatrix} from './cloud.js?v=1.9';
+import {cloudGetSession,cloudCoverageMatrix} from './cloud.js?v=2.18-audit1';
 const esc=s=>String(s??'—').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const pct=v=>v==null?'—':Math.round(Number(v))+'%';
 async function load(){
