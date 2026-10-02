@@ -486,42 +486,54 @@ function renderModeModules(){
   root.innerHTML=rows.map(([name,desc,tier])=>`<div class="moduleCard"><div><strong>${name}</strong><span>${desc}</span></div><span class="moduleTag ${tier}">${tier==='free'?'INCLUS':'PRO'}</span></div>`).join('');
 }
 const openSheet08=openSheet;
+async function resolvePublicBuildingSheet(hit){
+  const addressEl=$('sheetAddress'), localityEl=$('sheetLocality'), countryEl=$('sheetCountry');
+  if(addressEl)addressEl.textContent='Recherche de l’adresse…';
+  if(localityEl)localityEl.textContent='Résolution des sources publiques…';
+  if(countryEl)countryEl.textContent='—';
+  if(!hit?.feature)return;
+
+  const deadline=new Promise(resolve=>setTimeout(()=>resolve({deadline:true}),6500));
+  const sources=Promise.allSettled([
+    addressFromRnb(hit.feature),
+    reverseAddress(hit.feature),
+    resolveBuildingGeoContext(hit.feature)
+  ]).then(([rnbResult,banResult,geoResult])=>({
+    rnbAddress:rnbResult.status==='fulfilled'?rnbResult.value:null,
+    ban:banResult.status==='fulfilled'?banResult.value:null,
+    geo:geoResult.status==='fulfilled'?geoResult.value:null
+  }));
+  const resolved=await Promise.race([sources,deadline]);
+  if(resolved?.deadline){
+    if(addressEl)addressEl.textContent='Adresse temporairement indisponible';
+    if(localityEl)localityEl.textContent='Bâtiment identifié par son ID RNB · réessayer plus tard';
+    if(countryEl)countryEl.textContent='—';
+    return;
+  }
+
+  const {rnbAddress,ban,geo}=resolved;
+  state.geoContext=geo||null;
+  const a=rnbAddress||ban||(geo?{
+    label:[geo.house_number,geo.road].filter(Boolean).join(' ')||geo.display_name,
+    city:geo.city, postcode:geo.postcode, source:'OpenStreetMap / Nominatim'
+  }:null);
+  if(countryEl)countryEl.textContent=geo?.country||geo?.country_code||((rnbAddress||ban)?'France':'—');
+  if(!a){
+    if(addressEl)addressEl.textContent='Adresse non déterminée';
+    if(localityEl)localityEl.textContent='Bâtiment identifié par son ID RNB';
+    return;
+  }
+  state.banContext=a;
+  if(addressEl)addressEl.textContent=a.label||'Adresse non disponible';
+  if(localityEl)localityEl.textContent=[a.postcode,a.city].filter(Boolean).join(' ')||('Source '+(a.source||'publique'));
+  const item=buildingSnapshot();
+  if(item){item.label=a.label||item.label;item.address=a.label||null;upsertById(STORAGE_HISTORY,item);}
+}
 openSheet=async function(){
   openSheet08();
   renderModeModules();
-  $('sheetAddress').textContent='Recherche de l’adresse…';
-  $('sheetLocality').textContent='Source BAN / Géoplateforme';
-  const hit=state.currentHit;if(!hit)return;
-  // Resolve global context and French BAN independently: one provider must never block the other.
-  const [rnbResult,geoResult,banResult]=await Promise.allSettled([
-    addressFromRnb(hit.feature),
-    resolveBuildingGeoContext(hit.feature),
-    reverseAddress(hit.feature)
-  ]);
-  const rnbAddress=rnbResult.status==='fulfilled'?rnbResult.value:null;
-  state.geoContext=geoResult.status==='fulfilled'?geoResult.value:null;
-  const ban=banResult.status==='fulfilled'?banResult.value:null;
-  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||((rnbAddress||ban)?'France':'—');
-  const a=rnbAddress || ban || (state.geoContext?{
-    label:[state.geoContext.house_number,state.geoContext.road].filter(Boolean).join(' ')||state.geoContext.display_name,
-    city:state.geoContext.city,
-    postcode:state.geoContext.postcode,
-    source:'OpenStreetMap / Nominatim'
-  }:null);
-  if(a){
-    state.banContext=a;
-    $('sheetAddress').textContent=a.label||'Adresse non disponible';
-    $('sheetLocality').textContent=[a.postcode,a.city].filter(Boolean).join(' ')||'Base Adresse Nationale';
-    const item=buildingSnapshot();
-    if(item){
-      item.label=a.label||item.label;
-      item.address=a.label||null;
-      upsertById(STORAGE_HISTORY,item);
-    }
-  }else{
-    $('sheetAddress').textContent='Adresse non déterminée';
-    $('sheetLocality').textContent='Le bâtiment reste identifié par son ID RNB';
-  }
+  const hit=state.currentHit;
+  await resolvePublicBuildingSheet(hit);
 };
 const setMode08=setMode;
 setMode=function(mode){setMode08(mode);renderModeModules();};
