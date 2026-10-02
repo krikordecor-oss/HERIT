@@ -1,4 +1,29 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudResendConfirmation, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory, cloudBuildingBrief, cloudOvertureZone } from './cloud.js?v=2.6';
+// HERIT Lens v2.17 resilience: the field scanner must boot even when cloud/CDN is unavailable.
+let cloudModule=null;
+const cloudUnavailable=()=>Promise.reject(new Error('Services cloud temporairement indisponibles.'));
+async function loadCloud(){
+  if(cloudModule)return cloudModule;
+  try{ cloudModule=await import('./cloud.js?v=2.17'); return cloudModule; }
+  catch(err){ console.warn('[HERIT] Cloud unavailable; local scanner remains active.',err); return null; }
+}
+const cloudCall=(name)=>(...args)=>loadCloud().then(m=>m?.[name]?m[name](...args):cloudUnavailable());
+const cloudGetSession=cloudCall('cloudGetSession');
+const cloudSignIn=cloudCall('cloudSignIn');
+const cloudSignUp=cloudCall('cloudSignUp');
+const cloudSignOut=cloudCall('cloudSignOut');
+const cloudResendConfirmation=cloudCall('cloudResendConfirmation');
+const cloudIngestScan=cloudCall('cloudIngestScan');
+const cloudIngestObservation=cloudCall('cloudIngestObservation');
+const cloudLibrary=cloudCall('cloudLibrary');
+const cloudOpportunity=cloudCall('cloudOpportunity');
+const cloudProspects=cloudCall('cloudProspects');
+const cloudEnrichBuilding=cloudCall('cloudEnrichBuilding');
+const cloudGlobalEnrich=cloudCall('cloudGlobalEnrich');
+const cloudBuildingContext=cloudCall('cloudBuildingContext');
+const cloudConstructionHistory=cloudCall('cloudConstructionHistory');
+const cloudBuildingBrief=cloudCall('cloudBuildingBrief');
+const cloudOvertureZone=cloudCall('cloudOvertureZone');
+const cloudOnAuthChange=(cb)=>{ let subscription={unsubscribe(){}}; loadCloud().then(m=>{ if(m?.cloudOnAuthChange){ const r=m.cloudOnAuthChange(cb); subscription=r?.data?.subscription||r?.subscription||subscription; } }); return {data:{subscription}}; };
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
@@ -397,7 +422,7 @@ async function reverseAddress(feature){
   const c=geometryCenter(feature); if(!c)return null;
   try{
     const url=`https://data.geopf.fr/geocodage/reverse?lon=${encodeURIComponent(c.lon)}&lat=${encodeURIComponent(c.lat)}&limit=1`;
-    const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
+    const r=await fetchWithTimeout(url,{headers:{Accept:'application/json'},cache:'no-store'},5000);
     if(!r.ok)throw new Error('geocoding '+r.status);
     const data=await r.json();
     const f=data.features?.[0]||data.results?.[0]||null;
@@ -452,9 +477,15 @@ openSheet=async function(){
   $('sheetAddress').textContent='Recherche de l’adresse…';
   $('sheetLocality').textContent='Source BAN / Géoplateforme';
   const hit=state.currentHit;if(!hit)return;
-  state.geoContext=await resolveBuildingGeoContext(hit.feature);
-  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||'—';
-  const a=state.geoContext?.country_code==='FR' ? await reverseAddress(hit.feature) : (state.geoContext?{
+  // Resolve global context and French BAN independently: one provider must never block the other.
+  const [geoResult,banResult]=await Promise.allSettled([
+    resolveBuildingGeoContext(hit.feature),
+    reverseAddress(hit.feature)
+  ]);
+  state.geoContext=geoResult.status==='fulfilled'?geoResult.value:null;
+  const ban=banResult.status==='fulfilled'?banResult.value:null;
+  if($('sheetCountry'))$('sheetCountry').textContent=state.geoContext?.country||state.geoContext?.country_code||(ban?'France':'—');
+  const a=ban || (state.geoContext?{
     label:[state.geoContext.house_number,state.geoContext.road].filter(Boolean).join(' ')||state.geoContext.display_name,
     city:state.geoContext.city,
     postcode:state.geoContext.postcode,
@@ -619,13 +650,19 @@ function setSpeechLocale(locale){
 function readGeoCache(){try{return JSON.parse(localStorage.getItem(GEO_CACHE_KEY)||'{}')}catch{return{}}}
 function writeGeoCache(v){localStorage.setItem(GEO_CACHE_KEY,JSON.stringify(v))}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+async function fetchWithTimeout(url,options={},timeoutMs=5000){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{return await fetch(url,{...options,signal:controller.signal});}
+  finally{clearTimeout(timer);}
+}
 async function nominatimReverse(lat,lon){
   const key=lat.toFixed(5)+','+lon.toFixed(5);
   const cache=readGeoCache(); if(cache[key])return cache[key];
   const wait=Math.max(0,1100-(Date.now()-lastNominatimAt)); if(wait)await sleep(wait);
   lastNominatimAt=Date.now();
   const url='https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat='+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lon)+'&accept-language='+encodeURIComponent(currentLocale());
-  const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
+  const r=await fetchWithTimeout(url,{headers:{Accept:'application/json'},cache:'no-store'},5000);
   if(!r.ok)throw new Error('Global geocoder '+r.status);
   const d=await r.json();
   const a=d.address||{};
@@ -1005,6 +1042,19 @@ async function refreshConstructionHistory(){
   }
 }
 
+
+function wireModuleCards(){
+  const bind=(id,action)=>{
+    const el=$(id); if(!el||el.dataset.wired==='1')return;
+    el.dataset.wired='1'; el.setAttribute('role','button'); el.setAttribute('tabindex','0');
+    const run=()=>action();
+    el.addEventListener('click',run);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();run();}});
+  };
+  bind('constructionHistoryCard',refreshConstructionHistory);
+  bind('futureContextCard',refreshFutureContext);
+}
+wireModuleCards();
 
 async function refreshBuildingBrief(){
   const card=$('buildingBriefCard'),title=$('buildingBriefTitle'),summary=$('buildingBriefSummary'),badge=$('buildingBriefBadge'),signals=$('buildingBriefSignals');
