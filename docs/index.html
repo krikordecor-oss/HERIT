@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.19-address2" />
+  <link rel="stylesheet" href="styles.css?v=2.20-sheet1" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -162,7 +162,7 @@
         <div class="sheetHandle"></div>
         <div class="sheetHead">
           <div>
-            <div class="eyebrow">FICHE BÂTIMENT</div>
+            <div class="eyebrow">HERIT · BÂTIMENT IDENTIFIÉ</div>
             <h2 id="sheetTitle">Bâtiment</h2>
           </div>
           <button id="closeSheet" class="sheetClose" aria-label="Fermer">×</button>
@@ -172,7 +172,7 @@
           <strong id="sheetAddress">Recherche de l’adresse…</strong>
           <span id="sheetLocality">—</span>
         </div>
-        <div class="sheetGrid">
+        <details class="identityTech"><summary>Informations techniques</summary><div class="sheetGrid">
           <div><small>ID RNB</small><strong id="sheetRnb">—</strong></div>
           <div><small>Distance</small><strong id="sheetDistance">—</strong></div>
           <div><small>Mode de détection</small><strong id="sheetMode">—</strong></div>
@@ -180,7 +180,8 @@
           <div><small>Précision GPS</small><strong id="sheetAccuracy">—</strong></div>
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
           <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
-        </div>
+        </div></details>
+        <div class="heritSectionTitle"><small>À SAVOIR</small><strong>Ce que HERIT sait de ce bâtiment</strong></div>
         <div id="constructionHistoryCard" class="moduleCard">
   <div>
     <strong>Construction & autorisations</strong>
@@ -198,7 +199,7 @@
 <div id="buildingFactsCard" class="moduleCard">
   <div>
     <strong>Données bâtiment</strong>
-    <span id="buildingFactsText">Connectez-vous pour enrichir ce bâtiment.</span>
+    <span id="buildingFactsText">Données complémentaires non chargées.</span>
   </div>
   <span id="buildingFactsBadge" class="moduleTag pro">DATA</span>
 </div>
@@ -207,15 +208,15 @@
     <div><small>HERIT DECISION BRIEF</small><strong id="buildingBriefTitle">Synthèse décisionnelle</strong></div>
     <span id="buildingBriefBadge">—%</span>
   </div>
-  <p id="buildingBriefSummary">Connectez-vous pour générer le brief bâtiment.</p>
+  <p id="buildingBriefSummary">La synthèse apparaîtra lorsque suffisamment de données seront disponibles.</p>
   <div id="buildingBriefSignals" class="buildingBriefSignals"></div>
 </div>
 <div id="opportunityCard" class="moduleCard">
-  <div><strong>Opportunity Score</strong><span id="opportunityText">Connectez-vous pour calculer le potentiel de ce bâtiment.</span></div>
+  <div><strong>Opportunity Score</strong><span id="opportunityText">Potentiel non calculé pour le moment.</span></div>
   <span id="opportunityScore" class="moduleTag pro">—</span>
 </div>
 <div id="modeModules" class="modeModules"></div>
-        <div class="sheetActions">
+        <div class="heritSectionTitle actionTitle"><small>AGIR</small><strong>Que voulez-vous faire ?</strong></div><div class="sheetActions">
           <button id="saveBuildingBtn" class="sheetPrimary">Enregistrer ce bâtiment</button>
           <button id="addObservationBtn" class="sheetObserve">Ajouter une observation</button>
           <button id="addProspectBtn" class="sheetObserve">Ajouter aux prospects</button>
