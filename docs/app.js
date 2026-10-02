@@ -1,4 +1,29 @@
-import { cloudGetSession, cloudSignIn, cloudSignUp, cloudSignOut, cloudResendConfirmation, cloudIngestScan, cloudIngestObservation, cloudOnAuthChange, cloudLibrary, cloudOpportunity, cloudProspects, cloudEnrichBuilding, cloudGlobalEnrich, cloudBuildingContext, cloudConstructionHistory, cloudBuildingBrief, cloudOvertureZone } from './cloud.js?v=2.6';
+// HERIT Lens v2.17 resilience: the field scanner must boot even when cloud/CDN is unavailable.
+let cloudModule=null;
+const cloudUnavailable=()=>Promise.reject(new Error('Services cloud temporairement indisponibles.'));
+async function loadCloud(){
+  if(cloudModule)return cloudModule;
+  try{ cloudModule=await import('./cloud.js?v=2.17'); return cloudModule; }
+  catch(err){ console.warn('[HERIT] Cloud unavailable; local scanner remains active.',err); return null; }
+}
+const cloudCall=(name)=>(...args)=>loadCloud().then(m=>m?.[name]?m[name](...args):cloudUnavailable());
+const cloudGetSession=cloudCall('cloudGetSession');
+const cloudSignIn=cloudCall('cloudSignIn');
+const cloudSignUp=cloudCall('cloudSignUp');
+const cloudSignOut=cloudCall('cloudSignOut');
+const cloudResendConfirmation=cloudCall('cloudResendConfirmation');
+const cloudIngestScan=cloudCall('cloudIngestScan');
+const cloudIngestObservation=cloudCall('cloudIngestObservation');
+const cloudLibrary=cloudCall('cloudLibrary');
+const cloudOpportunity=cloudCall('cloudOpportunity');
+const cloudProspects=cloudCall('cloudProspects');
+const cloudEnrichBuilding=cloudCall('cloudEnrichBuilding');
+const cloudGlobalEnrich=cloudCall('cloudGlobalEnrich');
+const cloudBuildingContext=cloudCall('cloudBuildingContext');
+const cloudConstructionHistory=cloudCall('cloudConstructionHistory');
+const cloudBuildingBrief=cloudCall('cloudBuildingBrief');
+const cloudOvertureZone=cloudCall('cloudOvertureZone');
+const cloudOnAuthChange=(cb)=>{ let subscription={unsubscribe(){}}; loadCloud().then(m=>{ if(m?.cloudOnAuthChange){ const r=m.cloudOnAuthChange(cb); subscription=r?.data?.subscription||r?.subscription||subscription; } }); return {data:{subscription}}; };
 import { I18N, SUPPORTED_LANGUAGES, getPreferredLocale, localeLabel, applyTranslations } from './i18n.js?v=1.0';
 import { selectTarget, normalizeHeading, haversineMeters } from './targeting.js';
 import { loadBuildingsNear } from './buildings.js';
