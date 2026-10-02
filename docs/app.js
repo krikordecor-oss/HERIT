@@ -884,17 +884,20 @@ async function syncCurrentScan(){
 }
 const openSheet12=openSheet;
 openSheet=async function(){
-  // The local/public building sheet must never wait for optional Cloud/Pro services.
-  // Start the address resolver immediately, then enrich independently in the background.
-  const localSheetPromise=Promise.resolve(openSheet12()).catch(e=>console.warn('HERIT local sheet',e));
-  Promise.allSettled([
+  // Public identity is the critical path. Cloud/Pro enrichment is best-effort only.
+  const localSheetPromise=Promise.resolve(openSheet12()).catch(e=>{
+    console.warn('HERIT local sheet',e);
+    if($('sheetAddress'))$('sheetAddress').textContent='Adresse temporairement indisponible';
+    if($('sheetLocality'))$('sheetLocality').textContent='Le bâtiment reste utilisable via son ID RNB';
+  });
+  queueMicrotask(()=>Promise.allSettled([
     syncCurrentScan(),
     refreshBuildingFacts(),
     refreshConstructionHistory(),
     refreshFutureContext(),
     refreshOpportunityScore(),
     refreshBuildingBrief()
-  ]).catch(()=>{});
+  ]));
   await localSheetPromise;
 };
 
