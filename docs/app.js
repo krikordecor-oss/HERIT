@@ -391,7 +391,7 @@ openSheet=function(){
 setMode(getMode());
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=2.17').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=2.17.2').catch(()=>{}));
 }
 
 
