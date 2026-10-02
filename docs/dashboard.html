@@ -12,7 +12,7 @@
 <section id="cloudNotice" class="notice"><strong>HERIT Cloud :</strong> vos données synchronisées apparaissent ici lorsque vous êtes connecté.</section>
 <section><a class="upgradeCta" href="pricing.html">Découvrir HERIT Pro →</a></section>
 <script type="module">
-import { cloudGetSession, cloudLibrary } from './cloud.js?v=1.3';
+import { cloudGetSession, cloudLibrary } from './cloud.js?v=2.18-audit1';
 
 const S='herit.savedBuildings',H='herit.history',O='herit.observations';let tab='saved';let cloudData=null;
 function read(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}}
