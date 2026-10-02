@@ -662,7 +662,7 @@ async function nominatimReverse(lat,lon){
   const wait=Math.max(0,1100-(Date.now()-lastNominatimAt)); if(wait)await sleep(wait);
   lastNominatimAt=Date.now();
   const url='https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat='+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lon)+'&accept-language='+encodeURIComponent(currentLocale());
-  const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
+  const r=await fetchWithTimeout(url,{headers:{Accept:'application/json'},cache:'no-store'},5000);
   if(!r.ok)throw new Error('Global geocoder '+r.status);
   const d=await r.json();
   const a=d.address||{};
