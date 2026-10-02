@@ -46,10 +46,18 @@ export async function loadBuildingsNear(lat, lon, {radiusM=DEFAULT_RADIUS_M, for
   const bbox = bboxAround(lat, lon, radiusM).map(v => v.toFixed(7)).join(',');
   const url = `${RNB_ITEMS}?bbox=${encodeURIComponent(bbox)}&limit=100`;
   try {
-    const r = await fetch(url, {
-      headers: {'Accept':'application/geo+json, application/json'},
-      cache:'no-store'
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+    let r;
+    try {
+      r = await fetch(url, {
+        headers: {'Accept':'application/geo+json, application/json'},
+        cache:'no-store',
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timer);
+    }
     if (!r.ok) throw new Error(`RNB HTTP ${r.status}`);
     const geo = await r.json();
     const features = (geo.features || []).map(normalizeFeature).filter(Boolean);
