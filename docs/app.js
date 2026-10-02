@@ -1043,6 +1043,19 @@ async function refreshConstructionHistory(){
 }
 
 
+function wireModuleCards(){
+  const bind=(id,action)=>{
+    const el=$(id); if(!el||el.dataset.wired==='1')return;
+    el.dataset.wired='1'; el.setAttribute('role','button'); el.setAttribute('tabindex','0');
+    const run=()=>action();
+    el.addEventListener('click',run);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();run();}});
+  };
+  bind('constructionHistoryCard',refreshConstructionHistory);
+  bind('futureContextCard',refreshFutureContext);
+}
+wireModuleCards();
+
 async function refreshBuildingBrief(){
   const card=$('buildingBriefCard'),title=$('buildingBriefTitle'),summary=$('buildingBriefSummary'),badge=$('buildingBriefBadge'),signals=$('buildingBriefSignals');
   if(!card||!title||!summary||!badge||!signals)return;
