@@ -1,5 +1,5 @@
 const CACHE='herit-lens-shell-v218-audit1';
-const ASSETS=['./','./index.html','./styles.css?v=2.17','./app.js?v=2.17.3','./cloud.js?v=2.17','./i18n.js?v=1.0','./targeting.js','./buildings.js','./manifest.webmanifest','./icon.svg','./about.html','./sources.html','./privacy.html','./legal.html','./terms.html','./pricing.html','./dashboard.html','./coverage.html','./test-mode-v25.html','./prospects.html','./info.css?v=2.17'];
+const ASSETS=['./','./index.html','./styles.css?v=2.18-audit1','./app.js?v=2.18-audit1','./cloud.js?v=2.18-audit1','./i18n.js?v=1.0','./targeting.js','./buildings.js','./manifest.webmanifest','./icon.svg','./about.html','./sources.html','./privacy.html','./legal.html','./terms.html','./pricing.html','./dashboard.html','./coverage.html','./test-mode-v25.html','./prospects.html','./info.css?v=2.18-audit1'];
 self.addEventListener('install',e=>e.waitUntil(
   caches.open(CACHE)
     .then(async c=>{ await Promise.allSettled(ASSETS.map(asset=>c.add(asset))); })
