@@ -10,6 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css?v=2.21-decision1" />
+  <link rel="stylesheet" href="building-sheet.css?v=2.22-demo1" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -157,21 +158,80 @@
     </details>
 
     <section id="buildingSheet" class="buildingSheet hidden" aria-hidden="true">
-      <button id="sheetBackdrop" class="sheetBackdrop" aria-label="Fermer"></button>
-      <div class="sheetPanel">
+      <button id="sheetBackdrop" class="sheetBackdrop" aria-label="Fermer la fiche"></button>
+      <div class="sheetPanel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1">
         <div class="sheetHandle"></div>
         <div class="sheetHead">
           <div>
-            <div class="eyebrow">HERIT · BÂTIMENT IDENTIFIÉ</div>
-            <h2 id="sheetTitle">Bâtiment</h2>
+            <div class="eyebrow">HERIT · FICHE BÂTIMENT</div>
+            <h2 id="sheetTitle">Identification en cours</h2>
+            <span id="sheetLocality" class="sheetLocality">Recherche de l’adresse…</span>
           </div>
-          <button id="closeSheet" class="sheetClose" aria-label="Fermer">×</button>
+          <button id="closeSheet" class="sheetClose" aria-label="Fermer la fiche">×</button>
         </div>
-        <div class="addressBlock">
-          <small>ADRESSE</small>
+        <div class="addressBlock" role="status" aria-live="polite">
+          <small>RÉSOLUTION DE L’ADRESSE</small>
           <strong id="sheetAddress">Recherche de l’adresse…</strong>
-          <span id="sheetLocality">—</span>
         </div>
+        <div class="buildingTruthBar">
+          <div><small>IDENTITÉ</small><strong id="identityStatus">Bâtiment identifié</strong><span id="identityEvidence">RNB · adresse officielle</span></div>
+          <div class="truthConfidence"><small>CONFIANCE CIBLAGE</small><strong id="identityConfidence">—</strong></div>
+        </div>
+        <div class="heritSectionTitle"><small>VOTRE POINT DE DÉPART</small><strong>Les informations disponibles</strong></div>
+<div id="buildingFactsCard" class="moduleCard">
+  <div>
+    <strong>Données bâtiment</strong>
+    <span id="buildingFactsText">Données complémentaires non chargées.</span>
+  </div>
+  <span id="buildingFactsBadge" class="moduleTag pro">DATA</span>
+</div>
+        <div id="constructionHistoryCard" class="moduleCard">
+  <div>
+    <strong>Construction & autorisations</strong>
+    <span id="constructionHistoryText">Historique récent SITADEL.</span>
+  </div>
+  <span id="constructionHistoryBadge" class="moduleTag pro">5 ANS</span>
+</div>
+        <p class="sheetDataNote">Une donnée absente reste à vérifier. Le ciblage ne remplace pas une vérification sur place.</p>
+        <div class="heritSectionTitle actionTitle"><small>AGIR</small><strong>Que voulez-vous faire ?</strong></div><div class="sheetActions">
+          <button id="saveBuildingBtn" class="sheetPrimary">Enregistrer ce bâtiment</button>
+          <button id="addProspectBtn" class="sheetObserve">Créer une opportunité</button>
+          <button id="addObservationBtn" class="sheetObserve">Ajouter une observation</button>
+          <a href="pricing.html" class="sheetPro">Passer à HERIT Pro</a>
+        </div>
+        <details class="sheetAdvanced">
+          <summary>Analyses et informations complémentaires</summary>
+<div id="buildingBriefCard" class="buildingBriefCard">
+  <div class="buildingBriefHead">
+    <div><small>SYNTHÈSE HERIT</small><strong id="buildingBriefTitle">Synthèse décisionnelle</strong></div>
+    <span id="buildingBriefBadge">—%</span>
+  </div>
+  <p id="buildingBriefSummary">La synthèse apparaîtra lorsque suffisamment de données seront disponibles.</p>
+  <div id="buildingBriefSignals" class="buildingBriefSignals"></div>
+</div>
+<div id="futureContextCard" class="moduleCard">
+  <div>
+    <strong>Historique et contexte</strong>
+    <span id="futureContextText">Timeline, composants et contexte spatial.</span>
+  </div>
+  <span id="futureContextBadge" class="moduleTag pro">GRAPH</span>
+</div>
+<div id="opportunityCard" class="moduleCard">
+  <div><strong>Potentiel du bâtiment</strong><span id="opportunityText">Potentiel non calculé pour le moment.</span></div>
+  <span id="opportunityScore" class="moduleTag pro">—</span>
+</div>
+          <details class="sheetForecast">
+            <summary>Prévisions · non validées</summary>
+        <div class="heritSectionTitle weatherTitle"><small>MÉTÉO DU BÂTIMENT</small><strong>Faut-il agir sur ce bâtiment ?</strong></div>
+        <div class="weatherCard" id="weatherCard">
+          <div class="weatherMetric"><small>PRESSURE</small><strong id="weatherPressure">—</strong><span>Signaux disponibles</span></div>
+          <div class="weatherMetric"><small>MOMENTUM</small><strong id="weatherMomentum">—</strong><span>Évolution des signaux</span></div>
+          <div class="weatherMetric"><small>FRONT</small><strong id="weatherFront">—</strong><span>Événements détectés</span></div>
+          <div class="weatherForecast"><small>FORECAST</small><strong id="weatherForecast">En apprentissage</strong><span id="weatherReason">Aucune prédiction n’est affichée sans preuve Replay suffisante.</span></div>
+        </div>
+          </details>
+          <div id="modeModules" class="modeModules"></div>
+        </details>
         <details class="identityTech"><summary>Informations techniques</summary><div class="sheetGrid">
           <div><small>ID RNB</small><strong id="sheetRnb">—</strong></div>
           <div><small>Distance</small><strong id="sheetDistance">—</strong></div>
@@ -181,62 +241,10 @@
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
           <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
         </div></details>
-        <div class="buildingTruthBar">
-          <div><small>IDENTITÉ</small><strong id="identityStatus">Bâtiment identifié</strong><span id="identityEvidence">RNB · adresse officielle</span></div>
-          <div class="truthConfidence"><small>CONFIANCE CIBLAGE</small><strong id="identityConfidence">—</strong></div>
-        </div>
-        <div class="heritSectionTitle weatherTitle"><small>MÉTÉO DU BÂTIMENT</small><strong>Faut-il agir sur ce bâtiment ?</strong></div>
-        <div class="weatherCard" id="weatherCard">
-          <div class="weatherMetric"><small>PRESSURE</small><strong id="weatherPressure">—</strong><span>Signaux disponibles</span></div>
-          <div class="weatherMetric"><small>MOMENTUM</small><strong id="weatherMomentum">—</strong><span>Évolution des signaux</span></div>
-          <div class="weatherMetric"><small>FRONT</small><strong id="weatherFront">—</strong><span>Événements détectés</span></div>
-          <div class="weatherForecast"><small>FORECAST</small><strong id="weatherForecast">En apprentissage</strong><span id="weatherReason">Aucune prédiction n’est affichée sans preuve Replay suffisante.</span></div>
-        </div>
-        <div class="heritSectionTitle"><small>PREUVES</small><strong>Ce que HERIT sait de ce bâtiment</strong></div>
-        <div id="constructionHistoryCard" class="moduleCard">
-  <div>
-    <strong>Construction & autorisations</strong>
-    <span id="constructionHistoryText">Historique récent SITADEL.</span>
-  </div>
-  <span id="constructionHistoryBadge" class="moduleTag pro">5 ANS</span>
-</div>
-<div id="futureContextCard" class="moduleCard">
-  <div>
-    <strong>HERIT Building Graph</strong>
-    <span id="futureContextText">Timeline, composants et contexte spatial.</span>
-  </div>
-  <span id="futureContextBadge" class="moduleTag pro">GRAPH</span>
-</div>
-<div id="buildingFactsCard" class="moduleCard">
-  <div>
-    <strong>Données bâtiment</strong>
-    <span id="buildingFactsText">Données complémentaires non chargées.</span>
-  </div>
-  <span id="buildingFactsBadge" class="moduleTag pro">DATA</span>
-</div>
-<div id="buildingBriefCard" class="buildingBriefCard">
-  <div class="buildingBriefHead">
-    <div><small>HERIT DECISION BRIEF</small><strong id="buildingBriefTitle">Synthèse décisionnelle</strong></div>
-    <span id="buildingBriefBadge">—%</span>
-  </div>
-  <p id="buildingBriefSummary">La synthèse apparaîtra lorsque suffisamment de données seront disponibles.</p>
-  <div id="buildingBriefSignals" class="buildingBriefSignals"></div>
-</div>
-<div id="opportunityCard" class="moduleCard">
-  <div><strong>Opportunity Score</strong><span id="opportunityText">Potentiel non calculé pour le moment.</span></div>
-  <span id="opportunityScore" class="moduleTag pro">—</span>
-</div>
-<div id="modeModules" class="modeModules"></div>
-        <div class="heritSectionTitle actionTitle"><small>AGIR</small><strong>Que voulez-vous faire ?</strong></div><div class="sheetActions">
-          <button id="saveBuildingBtn" class="sheetPrimary">Surveiller ce bâtiment</button>
-          <button id="addProspectBtn" class="sheetObserve">Créer une opportunité</button>
-          <button id="addObservationBtn" class="sheetObserve">Ajouter une observation</button>
-          <a href="pricing.html" class="sheetPro">Passer à HERIT Pro</a>
-        </div>
         <div class="sheetSource">
-          <span>Source actuelle</span>
-          <strong>RNB · BAN · BDNB · SITADEL</strong>
-          <p>HERIT conserve la provenance de chaque donnée. Les données absentes ou insuffisantes ne sont pas inventées.</p>
+          <span>TRAÇABILITÉ</span>
+          <strong>Les sources sont indiquées avec les résultats</strong>
+          <p>Une adresse à proximité est un repère, pas une confirmation du bâtiment. Aucun diagnostic ni aucune prédiction ne sont déduits de la seule image.</p>
         </div>
       </div>
     </section>
@@ -384,6 +392,7 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=2.21-decision1"></script>
+  <script type="module" src="app.js?v=2.22-demo1"></script>
+  <script type="module" src="sheet-dialog.js?v=2.22-demo1"></script>
 </body>
 </html>
