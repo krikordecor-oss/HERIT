@@ -64,6 +64,14 @@ function openSheet(){
   $('sheetConfidence').textContent=state.currentConfidence!=null?`${state.currentConfidence}%`:'—';
   $('sheetAccuracy').textContent=state.position?`±${Math.round(state.position.accuracy)} m`:'—';
   $('sheetNearby').textContent=`${state.features.length}`;
+  if($('identityConfidence')) $('identityConfidence').textContent=state.currentConfidence!=null?`${state.currentConfidence}%`:'—';
+  if($('identityStatus')) $('identityStatus').textContent=state.currentConfidence>=82?'Identité confirmée':'Identité probable';
+  if($('identityEvidence')) $('identityEvidence').textContent=(p.rnb_id?'RNB':'Source bâtiment')+' · provenance conservée';
+  if($('weatherPressure')) $('weatherPressure').textContent='—';
+  if($('weatherMomentum')) $('weatherMomentum').textContent='—';
+  if($('weatherFront')) $('weatherFront').textContent='—';
+  if($('weatherForecast')) $('weatherForecast').textContent='En apprentissage';
+  if($('weatherReason')) $('weatherReason').textContent='Aucune prédiction n’est affichée sans preuve Replay suffisante.';
   $('buildingSheet').classList.remove('hidden');
   $('buildingSheet').setAttribute('aria-hidden','false');
 }
@@ -349,7 +357,7 @@ function refreshSaveButton(){
   const item=buildingSnapshot(),btn=$('saveBuildingBtn');
   if(!btn||!item)return;
   const saved=isSaved(item.id);
-  btn.textContent=saved?'Bâtiment enregistré':'Enregistrer ce bâtiment';
+  btn.textContent=saved?'Bâtiment surveillé':'Surveiller ce bâtiment';
   btn.classList.toggle('saved',saved);
 }
 function openModeSheet(){
