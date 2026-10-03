@@ -291,3 +291,12 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
 .sheetActions .sheetPrimary{grid-column:1/-1}
 .sheetSource{margin-top:24px;opacity:.55}
 @media(max-width:620px){.buildingSheet .sheetPanel{padding-left:14px;padding-right:14px}.buildingSheet .sheetHead h2{font-size:32px}.buildingSheet .addressBlock strong{font-size:20px}}
+
+
+/* HERIT 2.21 — decision-first building sheet */
+.buildingTruthBar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin:10px 0 18px;padding:13px 15px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.075)}
+.buildingTruthBar small,.buildingTruthBar strong,.buildingTruthBar span{display:block}.buildingTruthBar small{font-size:8px;letter-spacing:.14em;opacity:.4}.buildingTruthBar strong{font-size:13px;margin-top:4px}.buildingTruthBar span{font-size:10px;opacity:.48;margin-top:3px}.truthConfidence{text-align:right}.truthConfidence strong{font-size:18px}
+.weatherTitle{margin-top:8px}.weatherCard{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:22px}.weatherMetric,.weatherForecast{padding:13px;border-radius:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.075)}
+.weatherMetric small,.weatherMetric strong,.weatherMetric span,.weatherForecast small,.weatherForecast strong,.weatherForecast span{display:block}.weatherMetric small,.weatherForecast small{font-size:8px;letter-spacing:.12em;opacity:.42}.weatherMetric strong{font-size:20px;margin:5px 0}.weatherMetric span,.weatherForecast span{font-size:9px;line-height:1.35;opacity:.42}
+.weatherForecast{grid-column:1/-1;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.035))}.weatherForecast strong{font-size:16px;margin:5px 0}.weatherForecast span{font-size:10px;max-width:520px}
+@media(max-width:380px){.weatherCard{grid-template-columns:1fr}.weatherForecast{grid-column:auto}}
