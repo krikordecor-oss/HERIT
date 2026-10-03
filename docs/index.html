@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.20-sheet1" />
+  <link rel="stylesheet" href="styles.css?v=2.21-decision1" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -181,7 +181,18 @@
           <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
           <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
         </div></details>
-        <div class="heritSectionTitle"><small>À SAVOIR</small><strong>Ce que HERIT sait de ce bâtiment</strong></div>
+        <div class="buildingTruthBar">
+          <div><small>IDENTITÉ</small><strong id="identityStatus">Bâtiment identifié</strong><span id="identityEvidence">RNB · adresse officielle</span></div>
+          <div class="truthConfidence"><small>CONFIANCE CIBLAGE</small><strong id="identityConfidence">—</strong></div>
+        </div>
+        <div class="heritSectionTitle weatherTitle"><small>MÉTÉO DU BÂTIMENT</small><strong>Faut-il agir sur ce bâtiment ?</strong></div>
+        <div class="weatherCard" id="weatherCard">
+          <div class="weatherMetric"><small>PRESSURE</small><strong id="weatherPressure">—</strong><span>Signaux disponibles</span></div>
+          <div class="weatherMetric"><small>MOMENTUM</small><strong id="weatherMomentum">—</strong><span>Évolution des signaux</span></div>
+          <div class="weatherMetric"><small>FRONT</small><strong id="weatherFront">—</strong><span>Événements détectés</span></div>
+          <div class="weatherForecast"><small>FORECAST</small><strong id="weatherForecast">En apprentissage</strong><span id="weatherReason">Aucune prédiction n’est affichée sans preuve Replay suffisante.</span></div>
+        </div>
+        <div class="heritSectionTitle"><small>PREUVES</small><strong>Ce que HERIT sait de ce bâtiment</strong></div>
         <div id="constructionHistoryCard" class="moduleCard">
   <div>
     <strong>Construction & autorisations</strong>
@@ -217,9 +228,9 @@
 </div>
 <div id="modeModules" class="modeModules"></div>
         <div class="heritSectionTitle actionTitle"><small>AGIR</small><strong>Que voulez-vous faire ?</strong></div><div class="sheetActions">
-          <button id="saveBuildingBtn" class="sheetPrimary">Enregistrer ce bâtiment</button>
+          <button id="saveBuildingBtn" class="sheetPrimary">Surveiller ce bâtiment</button>
+          <button id="addProspectBtn" class="sheetObserve">Créer une opportunité</button>
           <button id="addObservationBtn" class="sheetObserve">Ajouter une observation</button>
-          <button id="addProspectBtn" class="sheetObserve">Ajouter aux prospects</button>
           <a href="pricing.html" class="sheetPro">Passer à HERIT Pro</a>
         </div>
         <div class="sheetSource">
@@ -373,6 +384,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=2.19-address2"></script>
+  <script type="module" src="app.js?v=2.21-decision1"></script>
 </body>
 </html>
