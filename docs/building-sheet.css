@@ -1,0 +1,57 @@
+/* The building sheet has its own presentation layer, independent of targeting. */
+.buildingSheet { --sheet-muted: #acb8c5; --sheet-accent: #c9dccd; }
+.buildingSheet .sheetPanel {
+  max-width: 640px;
+  margin-inline: auto;
+  max-height: 90vh;
+  max-height: 90dvh;
+  padding: 10px 22px calc(24px + env(safe-area-inset-bottom));
+  background: linear-gradient(160deg, #17232b, #0c141c 48%);
+  border: 1px solid #34424c;
+  border-bottom: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.buildingSheet .sheetHead { gap: 12px; margin: 20px 0 14px; }
+.buildingSheet .sheetHead > div { min-width: 0; }
+.buildingSheet .eyebrow { color: var(--sheet-accent); opacity: 1; font-size: 10px; letter-spacing: .16em; }
+.buildingSheet .sheetHead h2 { font-size: clamp(26px, 7vw, 36px); line-height: 1.12; margin-top: 10px; overflow-wrap: anywhere; }
+.sheetLocality { display: block; color: var(--sheet-muted); margin-top: 8px; font-size: 14px; line-height: 1.4; }
+.buildingSheet .sheetClose { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 50%; }
+.buildingSheet .addressBlock { margin: 0 0 12px; padding: 11px 13px; border-radius: 12px; background: #ffffff05; }
+.buildingSheet .addressBlock small { color: var(--sheet-muted); opacity: 1; font-size: 9px; }
+.buildingSheet .addressBlock strong { font-size: 12px; line-height: 1.5; font-weight: 500; margin-top: 3px; color: #dce4eb; }
+.buildingSheet .buildingTruthBar { padding: 12px 13px; margin: 0 0 20px; background: #c9dccd09; border-color: #c9dccd25; }
+.buildingSheet .buildingTruthBar small { font-size: 8px; opacity: 1; color: var(--sheet-muted); }
+.buildingSheet .buildingTruthBar span { font-size: 11px; opacity: 1; line-height: 1.4; color: var(--sheet-muted); }
+.buildingSheet .truthConfidence { max-width: 90px; }
+.buildingSheet .truthConfidence strong { color: var(--sheet-accent); }
+.buildingSheet .heritSectionTitle small { opacity: 1; color: var(--sheet-muted); }
+.buildingSheet .heritSectionTitle strong { font-size: 18px; line-height: 1.3; }
+.buildingSheet .moduleCard { padding: 15px; border-radius: 14px; }
+.buildingSheet .moduleCard > div > span { opacity: 1; color: var(--sheet-muted); line-height: 1.5; font-size: 12px; }
+.sheetDataNote { color: var(--sheet-muted); font-size: 12px; line-height: 1.5; margin: 12px 2px 20px; }
+.buildingSheet .actionTitle { margin-top: 20px; }
+.buildingSheet .sheetPrimary { background: var(--sheet-accent); }
+.buildingSheet .sheetPrimary.saved { background: #c9dccd15; color: #fff; }
+.buildingSheet .sheetActions > * { min-height: 48px; font-size: 13px !important; }
+.sheetAdvanced, .sheetForecast { border-top: 1px solid #ffffff18; margin-top: 20px; }
+.sheetAdvanced > summary, .sheetForecast > summary, .buildingSheet .identityTech > summary {
+  padding: 17px 2px; min-height: 48px; font-size: 13px; line-height: 1.4;
+  color: #c7d1db; cursor: pointer; opacity: 1;
+}
+.sheetForecast > summary { font-size: 12px; }
+.buildingSheet .identityTech { margin: 0; }
+.buildingSheet .sheetSource { opacity: 1; margin-top: 16px; }
+.buildingSheet .sheetSource span, .buildingSheet .sheetSource p { color: var(--sheet-muted); opacity: 1; }
+.buildingSheet .sheetSource strong { font-size: 12px; line-height: 1.5; }
+.buildingSheet :focus-visible { outline: 2px solid var(--sheet-accent); outline-offset: 4px; }
+@media (max-width: 380px) {
+  .buildingSheet .sheetPanel { padding-inline: 16px; }
+  .buildingSheet .sheetHead h2 { font-size: 26px; }
+  .buildingSheet .sheetActions { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .buildingSheet:not(.hidden) .sheetPanel { animation: sheet-enter .22s ease-out; }
+  @keyframes sheet-enter { from { transform: translateY(24px); opacity: .7; } to { transform: translateY(0); opacity: 1; } }
+}

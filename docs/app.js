@@ -30,7 +30,7 @@ import { loadBuildingsNear } from './buildings.js';
 
 const $ = id => document.getElementById(id);
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false,currentHit:null,currentConfidence:null,geoContext:null};
+const state={position:null,heading:null,features:[],watchId:null,lastLoadPosition:null,loading:false,currentHit:null,currentConfidence:null,geoContext:null,sheetRevision:0};
 
 function sourceFactEl(){
   return $('sourceFact') || document.querySelector('.targetFacts > div:nth-child(2) strong');
@@ -56,8 +56,11 @@ $('drawerBackdrop').addEventListener('click',closeMenu);
 
 function openSheet(){
   if(!state.currentHit)return;
+  state.sheetRevision++;
+  state.geoContext=null; state.banContext=null;
+  state.currentCloudBuildingId=null; state.currentCloudScanId=null;
   const hit=state.currentHit, p=hit.feature.properties||{};
-  $('sheetTitle').textContent=labelFor(hit.feature);
+  $('sheetTitle').textContent=featureAddress(hit.feature)||'Bâtiment sélectionné';
   $('sheetRnb').textContent=p.rnb_id||p.id||hit.feature.id||'—';
   $('sheetDistance').textContent=`${Math.round(hit.distance)} m`;
   $('sheetMode').textContent=modeLabel(hit.mode);
@@ -65,8 +68,8 @@ function openSheet(){
   $('sheetAccuracy').textContent=state.position?`±${Math.round(state.position.accuracy)} m`:'—';
   $('sheetNearby').textContent=`${state.features.length}`;
   if($('identityConfidence')) $('identityConfidence').textContent=state.currentConfidence!=null?`${state.currentConfidence}%`:'—';
-  if($('identityStatus')) $('identityStatus').textContent=state.currentConfidence>=82?'Identité confirmée':'Identité probable';
-  if($('identityEvidence')) $('identityEvidence').textContent=(p.rnb_id?'RNB':'Source bâtiment')+' · provenance conservée';
+  if($('identityStatus')) $('identityStatus').textContent='Cible à vérifier sur place';
+  if($('identityEvidence')) $('identityEvidence').textContent=(p.rnb_id?'Référentiel RNB':'Source bâtiment')+' · score de ciblage indicatif';
   if($('weatherPressure')) $('weatherPressure').textContent='—';
   if($('weatherMomentum')) $('weatherMomentum').textContent='—';
   if($('weatherFront')) $('weatherFront').textContent='—';
@@ -76,6 +79,7 @@ function openSheet(){
   $('buildingSheet').setAttribute('aria-hidden','false');
 }
 function closeSheet(){
+  state.sheetRevision++;
   $('buildingSheet').classList.add('hidden');
   $('buildingSheet').setAttribute('aria-hidden','true');
 }
@@ -168,9 +172,13 @@ function startGPS(){
     enableHighAccuracy:true,maximumAge:1000,timeout:12000
   });
 }
+function featureAddress(feature){
+  const p=feature?.properties||{};
+  return [p.address,p.adresse].find(value=>typeof value==='string'&&value.trim())?.trim()||null;
+}
 function labelFor(feature){
   const p=feature.properties||{};
-  return p.address||p.adresse||p.rnb_id||p.id||feature.id||'Bâtiment';
+  return featureAddress(feature)||p.rnb_id||p.id||feature.id||'Bâtiment';
 }
 function modeLabel(mode){
   if(mode==='ray')return'Intersection directe';
@@ -253,6 +261,8 @@ function setDetectedCardState(active){
   }
 }
 function updateTarget(){
+  // Keep actions and async data attached to the building displayed in the sheet.
+  if(!$('buildingSheet').classList.contains('hidden'))return;
   if(!state.position||state.heading==null)return;
   const hit=selectTarget({origin:state.position,heading:state.heading,features:state.features,maxDistance:180,fallbackConeDeg:9,pointConeDeg:7});
   pushTargetSample(hit);
@@ -338,9 +348,11 @@ function buildingSnapshot(){
   const hit=state.currentHit;
   if(!hit)return null;
   const p=hit.feature.properties||{};
+  const address=!$('buildingSheet').classList.contains('hidden')&&!state.banContext?.approximate?state.banContext?.label:null;
   return {
     id:p.rnb_id||p.id||hit.feature.id||labelFor(hit.feature),
-    label:labelFor(hit.feature),
+    label:address||labelFor(hit.feature),
+    address:address||featureAddress(hit.feature),
     rnb_id:p.rnb_id||null,
     distance:Math.round(hit.distance),
     confidence:state.currentConfidence,
@@ -357,7 +369,7 @@ function refreshSaveButton(){
   const item=buildingSnapshot(),btn=$('saveBuildingBtn');
   if(!btn||!item)return;
   const saved=isSaved(item.id);
-  btn.textContent=saved?'Bâtiment surveillé':'Surveiller ce bâtiment';
+  btn.textContent=saved?'Bâtiment enregistré':'Enregistrer ce bâtiment';
   btn.classList.toggle('saved',saved);
 }
 function openModeSheet(){
@@ -399,7 +411,7 @@ openSheet=function(){
 setMode(getMode());
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=2.19-address2').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=2.22-demo1').catch(()=>{}));
 }
 
 
@@ -438,7 +450,7 @@ async function addressFromRnb(feature){
       a.street||a.street_name||a.road||''
     ].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
     const label=a.full_address||a.label||a.address||a.street_address||streetLine||null;
-    if(!label)return null;
+    if(typeof label!=='string'||!label.trim())return null;
     return {
       label,
       city:a.city||a.city_name||a.commune||'',
@@ -451,9 +463,11 @@ async function addressFromRnb(feature){
 }
 async function reverseAddress(feature){
   const p=feature?.properties||{};
-  const existing=p.address||p.adresse||null;
-  if(existing)return {label:existing,city:p.city||p.commune||'',postcode:p.postcode||p.code_postal||'',source:'RNB'};
-  const id=p.rnb_id||feature?.id||'unknown';
+  const existing=featureAddress(feature);
+  if(existing)return {label:existing,city:p.city||p.commune||'',postcode:p.postcode||p.code_postal||'',source:p.rnb_id?'RNB':(p.source||'Source bâtiment')};
+  const center=geometryCenter(feature);
+  const id=p.rnb_id||p.gers_id||p.id||feature?.id||(center?`${center.lat},${center.lon}`:null);
+  if(!id)return null;
   const cache=readAddressCache(); if(cache[id])return cache[id];
   const c=geometryCenter(feature); if(!c)return null;
   try{
@@ -468,7 +482,7 @@ async function reverseAddress(feature){
       label:prop.label||prop.name||prop.street||'Adresse proche',
       city:prop.city||prop.citycode||prop.municipality||'',
       postcode:prop.postcode||'',
-      source:'BAN',
+      source:'Géoplateforme', approximate:true,
       ban_id:prop.id||prop.banId||null,
       citycode:prop.citycode||prop.city_code||null
     };
@@ -508,6 +522,7 @@ function renderModeModules(){
 }
 const openSheet08=openSheet;
 async function resolvePublicBuildingSheet(hit){
+  const revision=state.sheetRevision;
   const addressEl=$('sheetAddress'), localityEl=$('sheetLocality'), countryEl=$('sheetCountry');
   if(addressEl)addressEl.textContent='Recherche de l’adresse…';
   if(localityEl)localityEl.textContent='Résolution des sources publiques…';
@@ -525,9 +540,10 @@ async function resolvePublicBuildingSheet(hit){
     geo:geoResult.status==='fulfilled'?geoResult.value:null
   }));
   const resolved=await Promise.race([sources,deadline]);
+  if(revision!==state.sheetRevision)return;
   if(resolved?.deadline){
     if(addressEl)addressEl.textContent='Adresse temporairement indisponible';
-    if(localityEl)localityEl.textContent='Bâtiment identifié par son ID RNB · réessayer plus tard';
+    if(localityEl)localityEl.textContent='Adresse non vérifiée · réessayez plus tard';
     if(countryEl)countryEl.textContent='—';
     return;
   }
@@ -536,19 +552,23 @@ async function resolvePublicBuildingSheet(hit){
   state.geoContext=geo||null;
   const a=rnbAddress||ban||(geo?{
     label:[geo.house_number,geo.road].filter(Boolean).join(' ')||geo.display_name,
-    city:geo.city, postcode:geo.postcode, source:'OpenStreetMap / Nominatim'
+    city:geo.city, postcode:geo.postcode, source:'OpenStreetMap / Nominatim', approximate:true
   }:null);
   if(countryEl)countryEl.textContent=geo?.country||geo?.country_code||((rnbAddress||ban)?'France':'—');
   if(!a){
     if(addressEl)addressEl.textContent='Adresse non déterminée';
-    if(localityEl)localityEl.textContent='Bâtiment identifié par son ID RNB';
+    if(localityEl)localityEl.textContent='Aucune adresse vérifiée pour ce bâtiment';
     return;
   }
-  state.banContext=a;
-  if(addressEl)addressEl.textContent=a.label||'Adresse non disponible';
-  if(localityEl)localityEl.textContent=[a.postcode,a.city].filter(Boolean).join(' ')||('Source '+(a.source||'publique'));
+  // Reverse geocoding supplies a nearby address, not proof of building identity.
+  const approximate=!rnbAddress && !featureAddress(hit.feature);
+  state.banContext={...a,approximate};
+  const addressLabel=a.label||'Adresse non disponible';
+  $('sheetTitle').textContent=approximate?'Bâtiment sélectionné':addressLabel;
+  if(addressEl)addressEl.textContent=(approximate?'Adresse proche · ':'')+addressLabel;
+  if(localityEl)localityEl.textContent=[[a.postcode,a.city].filter(Boolean).join(' '),'Source '+(a.source||'publique'),approximate?'À confirmer sur place':'Adresse rattachée au bâtiment'].filter(Boolean).join(' · ');
   const item=buildingSnapshot();
-  if(item){item.label=a.label||item.label;item.address=a.label||null;upsertById(STORAGE_HISTORY,item);}
+  if(item){item.label=approximate?('Adresse proche · '+a.label):(a.label||item.label);item.address=approximate?null:(a.label||null);upsertById(STORAGE_HISTORY,item);}
 }
 openSheet=async function(){
   openSheet08();
@@ -619,7 +639,7 @@ function saveObservation(){
     ui_locale:typeof currentLocale==='function'?currentLocale():document.documentElement.lang,
     speech_locale:typeof currentSpeechLocale==='function'?currentSpeechLocale():document.documentElement.lang,
     original_language:typeof currentSpeechLocale==='function'?currentSpeechLocale():document.documentElement.lang,
-    building_country_code:state.geoContext?.country_code||null,
+    building_country_code:state.geoContext?.country_code||(p.rnb_id?'FR':null),
     building_country:state.geoContext?.country||null,
     created_at:new Date().toISOString(),
     targeting:{
@@ -867,14 +887,14 @@ function buildingCloudPayload(){
   return {
     building:{
       external_key:external,
-      country_code:state.geoContext?.country_code||null,
+      country_code:state.geoContext?.country_code||(p.rnb_id?'FR':null),
       primary_source:p.rnb_id?'RNB':'HERIT_TARGETING',
       primary_source_id:p.rnb_id||null,
-      address_original:state.geoContext?.display_name||p.address||p.adresse||null,
-      address_normalized:state.geoContext?.display_name||null,
-      locality:state.geoContext?.city||null,
+      address_original:(!state.banContext?.approximate?state.banContext?.label:null)||featureAddress(hit.feature),
+      address_normalized:!state.banContext?.approximate?(state.banContext?.label||null):null,
+      locality:state.banContext?.city||state.geoContext?.city||null,
       postal_code:state.banContext?.postcode||state.geoContext?.postcode||null,
-      ban_id:state.banContext?.ban_id||null,
+      ban_id:!state.banContext?.approximate?(state.banContext?.ban_id||null):null,
       insee_code:state.banContext?.citycode||null,
       latitude:c.lat,longitude:c.lon
     },
@@ -892,12 +912,14 @@ function buildingCloudPayload(){
   };
 }
 async function syncCurrentScan(){
+  const revision=state.sheetRevision;
   if(!cloudSession?.user||!state.currentHit)return;
   const payload=buildingCloudPayload();if(!payload)return;
   const key=payload.building.external_key;
   if(lastCloudScanKey===key&&state.currentCloudScanId)return;
   try{
     const result=await cloudIngestScan(payload);
+    if(revision!==state.sheetRevision||buildingCloudPayload()?.building.external_key!==key)return;
     state.currentCloudScanId=result.scan_id||null;
     state.currentCloudBuildingId=result.building_id||null;
     lastCloudScanKey=key;
@@ -905,21 +927,30 @@ async function syncCurrentScan(){
 }
 const openSheet12=openSheet;
 openSheet=async function(){
-  // Public identity is the critical path. Cloud/Pro enrichment is best-effort only.
-  const localSheetPromise=Promise.resolve(openSheet12()).catch(e=>{
+  if(!state.currentHit)return;
+  const localSheetPromise=Promise.resolve(openSheet12());
+  const revision=state.sheetRevision;
+  // Clear every previous cloud result immediately, before starting this identity lookup.
+  for(const [id,message] of [['buildingFactsText','Recherche des données du bâtiment…'],['constructionHistoryText','Recherche de l’historique…'],['futureContextText','Recherche du contexte…'],['opportunityText','Données en attente'],['buildingBriefSummary','Données en attente']]){
+    if($(id))$(id).textContent=message;
+  }
+  for(const id of ['buildingFactsBadge','constructionHistoryBadge','futureContextBadge','opportunityScore','buildingBriefBadge'])if($(id))$(id).textContent='—';
+  if($('buildingBriefSignals'))$('buildingBriefSignals').innerHTML='';
+  if($('buildingBriefTitle'))$('buildingBriefTitle').textContent='Synthèse décisionnelle';
+  try{await localSheetPromise;}
+  catch(e){
+    if(revision!==state.sheetRevision)return;
     console.warn('HERIT local sheet',e);
     if($('sheetAddress'))$('sheetAddress').textContent='Adresse temporairement indisponible';
-    if($('sheetLocality'))$('sheetLocality').textContent='Le bâtiment reste utilisable via son ID RNB';
-  });
-  queueMicrotask(()=>Promise.allSettled([
-    syncCurrentScan(),
-    refreshBuildingFacts(),
-    refreshConstructionHistory(),
-    refreshFutureContext(),
-    refreshOpportunityScore(),
-    refreshBuildingBrief()
-  ]));
-  await localSheetPromise;
+    if($('sheetLocality'))$('sheetLocality').textContent='Adresse non vérifiée';
+  }
+  if(revision!==state.sheetRevision)return;
+  await syncCurrentScan();
+  if(revision!==state.sheetRevision)return;
+  await Promise.allSettled([
+    refreshBuildingFacts(), refreshConstructionHistory(), refreshFutureContext(),
+    refreshOpportunityScore(), refreshBuildingBrief()
+  ]);
 };
 
 $('saveObservationBtn')?.addEventListener('click',()=>{
@@ -960,6 +991,7 @@ if(saveBtnCloud){
 }
 
 async function refreshOpportunityScore(){
+  const revision=state.sheetRevision;
   const scoreEl=$('opportunityScore'),textEl=$('opportunityText');
   if(!scoreEl||!textEl)return;
   if(!cloudSession?.user){scoreEl.textContent='—';textEl.textContent='Connectez-vous pour calculer le potentiel de ce bâtiment.';return;}
@@ -967,6 +999,7 @@ async function refreshOpportunityScore(){
   scoreEl.textContent='…'; textEl.textContent='Analyse des données disponibles…';
   try{
     const r=await cloudOpportunity(state.currentCloudBuildingId,'real_estate');
+    if(revision!==state.sheetRevision)return;
     if(r.score_state!=='computed'){
       scoreEl.textContent='—';
       textEl.textContent='Données insuffisantes pour un score fiable. HERIT n’invente pas de note.';
@@ -976,6 +1009,7 @@ async function refreshOpportunityScore(){
     const reasons=(r.reasons||[]).slice(0,2).map(x=>x.label).join(' · ');
     textEl.textContent=(reasons||'Score calculé')+' · confiance '+Math.round(r.confidence_score||0)+'%';
   }catch(e){
+    if(revision!==state.sheetRevision)return;
     scoreEl.textContent='—'; textEl.textContent='Score temporairement indisponible.';
     console.warn('HERIT opportunity score',e);
   }
@@ -1010,16 +1044,18 @@ $('addProspectBtn')?.addEventListener('click',async()=>{
 
 
 async function refreshBuildingFacts(){
+  const revision=state.sheetRevision;
   const textEl=$('buildingFactsText'),badge=$('buildingFactsBadge');
   if(!textEl||!badge)return;
   if(!cloudSession?.user){textEl.textContent='Connectez-vous pour enrichir ce bâtiment.';badge.textContent='DATA';return;}
   if(!state.currentCloudBuildingId){textEl.textContent='Synchronisation du bâtiment…';badge.textContent='…';return;}
   textEl.textContent='Interrogation des sources bâtimentaires…';badge.textContent='…';
   try{
-    const country=String(state.geoContext?.country_code||'').toUpperCase();
+    const country=String(state.geoContext?.country_code||(state.currentHit?.feature?.properties?.rnb_id?'FR':'')).toUpperCase();
     const r=country==='FR'
       ? await cloudEnrichBuilding(state.currentCloudBuildingId)
       : await cloudGlobalEnrich(state.currentCloudBuildingId);
+    if(revision!==state.sheetRevision)return;
     if(r.state!=='enriched'){
       badge.textContent='—';
       textEl.textContent=r.state==='adapter_not_active'
@@ -1042,6 +1078,7 @@ async function refreshBuildingFacts(){
     badge.textContent=r.source==='nl-bag'?'BAG':r.source==='gb-planning'?'UK':r.source==='us-fema-nfhl'?'FEMA':'BDNB';
     textEl.textContent=(parts.length?parts.join(' · '):'Données officielles trouvées')+' · '+(r.source||r.source_name||'HERIT');
   }catch(e){
+    if(revision!==state.sheetRevision)return;
     badge.textContent='—';textEl.textContent='Enrichissement temporairement indisponible.';
     console.warn('HERIT enrichment',e);
   }
@@ -1049,12 +1086,14 @@ async function refreshBuildingFacts(){
 
 
 async function refreshFutureContext(){
+  const revision=state.sheetRevision;
   const textEl=$('futureContextText'),badge=$('futureContextBadge');
   if(!textEl||!badge)return;
   if(!cloudSession?.user){textEl.textContent='Connectez-vous pour ouvrir le Building Graph.';badge.textContent='GRAPH';return;}
   if(!state.currentCloudBuildingId){textEl.textContent='Synchronisation du bâtiment…';badge.textContent='…';return;}
   try{
     const r=await cloudBuildingContext(state.currentCloudBuildingId);
+    if(revision!==state.sheetRevision)return;
     const ctx=r?.context||{};
     const timeline=Array.isArray(ctx.timeline)?ctx.timeline.length:0;
     const components=Array.isArray(ctx.components)?ctx.components.length:0;
@@ -1063,6 +1102,7 @@ async function refreshFutureContext(){
     badge.textContent='GRAPH';
     textEl.textContent=timeline+' événement'+(timeline>1?'s':'')+' · '+transactions+' transaction'+(transactions>1?'s':'')+' · '+components+' composant'+(components>1?'s':'')+' · '+anchors+' ancre'+(anchors>1?'s':'')+' spatiale'+(anchors>1?'s':'');
   }catch(e){
+    if(revision!==state.sheetRevision)return;
     badge.textContent='—';textEl.textContent='Building Graph temporairement indisponible.';
     console.warn('HERIT future context',e);
   }
@@ -1070,6 +1110,7 @@ async function refreshFutureContext(){
 
 
 async function refreshConstructionHistory(){
+  const revision=state.sheetRevision;
   const textEl=$('constructionHistoryText'),badge=$('constructionHistoryBadge');
   if(!textEl||!badge)return;
   if(!cloudSession?.user){
@@ -1084,6 +1125,7 @@ async function refreshConstructionHistory(){
   }
   try{
     const r=await cloudConstructionHistory(state.currentCloudBuildingId);
+    if(revision!==state.sheetRevision)return;
     const recent=Array.isArray(r?.recent_events)?r.recent_events:[];
     if(!recent.length){
       badge.textContent='0';
@@ -1099,6 +1141,7 @@ async function refreshConstructionHistory(){
     badge.textContent=String(recent.length);
     textEl.textContent=bits.join(' · ')+' · source SITADEL/SDES';
   }catch(e){
+    if(revision!==state.sheetRevision)return;
     badge.textContent='—';
     textEl.textContent='Historique construction temporairement indisponible.';
     console.warn('HERIT construction history',e);
@@ -1120,6 +1163,7 @@ function wireModuleCards(){
 wireModuleCards();
 
 async function refreshBuildingBrief(){
+  const revision=state.sheetRevision;
   const card=$('buildingBriefCard'),title=$('buildingBriefTitle'),summary=$('buildingBriefSummary'),badge=$('buildingBriefBadge'),signals=$('buildingBriefSignals');
   if(!card||!title||!summary||!badge||!signals)return;
   if(!cloudSession?.user){
@@ -1132,6 +1176,7 @@ async function refreshBuildingBrief(){
   }
   try{
     const r=await cloudBuildingBrief(state.currentCloudBuildingId);
+    if(revision!==state.sheetRevision)return;
     title.textContent=r.title||'Synthèse décisionnelle';
     summary.textContent=r.summary||'Données insuffisantes pour une synthèse.';
     badge.textContent=Math.round(r.completeness||0)+'%';
@@ -1141,6 +1186,7 @@ async function refreshBuildingBrief(){
     if(!items.length)items.push('<span class="briefSignal muted">Données à compléter</span>');
     signals.innerHTML=items.join('');
   }catch(e){
+    if(revision!==state.sheetRevision)return;
     summary.textContent='Brief temporairement indisponible.';
     badge.textContent='—%';
     console.warn('HERIT building brief',e);
