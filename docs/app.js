@@ -33,6 +33,8 @@ function openSheet(){
   if(!state.currentHit)return;
   const hit=state.currentHit, p=hit.feature.properties||{};
   $('sheetTitle').textContent=labelFor(hit.feature);
+  $('sheetAddress').textContent='Recherche de l’adresse…';
+  $('sheetLocality').textContent='Source BAN / Géoplateforme';
   $('sheetRnb').textContent=p.rnb_id||p.id||hit.feature.id||'—';
   $('sheetDistance').textContent=`${Math.round(hit.distance)} m`;
   $('sheetMode').textContent=modeLabel(hit.mode);
@@ -46,7 +48,7 @@ function closeSheet(){
   $('buildingSheet').classList.add('hidden');
   $('buildingSheet').setAttribute('aria-hidden','true');
 }
-$('openBuildingBtn').addEventListener('click',openSheet);
+$('openBuildingBtn').addEventListener('click',()=>openSheet());
 $('closeSheet').addEventListener('click',closeSheet);
 $('sheetBackdrop').addEventListener('click',closeSheet);
 
@@ -366,7 +368,7 @@ openSheet=function(){
 setMode(getMode());
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=0.9').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=2.17').catch(()=>{}));
 }
 
 
@@ -820,11 +822,13 @@ const openSheet12=openSheet;
 openSheet=async function(){
   await openSheet12();
   await syncCurrentScan();
-  await refreshBuildingFacts();
-  await refreshConstructionHistory();
-  await refreshFutureContext();
-  await refreshOpportunityScore();
-  await refreshBuildingBrief();
+  await Promise.all([
+    refreshBuildingFacts(),
+    refreshConstructionHistory(),
+    refreshFutureContext(),
+    refreshOpportunityScore(),
+    refreshBuildingBrief()
+  ]);
 };
 
 $('saveObservationBtn')?.addEventListener('click',()=>{

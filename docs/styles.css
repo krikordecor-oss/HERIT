@@ -238,3 +238,17 @@ main{position:fixed;inset:0;z-index:2}.reticle{position:absolute;left:50%;top:43
   .targetCard.detectedCompact:not(.detectedExpanded){padding:11px 12px}
   .targetCard.detectedCompact:not(.detectedExpanded) .target{font-size:22px}
 }
+
+/* HERIT 2.17 — fiche bâtiment: faits avant prédictions */
+.sheetHeading{min-width:0}
+.sheetHeading h2{max-width:min(78vw,520px);overflow-wrap:anywhere}
+.sheetLocality{display:block;font-size:12px;line-height:1.35;opacity:.52;margin-top:5px}
+.buildingFactsCard{margin-top:15px}
+.sheetSourcePriority{margin:8px 0 10px}
+.identityDetails{margin:8px 0 10px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.035);overflow:hidden}
+.identityDetails summary{cursor:pointer;list-style:none;padding:12px 13px;font-size:11px;font-weight:800;letter-spacing:.03em;opacity:.72}
+.identityDetails summary::-webkit-details-marker{display:none}
+.identityDetails summary::after{content:'+';float:right;font-size:16px;line-height:.7}
+.identityDetails[open] summary::after{content:'−'}
+.identityDetails .sheetGrid{margin:0;padding:0 10px 10px}
+@media(max-width:620px){.sheetHeading h2{font-size:22px;line-height:1.12}.buildingFactsCard{margin-top:12px}}
