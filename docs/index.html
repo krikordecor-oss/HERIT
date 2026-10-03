@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="HERIT Lens" />
   <link rel="manifest" href="manifest.webmanifest?v=0.4.1" />
   <link rel="icon" href="icon.svg?v=0.4.1" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.16" />
+  <link rel="stylesheet" href="styles.css?v=2.17" />
   <title>HERIT Lens</title>
 </head>
 <body>
@@ -160,70 +160,70 @@
       <div class="sheetPanel">
         <div class="sheetHandle"></div>
         <div class="sheetHead">
-          <div>
+          <div class="sheetHeading">
             <div class="eyebrow">FICHE BÂTIMENT</div>
-            <h2 id="sheetTitle">Bâtiment</h2>
+            <h2 id="sheetAddress">Recherche de l’adresse…</h2>
+            <span id="sheetLocality" class="sheetLocality">Source BAN / Géoplateforme</span>
+            <span id="sheetTitle" hidden>Bâtiment</span>
           </div>
           <button id="closeSheet" class="sheetClose" aria-label="Fermer">×</button>
         </div>
-        <div class="addressBlock">
-          <small>ADRESSE</small>
-          <strong id="sheetAddress">Recherche de l’adresse…</strong>
-          <span id="sheetLocality">—</span>
+        <div id="buildingFactsCard" class="moduleCard buildingFactsCard">
+          <div>
+            <strong>Données bâtiment</strong>
+            <span id="buildingFactsText">Connectez-vous pour enrichir ce bâtiment.</span>
+          </div>
+          <span id="buildingFactsBadge" class="moduleTag pro">DATA</span>
         </div>
-        <div class="sheetGrid">
-          <div><small>ID RNB</small><strong id="sheetRnb">—</strong></div>
-          <div><small>Distance</small><strong id="sheetDistance">—</strong></div>
-          <div><small>Mode de détection</small><strong id="sheetMode">—</strong></div>
-          <div><small>Confiance ciblage</small><strong id="sheetConfidence">—</strong></div>
-          <div><small>Précision GPS</small><strong id="sheetAccuracy">—</strong></div>
-          <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
-          <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
+        <div class="sheetSource sheetSourcePriority">
+          <span>Sources interrogées</span>
+          <strong>RNB · BAN · BDNB · SITADEL</strong>
+          <p>La source exacte accompagne chaque donnée lorsqu’elle est disponible. Les données absentes ou insuffisantes ne sont pas inventées.</p>
         </div>
+        <details class="identityDetails">
+          <summary>Identité &amp; détails techniques</summary>
+          <div class="sheetGrid">
+            <div><small>ID RNB</small><strong id="sheetRnb">—</strong></div>
+            <div><small>Distance</small><strong id="sheetDistance">—</strong></div>
+            <div><small>Mode de détection</small><strong id="sheetMode">—</strong></div>
+            <div><small>Confiance ciblage</small><strong id="sheetConfidence">—</strong></div>
+            <div><small>Précision GPS</small><strong id="sheetAccuracy">—</strong></div>
+            <div><small>Bâtiments proches</small><strong id="sheetNearby">—</strong></div>
+            <div><small>Pays</small><strong id="sheetCountry">—</strong></div>
+          </div>
+        </details>
         <div id="constructionHistoryCard" class="moduleCard">
-  <div>
-    <strong>Construction & autorisations</strong>
-    <span id="constructionHistoryText">Historique récent SITADEL.</span>
-  </div>
-  <span id="constructionHistoryBadge" class="moduleTag pro">5 ANS</span>
-</div>
-<div id="futureContextCard" class="moduleCard">
-  <div>
-    <strong>HERIT Building Graph</strong>
-    <span id="futureContextText">Timeline, composants et contexte spatial.</span>
-  </div>
-  <span id="futureContextBadge" class="moduleTag pro">GRAPH</span>
-</div>
-<div id="buildingFactsCard" class="moduleCard">
-  <div>
-    <strong>Données bâtiment</strong>
-    <span id="buildingFactsText">Connectez-vous pour enrichir ce bâtiment.</span>
-  </div>
-  <span id="buildingFactsBadge" class="moduleTag pro">DATA</span>
-</div>
-<div id="buildingBriefCard" class="buildingBriefCard">
-  <div class="buildingBriefHead">
-    <div><small>HERIT DECISION BRIEF</small><strong id="buildingBriefTitle">Synthèse décisionnelle</strong></div>
-    <span id="buildingBriefBadge">—%</span>
-  </div>
-  <p id="buildingBriefSummary">Connectez-vous pour générer le brief bâtiment.</p>
-  <div id="buildingBriefSignals" class="buildingBriefSignals"></div>
-</div>
-<div id="opportunityCard" class="moduleCard">
-  <div><strong>Opportunity Score</strong><span id="opportunityText">Connectez-vous pour calculer le potentiel de ce bâtiment.</span></div>
-  <span id="opportunityScore" class="moduleTag pro">—</span>
-</div>
-<div id="modeModules" class="modeModules"></div>
+          <div>
+            <strong>Construction &amp; autorisations</strong>
+            <span id="constructionHistoryText">Historique récent SITADEL.</span>
+          </div>
+          <span id="constructionHistoryBadge" class="moduleTag pro">5 ANS</span>
+        </div>
+        <div id="futureContextCard" class="moduleCard">
+          <div>
+            <strong>HERIT Building Graph</strong>
+            <span id="futureContextText">Timeline, composants et contexte spatial.</span>
+          </div>
+          <span id="futureContextBadge" class="moduleTag pro">GRAPH</span>
+        </div>
+        <div id="buildingBriefCard" class="buildingBriefCard">
+          <div class="buildingBriefHead">
+            <div><small>HERIT DECISION BRIEF</small><strong id="buildingBriefTitle">Synthèse décisionnelle</strong></div>
+            <span id="buildingBriefBadge">—%</span>
+          </div>
+          <p id="buildingBriefSummary">Connectez-vous pour générer le brief bâtiment.</p>
+          <div id="buildingBriefSignals" class="buildingBriefSignals"></div>
+        </div>
+        <div id="opportunityCard" class="moduleCard">
+          <div><strong>Opportunity Score</strong><span id="opportunityText">Connectez-vous pour calculer le potentiel de ce bâtiment.</span></div>
+          <span id="opportunityScore" class="moduleTag pro">—</span>
+        </div>
+        <div id="modeModules" class="modeModules"></div>
         <div class="sheetActions">
           <button id="saveBuildingBtn" class="sheetPrimary">Enregistrer ce bâtiment</button>
           <button id="addObservationBtn" class="sheetObserve">Ajouter une observation</button>
           <button id="addProspectBtn" class="sheetObserve">Ajouter aux prospects</button>
           <a href="pricing.html" class="sheetPro">Passer à HERIT Pro</a>
-        </div>
-        <div class="sheetSource">
-          <span>Source actuelle</span>
-          <strong>RNB · BAN · BDNB · SITADEL</strong>
-          <p>HERIT conserve la provenance de chaque donnée. Les données absentes ou insuffisantes ne sont pas inventées.</p>
         </div>
       </div>
     </section>
@@ -371,6 +371,6 @@
     </div>
   </section>
 
-  <script type="module" src="app.js?v=2.16"></script>
+  <script type="module" src="app.js?v=2.17"></script>
 </body>
 </html>
