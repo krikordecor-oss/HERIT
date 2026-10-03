@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+      - recovery/herit-lens-v1.9-2026-10-02
 
 jobs:
   build:
@@ -21,6 +22,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Validate HERIT Lens
+        run: npm run validate:lens
 
       - name: Install dependencies
         run: npm install
