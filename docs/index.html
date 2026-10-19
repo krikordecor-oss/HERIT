@@ -13,20 +13,37 @@
   <title>HERIT Lens</title>
 </head>
 <body>
-  <section id="welcome" class="welcome">
+  <section id="welcome" class="welcome heritWow">
     <button class="menuBtn" id="menuBtn" aria-label="Ouvrir le menu">☰</button>
-    <div class="welcomeGlow"></div>
-    <div class="welcomeContent">
-      <div class="logoMark" aria-hidden="true">
-        <svg viewBox="0 0 100 100">
-          <path d="M20 18v64M80 18v64M20 50h60" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
-          <circle cx="50" cy="50" r="8" fill="currentColor"/>
-        </svg>
+
+    <div class="wowScene" aria-hidden="true">
+      <div class="wowGrid"></div>
+      <div class="wowBuilding">
+        <div class="wowRoof"></div>
+        <div class="wowFacade">
+          <span class="win w1"></span><span class="win w2"></span><span class="win w3"></span>
+          <span class="win w4"></span><span class="win w5"></span><span class="win w6"></span>
+          <span class="door"></span>
+        </div>
+        <div class="wowScan"></div>
+        <div class="wowCorners c1"></div><div class="wowCorners c2"></div><div class="wowCorners c3"></div><div class="wowCorners c4"></div>
       </div>
-      <div class="welcomeBrand">HERIT <span>Lens</span></div>
-      <h1>Regardez un bâtiment.<br>Comprenez-le.</h1>
-      <p>Données, historique et intelligence du bâtiment en un regard.</p>
-      <button id="enterBtn" class="primaryHero">Scanner un bâtiment</button>
+      <div class="wowHud hudA"><small>BÂTIMENT</small><strong>IDENTIFIÉ</strong><span>98% confiance</span></div>
+      <div class="wowHud hudB"><small>DONNÉES</small><strong>24 SOURCES</strong><span>RNB · BAN · BDNB</span></div>
+      <div class="wowHud hudC"><small>HERIT GRAPH</small><strong>EN LIGNE</strong><span>historique + contexte</span></div>
+      <div class="wowPulse"></div>
+    </div>
+
+    <div class="welcomeContent wowContent">
+      <div class="wowTopline">HERIT <span>LENS</span><i></i> VISION BÂTIMENT</div>
+      <h1>Visez un bâtiment.<br><em>HERIT révèle ce qu’il sait.</em></h1>
+      <p>Identité, données, historique, risques et potentiel réunis en quelques secondes.</p>
+
+      <div class="wowProof" aria-hidden="true">
+        <span><b>01</b> VISEZ</span><i></i><span><b>02</b> IDENTIFIEZ</span><i></i><span><b>03</b> COMPRENEZ</span>
+      </div>
+
+      <button id="enterBtn" class="primaryHero wowCta"><span class="wowCtaDot"></span> Scanner un bâtiment <b>→</b></button>
       <div class="privacyHint">Caméra, localisation et orientation sont utilisées uniquement pour identifier le bâtiment visé.</div>
     </div>
   </section>
