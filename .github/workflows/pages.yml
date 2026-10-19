@@ -1,4 +1,5 @@
 name: Deploy HERIT Lens to GitHub Pages
+# Redeploy trigger for HERIT 3.0
 
 on:
   push:
